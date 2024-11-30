@@ -22,6 +22,16 @@ body {
 	border: #000 3px solid;
 	border-radius: 5px;
 	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	flex-direction: column;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+#Song-info-top {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
 }
 
 #Song-info-cover {
@@ -78,16 +88,70 @@ body {
       transform: translateX(0%);
     }
     42% {
-      transform: translateX(calc(-100% + 31vw));
+      transform: translateX(calc(-100% + 30.5vw));
     }
     50% {
-      transform: translateX(calc(-100% + 31vw));
+      transform: translateX(calc(-100% + 30.5vw));
     }
     92% {
       transform: translateX(0%);
     }
 }
 
+/*Artist info*/
+
+#artist-info {
+	width: calc(100% - 2em);
+	height: fit-content;
+	margin: 1em;
+	border: #000 3px solid;
+	border-radius: 5px;
+	display: flex;
+	flex-direction: column;
+}
+
+#artist-info-top {
+	margin-top: -0.5em;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+#Song-info-artist-image {
+	margin: 1em;
+	background-color: #cad3f5;
+	width: calc(15vw - 4em);
+	height: calc(15vw - 4em);
+	border: #000 3px solid;
+	border-radius: 5px;
+}
+
+#general-artist-info {
+	width: 50vw;
+	max-height: calc(15vw - 4em);
+	height: fit-content;
+	display: flex;
+	flex-direction: row;
+	overflow: hidden;
+}
+
+.artist-sub-info{
+	margin-right: 2em;
+	width: 20vw;
+	height: fit-content;
+	font-size: 1.5em;
+	display: flex;
+	flex-direction: column;
+	overflow:visible;
+}
+
+#artist-description {
+	margin-left: 1em;
+	width: calc(100% - 2em);
+	height: fit-content;
+	font-size: 1em;
+	text-align: left;
+}
 
 /*CSS For the audio player*/
 .footer {

@@ -1,10 +1,7 @@
 import csv
 import os
 import requests
-import time
-import math
 from pathlib import Path
-import keyboard
 from time import monotonic
 
 start = monotonic()
@@ -60,12 +57,9 @@ with open(input_file, mode='r', encoding='utf-8') as csvfile:
         if i < start_index:
             continue
 
-        file_path = Path(row['file'].strip())  # Utiliser Path pour la gestion des chemins
-        if keyboard.is_pressed('`'):  # Si la touche '`' est pressée, on arrête la boucle
-            print("\n{purple}Download process interrupted by the user.{reset}")
-            break
+        file_path = Path(row['file'].strip())
 
-        if not file_path.is_file():  # Vérifier si le fichier existe déjà localement
+        if not file_path.is_file():
             file_url = base_url + str(file_path)
             os.makedirs(file_path.parent, exist_ok=True)
             try:

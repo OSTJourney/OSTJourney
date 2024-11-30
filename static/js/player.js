@@ -87,6 +87,7 @@ function formatDuration(duration) {
 
 window.onload = function () {
     song = Math.floor(Math.random() * 32018);
+	song = 15697;
     load_song(song);
 };
 
@@ -228,7 +229,7 @@ document.getElementById('player-button-next').addEventListener('click', function
 	if (random == 1) {
 		change_song(Math.floor(Math.random() * 32018));
 	} else {
-		change_song(song - 1);
+		change_song(song + 1);
 	}
 	
 });
@@ -237,7 +238,7 @@ document.getElementById('player-button-back').addEventListener('click', function
     if (random == 1) {
 		change_song(Math.floor(Math.random() * 32018));
 	} else {
-		change_song(song + 1);
+		change_song(song - 1);
 	}
 });
 
@@ -251,6 +252,7 @@ var song_info_num = document.getElementById('Song-info-num');
 var song_info_title = document.getElementById('Song-info-title');
 var song_info_artist = document.getElementById('Song-info-artist');
 var song_info_album = document.getElementById('Song-info-album');
+var song_info_genre = document.getElementById('Song-info-genre');
 
 var song_info_status = 0;
 
@@ -277,7 +279,7 @@ document.addEventListener('click', (event) => {
 
 function shouldScroll(element) {
     const width = element.offsetWidth;
-    return width > (window.innerWidth * 31 / 100);
+    return width > (window.innerWidth * 30.5 / 100);
 }
 
 function load_song_info(songNumber) {
@@ -323,20 +325,21 @@ function load_song_info(songNumber) {
 			song_info_title.innerHTML = "<span>Title:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-title-scroll'>" + title + "</span> </div>";
 			song_info_artist.innerHTML = "<span>Artist:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-artist-scroll'>" + artist + "</span> </div>";
 			song_info_album.innerHTML = "<span>Album:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-album-scroll'>" + album + "</span> </div>";
+			song_info_genre.innerHTML = "<span>Genre:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-genre-scroll'>" + tconValue + "</span> </div>";
 
 			document.getElementById('Song-info-year').textContent = "Release date: " + tdrcValue;
 			document.getElementById('Song-info-publisher').textContent = "Publisher: " + tpubValue;
-			document.getElementById('Song-info-genre').textContent = "Genre: " + tconValue;
 			const tposInfo = `Disk: ${tposValue} | No: ${trckValue}`;
 			song_info_num.textContent = tposInfo;
 
 			const coverElement = document.getElementById('Song-info-cover');
 			coverElement.src = cover;
 
-
+			// Ajout du défilement pour chaque élément
 			const scrollElementTitle = document.getElementById('Song-info-title-scroll');
 			const scrollElementArtist = document.getElementById('Song-info-artist-scroll');
 			const scrollElementAlbum = document.getElementById('Song-info-album-scroll');
+			const scrollElementGenre = document.getElementById('Song-info-genre-scroll');
 		
 			document.getElementById('Song-info-title').addEventListener('mouseenter', function () {
 				if (shouldScroll(scrollElementTitle)) {
@@ -353,6 +356,11 @@ function load_song_info(songNumber) {
 					scrollElementAlbum.classList.add('scroll-left-info');
 				}
 			});
+			document.getElementById('Song-info-genre').addEventListener('mouseenter', function () {
+				if (shouldScroll(scrollElementGenre)) {
+					scrollElementGenre.classList.add('scroll-left-info');
+				}
+			});
 
 			document.getElementById('Song-info-title').addEventListener('mouseleave', function () {
 				scrollElementTitle.classList.remove('scroll-left-info');
@@ -363,9 +371,13 @@ function load_song_info(songNumber) {
 			document.getElementById('Song-info-album').addEventListener('mouseleave', function () {
 				scrollElementAlbum.classList.remove('scroll-left-info');
 			});
+			document.getElementById('Song-info-genre').addEventListener('mouseleave', function () {
+				scrollElementGenre.classList.remove('scroll-left-info');
+			});
 
 		})
 		.catch(error => {
 			console.error('Error while getting audio metadata:', error);
 		});
 }
+
