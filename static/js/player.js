@@ -7,18 +7,18 @@ var player_cover = document.getElementById('player-cover');
 const parentWidth = document.getElementById('player-song-info-text').offsetWidth;
 const animationKeyframes = `
   @keyframes scroll-left {
-    0% {
-      transform: translateX(0%);
-    }
-    42% {
-      transform: translateX(calc(-100% + ${parentWidth}px));
-    }
-    50% {
-      transform: translateX(calc(-100% + ${parentWidth}px));
-    }
-    92% {
-      transform: translateX(0%);
-    }
+	0% {
+	  transform: translateX(0%);
+	}
+	42% {
+	  transform: translateX(calc(-100% + ${parentWidth}px));
+	}
+	50% {
+	  transform: translateX(calc(-100% + ${parentWidth}px));
+	}
+	92% {
+	  transform: translateX(0%);
+	}
   }
 `;
 
@@ -28,7 +28,7 @@ document.head.appendChild(styleSheet);
 
 player_info_text.addEventListener('mouseenter', function () {
 	if (player_title.offsetWidth > parentWidth)
-	    player_title.classList.add('scroll-left');
+		player_title.classList.add('scroll-left');
 	if (player_artist.offsetWidth > parentWidth)
 		player_artist.classList.add('scroll-left');
 	if (player_album.offsetWidth > parentWidth)
@@ -36,7 +36,7 @@ player_info_text.addEventListener('mouseenter', function () {
 });
 
 player_info_text.addEventListener('mouseleave', function () {
-    player_title.classList.remove('scroll-left');
+	player_title.classList.remove('scroll-left');
 	player_artist.classList.remove('scroll-left');
 	player_album.classList.remove('scroll-left');
 });
@@ -60,76 +60,85 @@ let player_current_time = document.getElementById("player-current-time");
 let duration = 0;
 
 function updateVolumeIcon() {
-    if (volume.value == 0) {
-        volume_ico.src = "/static/images/player/volume 0.png";
-    } else if (volume.value <= 33) {
-        volume_ico.src = "/static/images/player/volume 33.png";
-    } else if (volume.value <= 66) {
-        volume_ico.src = "/static/images/player/volume 66.png";
-    } else {
-        volume_ico.src = "/static/images/player/volume 100.png";
-    }
+	if (volume.value == 0) {
+		volume_ico.src = "/static/images/player/volume 0.png";
+	} else if (volume.value <= 33) {
+		volume_ico.src = "/static/images/player/volume 33.png";
+	} else if (volume.value <= 66) {
+		volume_ico.src = "/static/images/player/volume 66.png";
+	} else {
+		volume_ico.src = "/static/images/player/volume 100.png";
+	}
 }
 
 function formatDuration(duration) {
-    let formatted = "";
-    let hours = Math.floor(duration / 3600);
-    if (hours > 0) {
-        duration -= hours * 3600;
-        formatted = hours + ":";
-    }
-    let minutes = Math.floor(duration / 60);
-    duration -= minutes * 60;
-    formatted += (minutes < 10 ? "0" : "") + minutes + ":";
-    formatted += (duration < 10 ? "0" : "") + Math.floor(duration);
-    return formatted;
+	let formatted = "";
+	let hours = Math.floor(duration / 3600);
+	if (hours > 0) {
+		duration -= hours * 3600;
+		formatted = hours + ":";
+	}
+	let minutes = Math.floor(duration / 60);
+	duration -= minutes * 60;
+	formatted += (minutes < 10 ? "0" : "") + minutes + ":";
+	formatted += (duration < 10 ? "0" : "") + Math.floor(duration);
+	return formatted;
 }
 
+//15697
 window.onload = function () {
-    song = Math.floor(Math.random() * 32018);
-	song = 15697;
-    load_song(song);
+	const urlParams = new URLSearchParams(window.location.search);
+	if (urlParams.has('song')) {
+		const songParam = parseInt(urlParams.get('song'), 10);
+		if (!isNaN(songParam)) {
+			song = songParam;
+		}
+	} else {
+		song = Math.floor(Math.random() * 32018);
+	}
+	load_song(song);
 };
 
 function load_song(songNumber) {
-    const url = '/api/songs/' + songNumber;
+	const url = '/api/songs/' + songNumber;
 
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const title = data.title;
-            const artist = data.artist;
-            const file = '/songs/' + data.path;
+	fetch(url)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			return response.json();
+		})
+		.then(data => {
+			const title = data.title;
+			const artist = data.artist;
+			const file = '/songs/' + data.path;
 			const cover = '/static/images/covers/' + data.cover + '.jpg'
-            const album = data.album;
-            duration = data.duration;
+			const album = data.album;
+			duration = data.duration;
 
 			player_cover.src = cover;
-            player_title.textContent = title;
-            player_artist.textContent = artist;
-            player_album.textContent = album;
+			player_title.textContent = title;
+			player_artist.textContent = artist;
+			player_album.textContent = album;
 
-            if (audio) {
-                audio.pause();
-            }
+			if (audio) {
+				audio.pause();
+			}
 
-            audio = new Audio(file);
-            player_progress_bar.max = Math.floor(data.duration) * 100;
+			audio = new Audio(file);
+			player_progress_bar.max = Math.floor(data.duration) * 100;
 
-            audio.play();
+			audio.play();
 			if (!audio.paused)
 				player_button_play.src = playIcon;
 
-            attachAudioEventListeners();
-        })
-        .catch(error => {
-            console.error('Error while getting audio metadata', error);
-        });
+			attachAudioEventListeners();
+			audio.volume = volume.value / 100;
+		})
+		.catch(error => {
+			console.error('Error while getting audio metadata', error);
+		});
 }
 
 function change_song(songNumber) {
@@ -144,74 +153,74 @@ function change_song(songNumber) {
 	player_title.classList.remove('scroll-left');
 	player_artist.classList.remove('scroll-left');
 	player_album.classList.remove('scroll-left');
-    audio.play();
+	audio.play();
 	
 }
 
 function attachAudioEventListeners() {
-    if (audio) {
-        audio.addEventListener("playing", function () {
-            var interval = setInterval(function () {
-                player_progress_bar.value = Math.round(audio.currentTime * 100);
-                player_current_time.innerHTML = formatDuration(audio.currentTime) + "/" + formatDuration(duration);
-            }, 10);
-        });
+	if (audio) {
+		audio.addEventListener("playing", function () {
+			var interval = setInterval(function () {
+				player_progress_bar.value = Math.round(audio.currentTime * 100);
+				player_current_time.innerHTML = formatDuration(audio.currentTime) + "/" + formatDuration(duration);
+			}, 10);
+		});
 
-        audio.addEventListener("ended", function () {
+		audio.addEventListener("ended", function () {
 			if (random == 1) {
 				change_song(Math.floor(Math.random() * 32018));
 			} else {
 				change_song(song + 1);
 			}
-            
-        });
-    }
+			
+		});
+	}
 }
 
 
 function handle_pause() {
 	if (!audio) return;
 
-    if (audio.paused) {
-        audio.play();
-        player_button_play.src = playIcon;
-    } else {
-        audio.pause();
-        player_button_play.src = pauseIcon;
-    }
+	if (audio.paused) {
+		audio.play();
+		player_button_play.src = playIcon;
+	} else {
+		audio.pause();
+		player_button_play.src = pauseIcon;
+	}
 }
 
 player_button_play.addEventListener('click', function () {
-    handle_pause();
+	handle_pause();
 });
 
 document.body.onkeyup = function (e) {
-    if (e.key == " " || e.code == "Space" || e.keyCode == 32) {
+	if (e.key == " " || e.code == "Space" || e.keyCode == 32) {
 		handle_pause();
-    }
+	}
 }
 
 
 player_progress_bar.oninput = function () {
-    audio.currentTime = player_progress_bar.value / 100;
-    player_current_time.innerHTML = formatDuration(audio.currentTime) + "/" + formatDuration(duration);
+	audio.currentTime = player_progress_bar.value / 100;
+	player_current_time.innerHTML = formatDuration(audio.currentTime) + "/" + formatDuration(duration);
 };
 
 volume_ico.addEventListener('click', function () {
-    if (volume.value > 0) {
-        old_volume = volume.value;
-        audio.volume = 0;
-        volume.value = 0;
-    } else {
-        volume.value = old_volume;
-        audio.volume = old_volume / 100;
-    }
-    updateVolumeIcon();
+	if (volume.value > 0) {
+		old_volume = volume.value;
+		audio.volume = 0;
+		volume.value = 0;
+	} else {
+		volume.value = old_volume;
+		audio.volume = old_volume / 100;
+	}
+	updateVolumeIcon();
 });
 
 volume.oninput = function () {
-    audio.volume = volume.value / 100;
-    updateVolumeIcon();
+	audio.volume = volume.value / 100;
+	updateVolumeIcon();
 };
 
 var random_button = document.getElementById('player-button-random');
@@ -235,7 +244,7 @@ document.getElementById('player-button-next').addEventListener('click', function
 });
 
 document.getElementById('player-button-back').addEventListener('click', function () {
-    if (random == 1) {
+	if (random == 1) {
 		change_song(Math.floor(Math.random() * 32018));
 	} else {
 		change_song(song - 1);
@@ -259,27 +268,27 @@ var song_info_status = 0;
 document.getElementById('player-song-info').addEventListener('click', function (event) {
   event.stopPropagation();
   if (getComputedStyle(song_info_frame).display === 'none') {
-    song_info_frame.style.display = 'flex';
+	song_info_frame.style.display = 'flex';
 	song_info_status = song;
 	load_song_info(song);
   } else {
-    song_info_frame.style.display = 'none';
+	song_info_frame.style.display = 'none';
   }
 });
 
 document.addEventListener('click', (event) => {
   if (
-    getComputedStyle(song_info_frame).display === 'flex' &&
-    !song_info_frame.contains(event.target) &&
-    !player.contains(event.target)
+	getComputedStyle(song_info_frame).display === 'flex' &&
+	!song_info_frame.contains(event.target) &&
+	!player.contains(event.target)
   ) {
-    song_info_frame.style.display = 'none';
+	song_info_frame.style.display = 'none';
   }
 });
 
 function shouldScroll(element) {
-    const width = element.offsetWidth;
-    return width > (window.innerWidth * 30.5 / 100);
+	const width = element.offsetWidth;
+	return width > (window.innerWidth * 30.5 / 100);
 }
 
 function load_song_info(songNumber) {
@@ -380,4 +389,3 @@ function load_song_info(songNumber) {
 			console.error('Error while getting audio metadata:', error);
 		});
 }
-

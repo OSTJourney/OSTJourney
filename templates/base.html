@@ -1,114 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="ie=edge">
-		<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-		{% block head %}{% endblock %}
-	</head>
-	<body>
-		<div id="Song-info" style="display: none;">
-			<div id="Song-info-top">
-				<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="Song-info-cover" alt="Cover">
-				<div id="Song-info-main">
-					<div id="Song-info-title" class="Song-info-text">
-						<div id='Song-info-title-scroll'></div>
-					</div>
-					<div id="Song-info-artist" class="Song-info-text">
-						<div id='Song-info-artist-scroll'></div>
-					</div>
-					<div id="Song-info-album" class="Song-info-text">
-						<div id='Song-info-album-scroll'></div>
-					</div>
-					<div id="Song-info-num" class="Song-info-text">
-						<span>Loading...</span>
-					</div>
-					<div id="Song-info-year" class="Song-info-text">
-						<span>Loading...</span>
-					</div>
-					<div id="Song-info-publisher" class="Song-info-text">
-						<span>Loading...</span>
-					</div>
-					<div id="Song-info-genre" class="Song-info-text">
-						<div id='Song-info-artist-scroll'></div>
-					</div>
+		<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<meta http-equiv="X-UA-Compatible" content="ie=edge">
+				<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+				{% block head %}{% endblock %}
+		</head>
+		<body>
+			<nav>
+				<div id="user-menu">
+					{% if session.get('user') %}
+						<a href="{{ url_for('profile') }}" class="user-btn">Profile</a>
+						<a href="{{ url_for('logout') }}" class="user-btn">Logout</a>
+					{% else %}
+						<a href="{{ url_for('login') }}" class="user-btn">Login</a>
+						<a href="{{ url_for('register') }}" class="user-btn" class="dynamic-link">Register</a>
+					{% endif %}
 				</div>
-			</div>
-			<div id="artist-info">
-				<h1 style="margin-left: 0.5em;">Artist</h1>
-				<div id="artist-info-top">
-					<img src="/static/images/Artists/1.jpg" id="Song-info-artist-image" alt="Artist profil image">
-					<div id="general-artist-info">
-						<div class="artist-sub-info">
-							<p>Name: Keitaro Ujiie</p>
-							<p>Pronouns: he/him</p>
-							<p>Born: 23 february 1997</p>
+			</nav>
+				<div id="content">
+					{% if content %}
+						{{ content | safe }}
+					{% else %}
+						{% block content %}
+						<!-- Le contenu sera injecté ici -->
+						{% endblock %}
+					{% endif %}
+				</div>
+				<div id="Song-info" style="display: none;">
+						<div id="Song-info-top">
+								<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="Song-info-cover" alt="Cover">
+								<div id="Song-info-main">
+										<div id="Song-info-title" class="Song-info-text">
+												<div id='Song-info-title-scroll'></div>
+										</div>
+										<div id="Song-info-artist" class="Song-info-text">
+												<div id='Song-info-artist-scroll'></div>
+										</div>
+										<div id="Song-info-album" class="Song-info-text">
+												<div id='Song-info-album-scroll'></div>
+										</div>
+										<div id="Song-info-num" class="Song-info-text">
+												<span>Loading...</span>
+										</div>
+										<div id="Song-info-year" class="Song-info-text">
+												<span>Loading...</span>
+										</div>
+										<div id="Song-info-publisher" class="Song-info-text">
+												<span>Loading...</span>
+										</div>
+										<div id="Song-info-genre" class="Song-info-text">
+												<div id='Song-info-artist-scroll'></div>
+										</div>
+								</div>
 						</div>
-						<div class="artist-sub-info">
-							<p>Location: Tokyo, Japan</p>
-							<p>Website: <a href="https://ujicosnail.com/" target="_blank">ujicosnail.com</a></p>
-							<p>Genres: ElectronicKawaii future bassChillout</p>
+
+						<div id="additional-tags">
+
 						</div>
-					</div>
-				</div>
-				<h1 style="margin-left: 0.5em;">Ujico*/Snail's House</h1>
-				<p id="artist-description">Born on February 23, 1997.
-
-					Influenced by the jazz and funk music he had been listening to since childhood, as well as pianist Hiromi Uehara, he taught himself the piano in junior high school and became interested in composing. Later, he began creating original music using Nintendo DS software such as "Made in Ore", "Daigasso! Band Brothers", and "KORG M01". In 2013, he started using FL Studio. With the goal of "creating all kinds of music", he continues to complete songs almost every day and post them on Soundcloud.
-					
-					In 2014, she created and posted "Nyan Nyan Angel!" with the goal of "making a song with a cute atmosphere," and tagged it "Kawaii Future Bass." She became a proponent of the genre, and has since released a series of songs that have become the foundation of the genre's popularity, establishing herself as a leader in the field.
-					
-					The following year, he released "Ma Chouchoute" and "Grape Soda" from the overseas net label Tasty. They were big hits mainly in the US, solidifying his popularity. Furthermore, he released "Kirara EP" from the domestic label TREKKIE TRAX, a collection of songs that were the roots of the genre that he had made in the past.
-					
-					In 2017, he posted the music video for "Pixel Galaxy" on YouTube. It quickly became a huge hit, reaching 1 million subscribers in 2021, and the following year, 2022, the music video surpassed 100 million views. Since then, he has continued to create music across genres, releasing albums such as "Snö" and "L'été" that focus on atmospheric and visual soundscapes. He has gained fans for each of the atmospheres in the songs he creates.
-					
-					In the first half of 2018, he was the 9th most played Japanese artist overseas on Spotify, and was approached by Gen Hoshino to help arrange his songs. He continues to be very active both in Japan and overseas.</p>
-			</div>
-			<div id="additional-tags">
-
-			</div>
-		</div>		  
-		{% block body %}{% endblock %}
-	</body>
-	<div style="height: 1500px;">
-    </div>
-	<div class="footer">
-		<div id="player-song-info">
-			<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="player-cover">
-			<div id="player-song-info-text">
-				
-				<div id="player-song-title" class="player-song-info-text">
-					<span>Titre de la chanson tres long pour test le scroll</span>
-				</div>
-				<div id="player-song-artist" class="player-song-info-text">
-					<span>Artiste de la chanson</span>
-				</div>
-				<div id="player-song-album" class="player-song-info-text">
-					<span>Album</span>
-				</div>
-			</div>
-		</div>
-		<div id="player-center">
-			<div id="controls-container">
-				<img src="{{ url_for('static', filename='images/player/random.png') }}" alt="Random" class="player-controls" id="player-button-random">
-				<img src="{{ url_for('static', filename='images/player/back.png') }}" alt="Next" class="player-controls" id="player-button-back">
-				<img src="{{ url_for('static', filename='images/player/pause.png') }}" alt="Play" class="player-controls" id="player-button-play">
-				<img src="{{ url_for('static', filename='images/player/next.png') }}" alt="Back" class="player-controls" id="player-button-next">
-				<img src="{{ url_for('static', filename='images/player/repeat.png') }}" alt="Repeat" class="player-controls">
-			</div>
-			<div id="player-progress-bar-container">
-				<input type="range" min="0" max="100" value="0" class="player-slider" id="player-progress-bar">
-			</div>
-		</div>
-		<div id="player-extra">
-			<span id="player-current-time">0:00/0:00</span>
-			<div id="volume-container">
-				<img src="{{ url_for('static', filename='images/player/volume 100.png') }}" alt="Volume" id="volume-ico">
-				<input type="range" min="0" max="100" value="100" class="player-slider" id="player-volume-bar">
-			</div>
-		</div>
+				</div>			
+				{% block body %}{% endblock %}
+		</body>
+		<div style="height: 1500px;">
 	</div>
-	
-	<script src="{{ url_for('static', filename='js/player.js') }}"></script>
+		<div class="footer">
+				<div id="player-song-info">
+						<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="player-cover">
+						<div id="player-song-info-text">
+
+								<div id="player-song-title" class="player-song-info-text">
+										<span>Titre de la chanson tres long pour test le scroll</span>
+								</div>
+								<div id="player-song-artist" class="player-song-info-text">
+										<span>Artiste de la chanson</span>
+								</div>
+								<div id="player-song-album" class="player-song-info-text">
+										<span>Album</span>
+								</div>
+						</div>
+				</div>
+				<div id="player-center">
+						<div id="controls-container">
+								<img src="{{ url_for('static', filename='images/player/random.png') }}" alt="Random" class="player-controls" id="player-button-random">
+								<img src="{{ url_for('static', filename='images/player/back.png') }}" alt="Next" class="player-controls" id="player-button-back">
+								<img src="{{ url_for('static', filename='images/player/pause.png') }}" alt="Play" class="player-controls" id="player-button-play">
+								<img src="{{ url_for('static', filename='images/player/next.png') }}" alt="Back" class="player-controls" id="player-button-next">
+								<img src="{{ url_for('static', filename='images/player/repeat.png') }}" alt="Repeat" class="player-controls">
+						</div>
+						<div id="player-progress-bar-container">
+								<input type="range" min="0" max="100" value="0" class="player-slider" id="player-progress-bar">
+						</div>
+				</div>
+				<div id="player-extra">
+						<span id="player-current-time">0:00/0:00</span>
+						<div id="volume-container">
+								<img src="{{ url_for('static', filename='images/player/volume 100.png') }}" alt="Volume" id="volume-ico">
+								<input type="range" min="0" max="100" value="100" class="player-slider" id="player-volume-bar">
+						</div>
+				</div>
+		</div>
+
+		<script src="{{ url_for('static', filename='js/player.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/dyna_loading.js') }}"></script>
 </html>
