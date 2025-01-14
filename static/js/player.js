@@ -262,6 +262,7 @@ var song_info_title = document.getElementById('Song-info-title');
 var song_info_artist = document.getElementById('Song-info-artist');
 var song_info_album = document.getElementById('Song-info-album');
 var song_info_genre = document.getElementById('Song-info-genre');
+var song_link = document.getElementById('song-link');
 
 var song_info_status = 0;
 
@@ -335,6 +336,8 @@ function load_song_info(songNumber) {
 			song_info_artist.innerHTML = "<span>Artist:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-artist-scroll'>" + artist + "</span> </div>";
 			song_info_album.innerHTML = "<span>Album:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-album-scroll'>" + album + "</span> </div>";
 			song_info_genre.innerHTML = "<span>Genre:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-genre-scroll'>" + tconValue + "</span> </div>";
+			song_link.href = window.location.origin + "/?song=" + songNumber;
+			song_link.textContent = "Link to song " + window.location.origin + "/?song=" + songNumber;
 
 			document.getElementById('Song-info-year').textContent = "Release date: " + tdrcValue;
 			document.getElementById('Song-info-publisher').textContent = "Publisher: " + tpubValue;

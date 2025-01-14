@@ -1,0 +1,14 @@
+<h2>Login</h2>
+{% if error %}
+	<p>{{ error }}</p>
+{% endif %}
+<form id="login-form" method="POST" action="{{ url_for('login') }}">
+	<div id="error-message" class="error-message"></div>
+	<label for="email">Email:</label>
+	<input type="email" id="email" name="email" required 
+		   placeholder="Enter your email" value="{{ email if email else '' }}">
+	<label for="password">Password:</label>
+	<input type="password" id="password" name="password" required 
+		   placeholder="Enter your password" minlength="8">
+	<button type="submit">Login</button>
+</form>
