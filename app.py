@@ -305,17 +305,18 @@ def hourly_history():
 
 @app.route('/latest', methods=['GET'])
 def get_latest_session():
-	if 'user_id' in session:
-		user_id = session['user_id']
+    if 'user_id' in session:
+        user_id = session['user_id']
 
-		latest_session = ListeningSession.query.filter_by(user_id=user_id).order_by(ListeningSession.timestamp.desc()).first()
-		
-		if latest_session:
-			return jsonify({'latest_session_id': latest_session.song_id})
-		else:
-			return jsonify({'error': 'No listening session found for the user'}), 404
-	else:
-		return jsonify({'error': 'Unauthorized'}), 401
+        latest_session = ListeningSession.query.filter_by(user_id=user_id).order_by(ListeningSession.start_time.desc()).first()
+        
+        if latest_session:
+            return jsonify({'latest_session_id': latest_session.song_id})
+        else:
+            return jsonify({'error': 'No listening session found for the user'}), 404
+    else:
+        return jsonify({'error': 'Unauthorized'}), 401
+
 
 @app.route('/api/songs/<int:id>', methods=['GET'])
 def get_song(id):

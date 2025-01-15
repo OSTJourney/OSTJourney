@@ -86,39 +86,33 @@ function formatDuration(duration) {
 }
 
 //15697
-window.onload = function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    let song;
+window.onload = async function () {
+	const urlParams = new URLSearchParams(window.location.search);
 
-    if (urlParams.has('song')) {
-        const songParam = parseInt(urlParams.get('song'), 10);
-        if (!isNaN(songParam)) {
-            song = songParam;
-        }
-    } else {
-        fetch('/latest')
-            .then(response => response.json())
-            .then(data => {
-                if (data.latest_session_id) {
+	if (urlParams.has('song')) {
+		const songParam = parseInt(urlParams.get('song'), 10);
+		if (!isNaN(songParam)) {
+			song = songParam;
+		}
+	} else {
+		try {
+			const response = await fetch('/latest');
+			const data = await response.json();
+			if (data.latest_session_id) {
+				console.log("test" + data.latest_session_id);
+				song = data.latest_session_id;
+			} else {
 
-                    song = data.latest_session_id;
-                } else {
-                    song = Math.floor(Math.random() * 32018);
-                }
-                load_song(song);
-            })
-            .catch(error => {
-                console.error('Error fetching the latest session:', error);
-                song = Math.floor(Math.random() * 32018);
-                load_song(song);
-            });
-    }
+				song = Math.floor(Math.random() * 32018);
+			}
+		} catch (error) {
+			console.error('Error fetching the latest session:', error);
+			song = Math.floor(Math.random() * 32018);
+		}
+	}
 
-    function load_song(songId) {
-        console.log(`Loading song: ${songId}`);
-    }
+	load_song(song);
 };
-
 
 function sendListeningData(songId, eventType) {
 	if (eventType !== 'start' && eventType !== 'end') {
