@@ -99,6 +99,36 @@ window.onload = function () {
 	load_song(song);
 };
 
+function sendListeningData(songId, eventType) {
+	if (eventType !== 'start' && eventType !== 'end') {
+		console.error('Invalid event type:', eventType);
+		return;
+	}
+	else if (eventType === 'end') {
+		var url = '/api/music/end';
+	}
+	else if (eventType === 'start') {
+		var url = '/api/music/start';
+	}
+	fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			song_id: songId,
+		})
+	})
+	.then(response => {
+		if (!response.ok) {
+			console.error('Failed to send listening data');
+		}
+	})
+	.catch(error => {
+		console.error('Error while sending listening data:', error);
+	});
+}
+
 function load_song(songNumber) {
 	const url = '/api/songs/' + songNumber;
 
@@ -135,12 +165,13 @@ function load_song(songNumber) {
 
 			attachAudioEventListeners();
 			audio.volume = volume.value / 100;
+
+			sendListeningData(songNumber, 'start');
 		})
 		.catch(error => {
 			console.error('Error while getting audio metadata', error);
 		});
 }
-
 function change_song(songNumber) {
 	if (audio) audio.pause();
 	var old_song = song
@@ -167,16 +198,15 @@ function attachAudioEventListeners() {
 		});
 
 		audio.addEventListener("ended", function () {
+			sendListeningData(song, 'end');
 			if (random == 1) {
 				change_song(Math.floor(Math.random() * 32018));
 			} else {
 				change_song(song + 1);
 			}
-			
 		});
 	}
 }
-
 
 function handle_pause() {
 	if (!audio) return;

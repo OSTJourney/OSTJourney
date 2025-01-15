@@ -5,4 +5,35 @@
 	<p><span>Pseudo :</span> {{ username }}</p>
 	<p><span>Email :</span> {{ email }}</p>
 	<p><span>Date de création :</span> {{ created_at }}</p>
+	<p><span>User id :</span> {{ user_id }}</p>
+</div>
+
+<!-- Durée totale d'écoute -->
+<div class="total-duration">
+	<p><span>Durée totale d'écoute :</span> {{ total_duration | round(2) }} secondes</p>
+</div>
+
+<!-- Liste des musiques écoutées -->
+<div class="listening-history">
+	<h3>Historique des musiques écoutées :</h3>
+	<table>
+		<thead>
+			<tr>
+				<th>Song ID</th>
+				<th>Titre</th>
+				<th>Artiste</th>
+				<th>Durée</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for song in songs_list %}
+			<tr>
+				<td>{{ song.song_id }}</td>
+				<td>{{ song.title }}</td>
+				<td>{{ song.artist }}</td>
+				<td>{{ song.duration | round(2) }} secondes</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
 </div>

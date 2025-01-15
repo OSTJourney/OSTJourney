@@ -38,7 +38,7 @@ nav {
 	left: 22.5vw;
 	border: #000 3px solid;
 	border-radius: 5px;
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(0, 0, 0, 0.9);
 	display: flex;
 	flex-direction: column;
 	overflow-y: scroll;
@@ -75,14 +75,14 @@ nav {
 	font-weight: bold;
 	max-height: 2vw;
 	height: fit-content;
-	width: 100%; /* Une largeur fixe pour créer un débordement */
+	width: 100%;
 	margin-top: 0.2em;
 	font-size: 1.5vw;
 	display: inline-flex;
 	align-items: center;
 	white-space: nowrap;
-	overflow: hidden; /* Cache le texte débordant */
-	position: relative; /* Nécessaire pour le défilement */
+	overflow: hidden;
+	position: relative;
 }
 
 .scroll-wrapper {
@@ -288,4 +288,55 @@ nav {
 }
 ::-webkit-scrollbar-thumb:hover {
 	background: #363a4f; 
+}
+
+
+/*CSS for profile page*/
+.header {
+	background-color: #181818;
+	color: white;
+	padding: 20px;
+	text-align: center;
+}
+
+.profile-info p {
+	font-size: 16px;
+}
+
+.profile-info span {
+	font-weight: bold;
+}
+
+.total-duration p {
+	font-size: 16px;
+	font-weight: bold;
+}
+
+/* Table Styles */
+table {
+	border-collapse: collapse;
+	width: 100%;
+	margin-top: 20px;
+}
+
+th, td {
+	border: 1px solid black;
+	padding: 8px;
+	text-align: left;
+}
+
+th {
+	background-color: #f2f2f2;
+}
+
+tr:nth-child(even) {
+	background-color: #f9f9f9;
+}
+
+tr:hover {
+	background-color: #f1f1f1;
+}
+
+tr {
+	border-bottom: 1px solid #ddd;
 }
