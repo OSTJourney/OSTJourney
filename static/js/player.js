@@ -87,17 +87,38 @@ function formatDuration(duration) {
 
 //15697
 window.onload = function () {
-	const urlParams = new URLSearchParams(window.location.search);
-	if (urlParams.has('song')) {
-		const songParam = parseInt(urlParams.get('song'), 10);
-		if (!isNaN(songParam)) {
-			song = songParam;
-		}
-	} else {
-		song = Math.floor(Math.random() * 32018);
-	}
-	load_song(song);
+    const urlParams = new URLSearchParams(window.location.search);
+    let song;
+
+    if (urlParams.has('song')) {
+        const songParam = parseInt(urlParams.get('song'), 10);
+        if (!isNaN(songParam)) {
+            song = songParam;
+        }
+    } else {
+        fetch('/latest')
+            .then(response => response.json())
+            .then(data => {
+                if (data.latest_session_id) {
+
+                    song = data.latest_session_id;
+                } else {
+                    song = Math.floor(Math.random() * 32018);
+                }
+                load_song(song);
+            })
+            .catch(error => {
+                console.error('Error fetching the latest session:', error);
+                song = Math.floor(Math.random() * 32018);
+                load_song(song);
+            });
+    }
+
+    function load_song(songId) {
+        console.log(`Loading song: ${songId}`);
+    }
 };
+
 
 function sendListeningData(songId, eventType) {
 	if (eventType !== 'start' && eventType !== 'end') {
@@ -293,8 +314,40 @@ var song_info_artist = document.getElementById('Song-info-artist');
 var song_info_album = document.getElementById('Song-info-album');
 var song_info_genre = document.getElementById('Song-info-genre');
 var song_link = document.getElementById('song-link');
+const song_link_copy = document.getElementById('song-link-copy');
+var song_link_value = null;
 
 var song_info_status = 0;
+
+song_link_copy.addEventListener('click', function () {
+	song_link_value = window.location.origin + "/?song=" + song;
+	if (song_link_value) {
+	  if (navigator.clipboard) {
+		navigator.permissions.query({ name: 'clipboard-write' })
+		  .then(permissionStatus => {
+			if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
+			  navigator.clipboard.writeText(song_link_value)
+				.then(() => {
+				  console.log('Song link copied to clipboard');
+				})
+				.catch((err) => {
+				  console.error('Error copying text: ', err);
+				});
+			} else {
+			  console.error('Permission denied for clipboard-write');
+			  alert('Permission denied for clipboard. Please enable it in your browser settings.');
+			}
+		  })
+		  .catch((err) => {
+			console.error('Error checking clipboard permissions: ', err);
+		  });
+	  } else {
+		console.error('Clipboard API not available in this browser');
+		alert('Clipboard API is not supported in your browser.');
+	  }
+	}
+  });
+  
 
 document.getElementById('player-song-info').addEventListener('click', function (event) {
   event.stopPropagation();
@@ -367,7 +420,6 @@ function load_song_info(songNumber) {
 			song_info_album.innerHTML = "<span>Album:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-album-scroll'>" + album + "</span> </div>";
 			song_info_genre.innerHTML = "<span>Genre:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-genre-scroll'>" + tconValue + "</span> </div>";
 			song_link.href = window.location.origin + "/?song=" + songNumber;
-			song_link.textContent = "Link to song " + window.location.origin + "/?song=" + songNumber;
 
 			document.getElementById('Song-info-year').textContent = "Release date: " + tdrcValue;
 			document.getElementById('Song-info-publisher').textContent = "Publisher: " + tpubValue;

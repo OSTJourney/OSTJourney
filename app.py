@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
 import re
-from flask import Flask, render_template, url_for, request, redirect, flash, session, send_from_directory, make_response
+from flask import Flask, render_template, url_for, request, redirect, flash, session, send_from_directory, make_response ,jsonify
 from itsdangerous import URLSafeTimedSerializer
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import desc, func
 from werkzeug.security import generate_password_hash, check_password_hash
 from secret import key
+from app_utils import *
 import uuid
 
 app = Flask(__name__)
@@ -192,8 +194,75 @@ def profile():
 		if not user:
 			return redirect(url_for('login'))
 
-		listening_history = ListeningHistory.query.filter_by(user_id=user_id).all()
-		total_duration = sum([history.duration_seconds for history in listening_history if history.duration_seconds])
+		total_listened_query = ListeningHistory.query.filter_by(user_id=user_id)
+
+		total_listened = total_listened_query.count()
+		total_duration_seconds = sum([history.duration_seconds for history in total_listened_query if history.duration_seconds])
+
+		listening_history = total_listened_query.order_by(desc(ListeningHistory.listen_time)).limit(25).all()
+
+		songs_list = []
+		for history in listening_history:
+			song = Songs.query.get(history.song_id)
+			if song:
+				songs_list.append({
+					'song_id': song.id,
+					'title': song.title,
+					'artist': song.artist,
+					'duration': format_duration(song.duration)
+				})
+
+		total_duration = format_duration(total_duration_seconds)
+		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+			return render_template(
+				'profile.html',
+				username=user.username,
+				email=user.email,
+				created_at=user.created_at,
+				user_id=user.id,
+				total_duration=total_duration,
+				total_listened=total_listened,
+				songs_list=songs_list
+			)
+
+		return render_template(
+			'base.html',
+			content=render_template(
+				'profile.html',
+				username=user.username,
+				email=user.email,
+				created_at=user.created_at,
+				user_id=user.id,
+				total_duration=total_duration,
+				total_listened=total_listened,
+				songs_list=songs_list
+			)
+		)
+	else:
+		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+			return render_template('login.html')
+		else:
+			return render_template('base.html', content=render_template('login.html'))
+
+@app.route('/profile/history')
+def load_more_history():
+	if 'user' in session:
+		offset = int(request.args.get('offset', 0))
+		token = request.cookies.get('session_token')
+		if not token:
+			return jsonify({'error': 'Unauthorized'}), 401
+
+		try:
+			user_data = serializer.loads(token)
+			user_id = user_data['user_id']
+		except:
+			return jsonify({'error': 'Unauthorized'}), 401
+
+		listening_history = ListeningHistory.query.filter_by(user_id=user_id)\
+			.order_by(desc(ListeningHistory.listen_time))\
+			.offset(offset)\
+			.limit(25)\
+			.all()
 
 		songs_list = []
 		for history in listening_history:
@@ -206,15 +275,47 @@ def profile():
 					'duration': song.duration
 				})
 
-		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-			return render_template('profile.html', username=user.username, email=user.email, created_at=user.created_at, user_id=user.id, total_duration=total_duration, songs_list=songs_list)
+		if not songs_list:
+			return jsonify({'songs': []})
 
-		return render_template('base.html', content=render_template('profile.html', username=user.username, email=user.email, created_at=user.created_at, user_id=user.id, total_duration=total_duration, songs_list=songs_list))
-	else:
-		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-			return render_template('login.html')
+		return jsonify({'songs': songs_list})
+
+	return jsonify({'error': 'Unauthorized'}), 401
+
+@app.route('/profile/history/24h')
+def hourly_history():
+	if 'user' in session:
+		user_id = session.get('user_id')
+		
+		data = db.session.query(
+			func.strftime('%H', ListeningHistory.listen_time).label('hour'),
+			func.count().label('count')
+		).filter_by(user_id=user_id) \
+			.group_by(func.strftime('%H', ListeningHistory.listen_time)) \
+			.order_by(func.strftime('%H', ListeningHistory.listen_time)) \
+			.all()
+
+		hourly_counts = {i: 0 for i in range(24)}
+		for hour, count in data:
+			hourly_counts[int(hour)] = count
+
+		return jsonify({'hourly_counts': hourly_counts})
+
+	return jsonify({'error': 'Unauthorized'}), 401
+
+@app.route('/latest', methods=['GET'])
+def get_latest_session():
+	if 'user_id' in session:
+		user_id = session['user_id']
+
+		latest_session = ListeningSession.query.filter_by(user_id=user_id).order_by(ListeningSession.timestamp.desc()).first()
+		
+		if latest_session:
+			return jsonify({'latest_session_id': latest_session.song_id})
 		else:
-			return render_template('base.html', content=render_template('login.html'))
+			return jsonify({'error': 'No listening session found for the user'}), 404
+	else:
+		return jsonify({'error': 'Unauthorized'}), 401
 
 @app.route('/api/songs/<int:id>', methods=['GET'])
 def get_song(id):

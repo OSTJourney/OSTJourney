@@ -8,32 +8,41 @@
 	<p><span>User id :</span> {{ user_id }}</p>
 </div>
 
-<!-- Durée totale d'écoute -->
-<div class="total-duration">
-	<p><span>Durée totale d'écoute :</span> {{ total_duration | round(2) }} secondes</p>
+<div class="total-listened">
+	<p><span>Number of tracks listened :</span> {{ total_listened }}</p>
 </div>
+<div class="total-duration">
+	<p><span>Total listen time :</span> {{ total_duration }} </p>
+</div>
+<center><h3>Number of tracks listened per hour</h3></center>
+<canvas id="hourlyChart" style="width: 90%; height: 50vh;"></canvas>
 
 <!-- Liste des musiques écoutées -->
 <div class="listening-history">
-	<h3>Historique des musiques écoutées :</h3>
+	<center><h3>Last music listened :</h3></center>
 	<table>
 		<thead>
 			<tr>
 				<th>Song ID</th>
-				<th>Titre</th>
-				<th>Artiste</th>
-				<th>Durée</th>
+				<th>Title</th>
+				<th>Artist</th>
+				<th>Duration</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody id="songs-tbody">
 			{% for song in songs_list %}
 			<tr>
-				<td>{{ song.song_id }}</td>
-				<td>{{ song.title }}</td>
+				<td><a href="/?song={{ song.song_id }}" target="_blank">{{ song.song_id }}</a></td>
+				<td><a href="/?song={{ song.song_id }}" target="_blank">{{ song.title }}</a></td>
 				<td>{{ song.artist }}</td>
-				<td>{{ song.duration | round(2) }} secondes</td>
+				<td>{{ song.duration }}</td>
 			</tr>
 			{% endfor %}
 		</tbody>
 	</table>
+	<button id="load-more" data-offset="25">Load More</button>
+	<div style="height: 50vh;"></div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>

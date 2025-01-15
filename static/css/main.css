@@ -8,11 +8,17 @@ body {
 
 /*Css for navigation bar*/
 nav {
+	position: fixed;
+	width: 100%;
+	height: 7vh;
 	background-color: #181818;
 	color: #b3b3b3;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	top: 0;
+	z-index: 1000;
+	left: 0;
 	padding: 1em;
 }
 
@@ -38,10 +44,10 @@ nav {
 	left: 22.5vw;
 	border: #000 3px solid;
 	border-radius: 5px;
-	background-color: rgba(0, 0, 0, 0.9);
+	background-color: rgba(0, 0, 0, 0.93);
 	display: flex;
 	flex-direction: column;
-	overflow-y: scroll;
+	overflow-y: auto;
 	overflow-x: hidden;
 }
 
@@ -94,10 +100,10 @@ nav {
 
 .scroll-left-info {
 	width: fit-content;
-	display: inline-block; /* Assure que l'élément animé reste inline */
+	display: inline-block;
 	position: relative; 
-	white-space: nowrap; /* Garde le texte sur une seule ligne */
-	animation: scroll-left-info 6.5s linear infinite; /* Applique l'animation */
+	white-space: nowrap;
+	animation: scroll-left-info 6.5s linear infinite;
 }
 
 @keyframes scroll-left-info {
@@ -113,6 +119,19 @@ nav {
 	92% {
 	  transform: translateX(0%);
 	}
+}
+
+#song-link-container {
+	margin-top: 1em;
+	margin-left: 10%;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+
+#song-link {
+	margin-right: 1em;
 }
 
 /*CSS For the audio player*/
@@ -293,10 +312,15 @@ nav {
 
 /*CSS for profile page*/
 .header {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	background-color: #181818;
 	color: white;
-	padding: 20px;
+	height: 8vh;
+	margin-top: 10.5vh;
 	text-align: center;
+	vertical-align: middle;
 }
 
 .profile-info p {
@@ -312,11 +336,26 @@ nav {
 	font-weight: bold;
 }
 
+.listening-history {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#load-more {
+	margin-top: 20px;
+	font-size: medium;
+	background-color: #a0b2ff;
+}
+
 /* Table Styles */
 table {
 	border-collapse: collapse;
-	width: 100%;
+	width: 96%;
 	margin-top: 20px;
+	margin-left: 2%;
+	border: 3px solid black;
+	border-radius: 5px;
 }
 
 th, td {
@@ -330,13 +369,36 @@ th {
 }
 
 tr:nth-child(even) {
-	background-color: #f9f9f9;
+	background-color: #363a4f;
 }
 
 tr:hover {
-	background-color: #f1f1f1;
+	background-color: lightsteelblue;
+	cursor: pointer;
 }
 
 tr {
 	border-bottom: 1px solid #ddd;
+}
+
+/*Links*/
+
+a {
+	color: #8a94f0;
+	text-decoration: none;
+	transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+a:hover {
+	color: #a0b2ff;
+	text-shadow: 0 0 10px rgba(160, 178, 255, 0.8);
+	text-decoration: underline;
+}
+
+a:active {
+	color: #6872c9;
+}
+
+a:visited {
+	color: #bcc0e9;
 }
