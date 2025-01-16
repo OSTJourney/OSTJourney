@@ -5,12 +5,12 @@ from itsdangerous import URLSafeTimedSerializer
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc, func
 from werkzeug.security import generate_password_hash, check_password_hash
-from secret import key
+from config import Config
 from app_utils import *
 import uuid
 
 app = Flask(__name__)
-app.secret_key = key
+app.secret_key = Config.SECRET_KEY
 
 serializer = URLSafeTimedSerializer(app.secret_key)
 
@@ -40,6 +40,9 @@ class User(db.Model):
 	email = db.Column(db.String(150), unique=True, nullable=False)
 	password = db.Column(db.String(200), nullable=False)
 	created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+	total_duration = db.Column(db.Float, default=0)
+	total_songs = db.Column(db.Integer, default=0)
 
 	listening_history = db.relationship('ListeningHistory', back_populates='user', lazy='dynamic')
 	listening_sessions = db.relationship('ListeningSession', back_populates='user', lazy='dynamic')
@@ -72,6 +75,19 @@ class ListeningSession(db.Model):
 
 	def __repr__(self):
 		return f'<ListeningSession {self.id}: User {self.user_id} Song {self.song_id}>'
+	
+class UserActivity(db.Model):
+	__bind_key__ = 'users'
+	id = db.Column(db.Integer, primary_key=True)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+	date = db.Column(db.Date, nullable=False)
+	total_duration = db.Column(db.Float, default=0)
+	total_songs = db.Column(db.Integer, default=0)
+
+	user = db.relationship('User', backref=db.backref('user_activity', lazy=True))
+
+	def __repr__(self):
+		return f'<UserActivity {self.user_id} on {self.date}>'
 
 @app.route('/')
 def index():
@@ -194,12 +210,9 @@ def profile():
 		if not user:
 			return redirect(url_for('login'))
 
-		total_listened_query = ListeningHistory.query.filter_by(user_id=user_id)
-
-		total_listened = total_listened_query.count()
-		total_duration_seconds = sum([history.duration_seconds for history in total_listened_query if history.duration_seconds])
-
-		listening_history = total_listened_query.order_by(desc(ListeningHistory.listen_time)).limit(25).all()
+		total_listened = user.total_songs
+		total_duration_seconds = user.total_duration
+		listening_history = ListeningHistory.query.filter_by(user_id=user_id).order_by(desc(ListeningHistory.listen_time)).limit(25).all()
 
 		songs_list = []
 		for history in listening_history:
@@ -213,6 +226,7 @@ def profile():
 				})
 
 		total_duration = format_duration(total_duration_seconds)
+
 		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 			return render_template(
 				'profile.html',
@@ -243,6 +257,66 @@ def profile():
 			return render_template('login.html')
 		else:
 			return render_template('base.html', content=render_template('login.html'))
+
+@app.route('/api/user_activity', methods=['GET'])
+def get_user_activity():
+	if 'user' in session:
+		token = request.cookies.get('session_token')
+		if not token:
+			return {'status': 'error', 'message': 'User not logged in'}
+
+		try:
+			user_data = serializer.loads(token)
+			user_id = user_data['user_id']
+		except:
+			return {'status': 'error', 'message': 'Invalid session token'}
+
+		activities = UserActivity.query.filter_by(user_id=user_id).all()
+
+		activity_by_date = {}
+		for activity in activities:
+			date = activity.date
+			year = date.year
+			day = date.day
+			date_str = date.strftime('%Y-%m-%d')
+			if year not in activity_by_date:
+				activity_by_date[year] = {}
+			activity_by_date[year][date_str] = {
+				'total_duration': activity.total_duration,
+				'total_songs': activity.total_songs
+			}
+
+		year_data = {}
+		for year, year_activities in activity_by_date.items():
+			year_data[year] = {
+				'data': {},
+				'min_duration': float('inf'),
+				'max_duration': float('-inf'),
+				'min_songs': float('inf'),
+				'max_songs': float('-inf')
+			}
+			for month in range(1, 13):
+				for day in range(1, 32):
+					try:
+						current_date = datetime(year, month, day).date()
+						current_date_str = current_date.strftime('%Y-%m-%d')
+					except ValueError:
+						continue
+
+					if current_date_str in year_activities:
+						day_data = year_activities[current_date_str]
+					else:
+						day_data = {'total_duration': 0, 'total_songs': 0}
+
+					year_data[year]['data'][current_date_str] = day_data
+					year_data[year]['min_duration'] = min(year_data[year]['min_duration'], day_data['total_duration'])
+					year_data[year]['max_duration'] = max(year_data[year]['max_duration'], day_data['total_duration'])
+					year_data[year]['min_songs'] = min(year_data[year]['min_songs'], day_data['total_songs'])
+					year_data[year]['max_songs'] = max(year_data[year]['max_songs'], day_data['total_songs'])
+
+		return {'status': 'success', 'year_data': year_data}
+
+	return {'status': 'error', 'message': 'User not logged in'}
 
 @app.route('/profile/history')
 def load_more_history():
@@ -305,17 +379,17 @@ def hourly_history():
 
 @app.route('/latest', methods=['GET'])
 def get_latest_session():
-    if 'user_id' in session:
-        user_id = session['user_id']
+	if 'user_id' in session:
+		user_id = session['user_id']
 
-        latest_session = ListeningSession.query.filter_by(user_id=user_id).order_by(ListeningSession.start_time.desc()).first()
-        
-        if latest_session:
-            return jsonify({'latest_session_id': latest_session.song_id})
-        else:
-            return jsonify({'error': 'No listening session found for the user'}), 404
-    else:
-        return jsonify({'error': 'Unauthorized'}), 401
+		latest_session = ListeningSession.query.filter_by(user_id=user_id).order_by(ListeningSession.start_time.desc()).first()
+		
+		if latest_session:
+			return jsonify({'latest_session_id': latest_session.song_id})
+		else:
+			return jsonify({'error': 'No listening session found for the user'}), 404
+	else:
+		return jsonify({'error': 'Unauthorized'}), 401
 
 
 @app.route('/api/songs/<int:id>', methods=['GET'])
@@ -364,12 +438,15 @@ def start_music():
 		db.session.commit()
 
 	active_sessions = ListeningSession.query.filter_by(user_id=user_id).all()
+	
 	if len(active_sessions) >= 3:
-		oldest_session = min(active_sessions, key=lambda s: s.start_time)
-		db.session.delete(oldest_session)
+		active_sessions.sort(key=lambda s: s.start_time)
+		for session in active_sessions[:-2]:
+			db.session.delete(session)
 		db.session.commit()
 
-	max_duration = song.duration * 5
+	max_duration = min(song.duration * 5, 86400)
+
 	new_session = ListeningSession(
 		user_id=user_id,
 		song_id=song_id,
@@ -400,13 +477,13 @@ def end_music():
 	except Exception:
 		return {'status': 'error', 'message': 'Invalid or expired session token'}
 
-	song = Songs.query.get(song_id)
-	if not song:
-		return {'status': 'error', 'message': 'Song not found'}
-
 	listening_session = ListeningSession.query.filter_by(user_id=user_id, song_id=song_id).first()
 	if not listening_session:
 		return {'status': 'error', 'message': 'Listening session not found'}
+
+	song = Songs.query.get(song_id)
+	if not song:
+		return {'status': 'error', 'message': 'Song not found'}
 
 	if datetime.utcnow() > listening_session.expiration_time:
 		db.session.delete(listening_session)
@@ -423,10 +500,33 @@ def end_music():
 	)
 
 	db.session.add(listening_history)
+
+	user = User.query.get(user_id)
+	user.total_songs += 1
+	user.total_duration += duration_seconds
+	db.session.commit()
+
+	current_date = datetime.utcnow().date()
+	activity = UserActivity.query.filter_by(user_id=user_id, date=current_date).first()
+
+	if not activity:
+		activity = UserActivity(user_id=user_id, date=current_date)
+		db.session.add(activity)
+
+	if activity.total_duration is None:
+		activity.total_duration = 0
+	if activity.total_songs is None:
+		activity.total_songs = 0
+
+	activity.total_duration += duration_seconds
+	activity.total_songs += 1
+
+	db.session.commit()
+
 	db.session.delete(listening_session)
 	db.session.commit()
 
-	return {'status': 'success', 'message': 'Listening session ended'}
+	return {'status': 'success', 'message': 'Listening session ended and data updated'}
 
 if __name__ == '__main__':
 	with app.app_context():

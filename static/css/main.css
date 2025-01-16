@@ -22,6 +22,10 @@ nav {
 	padding: 1em;
 }
 
+#content {
+	margin-top: 7vh;
+}
+
 .user-btn {
 	background-color: #181818;
 	color: #b3b3b3;
@@ -347,6 +351,58 @@ nav {
 	font-size: medium;
 	background-color: #a0b2ff;
 }
+
+/*CSS for the activity container*/
+#heatmap {
+	width: 80%;
+	border-collapse: collapse;
+	margin-top: 20px;
+	font-family: Arial, sans-serif;
+	font-size: small;
+	table-layout: fixed;
+}
+
+#heatmap thead {
+	display: none;
+}
+
+#heatmap td:first-child {
+	background-color: #121212;
+	font-weight: bold;
+}
+
+#heatmap td:nth-child(1) {
+	width: 35px !important;
+	overflow: visible;
+}
+
+#heatmap td {
+	display: inline-block;
+	width: 15px !important;
+	height: 15px !important;
+	margin-left: 1px;
+	padding: 0;
+	border-radius: 2px;
+	cursor: pointer;
+	vertical-align: middle;
+	overflow: hidden;
+	box-sizing: border-box;
+	border: none;
+}
+
+#heatmap tr {
+	height: 17px !important;
+	width: fit-content;
+	display: flex;
+	border: none;
+	background-color: #121212;
+}
+
+#heatmap th {
+	background-color: #121212;
+	border: none
+}
+
 
 /* Table Styles */
 table {

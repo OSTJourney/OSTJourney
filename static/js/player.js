@@ -1,4 +1,4 @@
-/*Animation for title or artis too big*/
+/*Animation for title or artist too big*/
 var player_title = document.querySelector('#player-song-title');
 var player_artist = document.querySelector('#player-song-artist');
 var player_album = document.querySelector('#player-song-album');
@@ -85,6 +85,47 @@ function formatDuration(duration) {
 	return formatted;
 }
 
+function updateMetaTagsAndFavicon(title, artist, coverUrl) {
+	let metaTitle = document.querySelector('meta[property="og:title"]');
+	if (metaTitle) {
+		metaTitle.setAttribute('content', `${title} - ${artist}`);
+	} else {
+		metaTitle = document.createElement('meta');
+		metaTitle.setAttribute('property', 'og:title');
+		metaTitle.setAttribute('content', `${title} - ${artist}`);
+		document.head.appendChild(metaTitle);
+	}
+
+	let metaDescription = document.querySelector('meta[property="og:description"]');
+	if (metaDescription) {
+		metaDescription.setAttribute('content', `Listen to ${title} by ${artist}.`);
+	} else {
+		metaDescription = document.createElement('meta');
+		metaDescription.setAttribute('property', 'og:description');
+		metaDescription.setAttribute('content', `Listen to ${title} by ${artist} on OSTJourney.`);
+		document.head.appendChild(metaDescription);
+	}
+
+	let metaImage = document.querySelector('meta[property="og:image"]');
+	if (metaImage) {
+		metaImage.setAttribute('content', coverUrl);
+	} else {
+		metaImage = document.createElement('meta');
+		metaImage.setAttribute('property', 'og:image');
+		metaImage.setAttribute('content', coverUrl);
+		document.head.appendChild(metaImage);
+	}
+
+	let link = document.querySelector("link[rel='icon']");
+	if (!link) {
+		link = document.createElement('link');
+		link.rel = 'icon';
+		document.head.appendChild(link);
+	}
+	link.href = coverUrl;
+	document.title = `OSTJourney | ${title} - ${artist}`;
+}
+
 //15697
 window.onload = async function () {
 	const urlParams = new URLSearchParams(window.location.search);
@@ -99,7 +140,6 @@ window.onload = async function () {
 			const response = await fetch('/latest');
 			const data = await response.json();
 			if (data.latest_session_id) {
-				console.log("test" + data.latest_session_id);
 				song = data.latest_session_id;
 			} else {
 
@@ -158,7 +198,7 @@ function load_song(songNumber) {
 			const title = data.title;
 			const artist = data.artist;
 			const file = '/songs/' + data.path;
-			const cover = '/static/images/covers/' + data.cover + '.jpg'
+			const cover = '/static/images/covers/' + data.cover + '.jpg';
 			const album = data.album;
 			duration = data.duration;
 
@@ -167,26 +207,31 @@ function load_song(songNumber) {
 			player_artist.textContent = artist;
 			player_album.textContent = album;
 
+			updateMetaTagsAndFavicon(title, artist, cover);
+
 			if (audio) {
 				audio.pause();
 			}
 
 			audio = new Audio(file);
-			player_progress_bar.max = Math.floor(data.duration) * 100;
+			player_progress_bar.max = Math.floor(duration) * 100;
 
-			audio.play();
-			if (!audio.paused)
-				player_button_play.src = playIcon;
+			audio.addEventListener('canplaythrough', function() {
+				audio.play();
+				if (!audio.paused) {
+					player_button_play.src = playIcon;
+				}
+				attachAudioEventListeners();
+				audio.volume = volume.value / 100;
+				sendListeningData(songNumber, 'start');
+			});
 
-			attachAudioEventListeners();
-			audio.volume = volume.value / 100;
-
-			sendListeningData(songNumber, 'start');
 		})
 		.catch(error => {
 			console.error('Error while getting audio metadata', error);
 		});
 }
+
 function change_song(songNumber) {
 	if (audio) audio.pause();
 	var old_song = song

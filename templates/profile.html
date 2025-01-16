@@ -14,6 +14,25 @@
 <div class="total-duration">
 	<p><span>Total listen time :</span> {{ total_duration }} </p>
 </div>
+<center><h3>Activity</h3></center>
+<div class="activity-container">
+	<h1>User Activity Heatmap</h1>
+
+	<!-- Year Selector -->
+	<div class="year-selector">
+		<label for="year">Select Year:</label>
+		<select id="year" name="year">
+		</select>
+	</div>
+
+	<!-- Activity Heatmap Grid -->
+	<table id="heatmap"></table>
+
+	<div class="activity-label">
+		<p id="activity-label">Displaying Total Duration</p>
+	</div>
+</div>
+
 <center><h3>Number of tracks listened per hour</h3></center>
 <canvas id="hourlyChart" style="width: 90%; height: 50vh;"></canvas>
 
