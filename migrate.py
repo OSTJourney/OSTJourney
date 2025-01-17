@@ -1,55 +1,38 @@
-from app import db, User, ListeningHistory, UserActivity
+from app import db, User, ListeningHistory, ListeningStatistics
 from datetime import datetime
 
-def migrate_user_data():
-	users = User.query.all()
+def migrate_listening_statistics():
+    users = User.query.all()
 
-	for user in users:
-		total_duration = 0
-		total_songs = 0
+    for user in users:
+        listening_histories = ListeningHistory.query.filter_by(user_id=user.id).all()
 
-		histories = ListeningHistory.query.filter_by(user_id=user.id).all()
+        listens_by_hour = {}
 
-		activities_by_date = {}
+        for history in listening_histories:
+            listen_hour = history.listen_time.hour
 
-		for history in histories:
-			total_duration += history.duration_seconds
-			total_songs += 1
+            if listen_hour not in listens_by_hour:
+                listens_by_hour[listen_hour] = 0
 
-			history_date = history.listen_time.date()
+            listens_by_hour[listen_hour] += 1
 
-			if history_date not in activities_by_date:
-				activities_by_date[history_date] = {
-					'total_duration': 0,
-					'total_songs': 0
-				}
+        for hour, listen_count in listens_by_hour.items():
+            statistic = ListeningStatistics.query.filter_by(user_id=user.id, hour=hour).first()
 
-			activities_by_date[history_date]['total_duration'] += history.duration_seconds
-			activities_by_date[history_date]['total_songs'] += 1
+            if not statistic:
+                statistic = ListeningStatistics(user_id=user.id, hour=hour)
 
-		user.total_duration = total_duration
-		user.total_songs = total_songs
+            statistic.listen_count = listen_count
+            db.session.add(statistic)
 
-		db.session.commit()
+        db.session.commit()
+        print(f"Statistiques pour l'utilisateur {user.username} mises à jour.")
 
-		for activity_date, stats in activities_by_date.items():
-			activity = UserActivity.query.filter_by(user_id=user.id, date=activity_date).first()
-
-			if not activity:
-				activity = UserActivity(user_id=user.id, date=activity_date)
-
-			activity.total_duration = stats['total_duration']
-			activity.total_songs = stats['total_songs']
-
-			db.session.add(activity)
-
-		db.session.commit()
-		print(f"Activité pour l'utilisateur {user.username} mise à jour.")
-
-	print("Migration des données terminée.")
+    print("Migration des statistiques terminée.")
 
 if __name__ == "__main__":
-	from app import app
+    from app import app
 
-	with app.app_context():
-		migrate_user_data()
+    with app.app_context():
+        migrate_listening_statistics()

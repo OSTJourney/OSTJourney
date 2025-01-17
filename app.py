@@ -89,6 +89,18 @@ class UserActivity(db.Model):
 	def __repr__(self):
 		return f'<UserActivity {self.user_id} on {self.date}>'
 
+class ListeningStatistics(db.Model):
+	__bind_key__ = 'users'
+	id = db.Column(db.Integer, primary_key=True)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+	hour = db.Column(db.Integer, nullable=False)
+	listen_count = db.Column(db.Integer, default=0, nullable=False)
+
+	user = db.relationship('User', backref=db.backref('listening_statistics', lazy=True))
+
+	def __repr__(self):
+		return f'<ListeningStatistics User {self.user_id} Hour {self.hour}: {self.listen_count} listens>'
+
 @app.route('/')
 def index():
 	return render_template('index.html')
@@ -277,7 +289,6 @@ def get_user_activity():
 		for activity in activities:
 			date = activity.date
 			year = date.year
-			day = date.day
 			date_str = date.strftime('%Y-%m-%d')
 			if year not in activity_by_date:
 				activity_by_date[year] = {}
@@ -305,8 +316,10 @@ def get_user_activity():
 
 					if current_date_str in year_activities:
 						day_data = year_activities[current_date_str]
+						formatted_duration = format_duration(day_data['total_duration'])
+						day_data['formatted_duration'] = formatted_duration
 					else:
-						day_data = {'total_duration': 0, 'total_songs': 0}
+						day_data = {'total_duration': 0, 'total_songs': 0, 'formatted_duration': '00:00:00'}
 
 					year_data[year]['data'][current_date_str] = day_data
 					year_data[year]['min_duration'] = min(year_data[year]['min_duration'], day_data['total_duration'])
@@ -360,18 +373,16 @@ def load_more_history():
 def hourly_history():
 	if 'user' in session:
 		user_id = session.get('user_id')
-		
+
 		data = db.session.query(
-			func.strftime('%H', ListeningHistory.listen_time).label('hour'),
-			func.count().label('count')
-		).filter_by(user_id=user_id) \
-			.group_by(func.strftime('%H', ListeningHistory.listen_time)) \
-			.order_by(func.strftime('%H', ListeningHistory.listen_time)) \
-			.all()
+			ListeningStatistics.hour,
+			ListeningStatistics.listen_count
+		).filter_by(user_id=user_id).all()
 
 		hourly_counts = {i: 0 for i in range(24)}
+
 		for hour, count in data:
-			hourly_counts[int(hour)] = count
+			hourly_counts[hour] = count
 
 		return jsonify({'hourly_counts': hourly_counts})
 
@@ -504,7 +515,6 @@ def end_music():
 	user = User.query.get(user_id)
 	user.total_songs += 1
 	user.total_duration += duration_seconds
-	db.session.commit()
 
 	current_date = datetime.utcnow().date()
 	activity = UserActivity.query.filter_by(user_id=user_id, date=current_date).first()
@@ -521,7 +531,14 @@ def end_music():
 	activity.total_duration += duration_seconds
 	activity.total_songs += 1
 
-	db.session.commit()
+	start_hour = listening_session.start_time.hour
+	listening_stat = ListeningStatistics.query.filter_by(user_id=user_id, hour=start_hour).first()
+
+	if not listening_stat:
+		listening_stat = ListeningStatistics(user_id=user_id, hour=start_hour, listen_count=0)
+		db.session.add(listening_stat)
+
+	listening_stat.listen_count += 1
 
 	db.session.delete(listening_session)
 	db.session.commit()

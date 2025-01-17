@@ -220,8 +220,4 @@ function loadHeatmap(yearData, year) {
 	heatmapContainer.appendChild(tbody);
 }
 
-
-
-
-// Initialiser la page
 fetchActivityData();
