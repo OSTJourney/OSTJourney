@@ -354,7 +354,7 @@ nav {
 
 /*CSS for the activity container*/
 #heatmap {
-	width: 80%;
+	width: 1163px;
 	border-collapse: collapse;
 	margin-top: 20px;
 	font-family: Arial, sans-serif;
@@ -362,25 +362,38 @@ nav {
 	table-layout: fixed;
 }
 
-#heatmap thead {
-	display: none;
+#heatmap thead th {
+	transform: translateX(20px);
+	width: 21px !important;
+	box-sizing: border-box;
+	overflow: visible;
+	white-space: nowrap;
+}
+
+#heatmap thead th:not(:has(span))
+{
+	transform: translateY(-20px);
+	height: 1px !important;
 }
 
 #heatmap td:first-child {
-	background-color: #121212;
 	font-weight: bold;
+	width: 38px !important;
+	margin-top: 4px;
+	margin-left: 4px;
+	overflow: visible;
 }
 
-#heatmap td:nth-child(1) {
-	width: 35px !important;
-	overflow: visible;
+#heatmap td:last-child {
+	margin-right: 2px;
 }
 
 #heatmap td {
 	display: inline-block;
-	width: 15px !important;
-	height: 15px !important;
+	width: 20px !important;
+	height: 20px !important;
 	margin-left: 1px;
+	margin-top: 1px;
 	padding: 0;
 	border-radius: 2px;
 	cursor: pointer;
@@ -390,8 +403,9 @@ nav {
 	border: none;
 }
 
+
 #heatmap tr {
-	height: 17px !important;
+	height: 21px !important;
 	width: fit-content;
 	display: flex;
 	border: none;
@@ -403,6 +417,63 @@ nav {
 	border: none
 }
 
+#heatmap-type {
+	margin-top: 20px;
+	margin-left: 2%;
+	width: 1163px;
+	display: flex;
+	flex-direction: row;
+}
+
+#heatmap-scale {
+	position: absolute;
+	right: 15%;
+	display: flex;
+	width: fit-content;
+	height: 25px;
+	margin-top: 6px;
+	font-size: 1.2em;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	border-radius: 5px;
+}
+
+.heatmap-scale-div {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	margin-left: 1px;
+	margin-top: 1px;
+	padding: 0;
+	border-radius: 2px;
+	cursor: pointer;
+	box-sizing: border-box;
+	border: none;
+}
+
+.activity-heatmap-button {
+	background-color: #b3b3b3;
+	color: #121212;
+	border: 3px solid #000;
+	border-radius: 5px;
+	cursor: pointer;
+	padding: 10px;
+	font-size: 1em;
+	border-radius: 5px;
+	margin-right: 1em;
+}
+
+.heatmap-song-active {
+	background-color: #39d353;
+	color: #363a4f;
+}
+
+.heatmap-duration-active
+{
+	background-color: #1f6feb;
+	color: #b3b3b3;
+}
 
 /* Table Styles */
 table {

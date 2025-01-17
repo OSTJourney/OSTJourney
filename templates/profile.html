@@ -14,29 +14,39 @@
 <div class="total-duration">
 	<p><span>Total listen time :</span> {{ total_duration }} </p>
 </div>
-<center><h3>Activity</h3></center>
-<div class="activity-container">
-	<h1>User Activity Heatmap</h1>
+<center>
+	<h3>Activity</h3>
+	<div class="activity-container">
+		<h1>User Activity Heatmap</h1>
 
-	<!-- Year Selector -->
-	<div class="year-selector">
-		<label for="year">Select Year:</label>
-		<select id="year" name="year">
-		</select>
+		<div class="year-selector">
+			<label for="year">Select Year:</label>
+			<select id="year" name="year">
+			</select>
+		</div>
+
+		<table id="heatmap"></table>
+		<div id="heatmap-type">
+			<div id="activity-heatmap-type">
+				<button class="activity-heatmap-button" id="heatmap-song">Songs played</button>
+				<button class="activity-heatmap-button" id="heatmap-duration">Listening time</button>
+			</div>
+			<div id="heatmap-scale">
+				<p>Less&nbsp</p>
+				<div id="heatmap-scale1" class="heatmap-scale-div" style="background-color: #161b22;"></div>
+				<div id="heatmap-scale2" class="heatmap-scale-div" style="background-color: #0e4429;"></div>
+				<div id="heatmap-scale3" class="heatmap-scale-div" style="background-color: #006d32;"></div>
+				<div id="heatmap-scale4" class="heatmap-scale-div" style="background-color: #26a641;"></div>
+				<div id="heatmap-scale5" class="heatmap-scale-div" style="background-color: #39d353;"></div>
+				<p>&nbspMore</p>
+			</div>
+		</div>
 	</div>
-
-	<!-- Activity Heatmap Grid -->
-	<table id="heatmap"></table>
-
-	<div class="activity-label">
-		<p id="activity-label">Displaying Total Duration</p>
-	</div>
-</div>
+</center>
 
 <center><h3>Number of tracks listened per hour</h3></center>
 <canvas id="hourlyChart" style="width: 90%; height: 50vh;"></canvas>
 
-<!-- Liste des musiques écoutées -->
 <div class="listening-history">
 	<center><h3>Last music listened :</h3></center>
 	<table>
