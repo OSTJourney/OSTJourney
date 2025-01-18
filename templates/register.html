@@ -1,6 +1,7 @@
+<h1 id="currentUrl">{{ currentUrl }}</h1>
 <h2>Register</h2>
 {% if error %}
-	<p>{{ error }}</p>
+	<p class="error-msg">{{ error }}</p>
 {% endif %}
 <form id="register-form" method="POST" action="{{ url_for('register') }}">
 	<label for="username">Username:</label>
@@ -52,3 +53,4 @@
 </form>
 
 <script src="{{ url_for('static', filename='js/check_password.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dup_check.js') }}"></script>

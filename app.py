@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import re
-from flask import Flask, render_template, url_for, request, redirect, flash, session, send_from_directory, make_response ,jsonify
+from flask import Flask, render_template, url_for, request, redirect, flash, session, send_from_directory, make_response ,jsonify, abort
 from itsdangerous import URLSafeTimedSerializer
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc, func
@@ -105,10 +105,16 @@ class ListeningStatistics(db.Model):
 def index():
 	return render_template('index.html')
 
+@app.route('/nav')
+def nav():
+	if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+		abort(404)
+	return render_template('nav.html')
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 	if 'user' in session:
-		return render_template('index.html', error="You are already logged in.")
+		return redirect(url_for('profile'))
 	
 	if request.method == 'POST':
 		username = request.form.get('username').strip()
@@ -118,54 +124,49 @@ def register():
 
 		username_pattern = r'^[a-zA-Z0-9_]{3,20}$'
 		if not re.match(username_pattern, username):
-			return render_template('register.html', error="Invalid username.", username=username, email=email)
+			return render_template('register.html', error="Invalid username.", username=username, email=email, currentUrl="/register")
 
 		if password != confirm_password:
-			return render_template('register.html', error="Passwords do not match.", username=username, email=email)
+			return render_template('register.html', error="Passwords do not match.", username=username, email=email, currentUrl="/register")
 
 		password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};\'\\|,.<>\/?]).{8,20}$'
 		if not re.match(password_pattern, password):
-			return render_template('register.html', error="Invalid password.", username=username, email=email)
+			return render_template('register.html', error="Invalid password.", username=username, email=email, currentUrl="/register")
 
 		email_pattern = r'([-!#-\'*+/-9=?A-Z^-~]+(\.[-!#-\'*+/-9=?A-Z^-~]+)*|"([]!#-[^-~ \t]|(\\[\t -~]))+")@[0-9A-Za-z]([0-9A-Za-z-]{0,61}[0-9A-Za-z])?(\.[0-9A-Za-z]([0-9A-Za-z-]{0,61}[0-9A-Za-z])?)+'
 		if not re.match(email_pattern, email):
-			return render_template('register.html', error="Invalid email.", username=username, email=email)
+			return render_template('register.html', error="Invalid email.", username=username, email=email, currentUrl="/register")
 
-		existing_user = User.query.filter_by(username=username).first()
+		existing_user = User.query.filter(func.lower(User.username) == username.lower()).first()
 		if existing_user:
-			return render_template('register.html', error="Username already exists.", email=email)
+			return render_template('register.html', error="Username already exists.", email=email, currentUrl="/register")
 
 		existing_email = User.query.filter_by(email=email).first()
 		if existing_email:
-			return render_template('register.html', error="Email already exists.", username=username)
+			return render_template('register.html', error="Email already exists.", username=username, currentUrl="/register")
 
 		hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
 		new_user = User(username=username, email=email, password=hashed_password)
 		db.session.add(new_user)
 		db.session.commit()
 
-		flash("Account created successfully!", "success")
-		return redirect(url_for('login'))
+		return render_template('login.html', success="Account created successfully. Please login.", email=email, currentUrl="/login")
 
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-		return render_template('register.html')
+		return render_template('register.html', currentUrl="/register")
 	else:
-		return render_template('base.html', content=render_template('register.html'))
+		return render_template('base.html', content=render_template('register.html'), currentUrl="/register")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	if 'user' in session:
-		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-			return render_template('profile.html', user=session['user'], email=session['email'], created_at=session['created_at'])
-		else:
-			return redirect(url_for('profile'))
-	
+		return redirect(url_for('profile'))
 	if request.method == 'POST':
 		email = request.form.get('email').strip()
 		password = request.form.get('password')
 
 		if not email or not password:
-			return render_template('login.html', error="Please fill in all fields.", email=email)
+			return render_template('login.html', error="Please fill in all fields.", email=email, currentUrl="/login")
 
 		user = User.query.filter_by(email=email).first()
 		if user and check_password_hash(user.password, password):
@@ -182,14 +183,14 @@ def login():
 
 			return response
 		elif user:
-			return render_template('login.html', error="Invalid password.", email=email)
+			return render_template('login.html', error="Invalid password.", email=email, currentUrl="/login")
 		else:
-			return render_template('login.html', error="Invalid email.", email=email)
+			return render_template('login.html', error="Invalid email.", email=email, currentUrl="/login")
 	
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-		return render_template('login.html')
+		return render_template('login.html', currentUrl="/login")
 	else:
-		return render_template('base.html', content=render_template('login.html'))
+		return render_template('base.html', content=render_template('login.html'), currentUrl="/login")
 
 @app.route('/logout')
 def logout():
@@ -237,6 +238,9 @@ def profile():
 					'duration': format_duration(song.duration)
 				})
 
+		load_button = True
+		if len(songs_list) < 25:
+			load_button = False
 		total_duration = format_duration(total_duration_seconds)
 
 		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -248,7 +252,9 @@ def profile():
 				user_id=user.id,
 				total_duration=total_duration,
 				total_listened=total_listened,
-				songs_list=songs_list
+				songs_list=songs_list,
+				load_button=load_button,
+				currentUrl="/profile"
 			)
 
 		return render_template(
@@ -261,14 +267,16 @@ def profile():
 				user_id=user.id,
 				total_duration=total_duration,
 				total_listened=total_listened,
-				songs_list=songs_list
+				songs_list=songs_list,
+				load_button=load_button,
+				currentUrl="/profile"
 			)
 		)
 	else:
 		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-			return render_template('login.html')
+			return render_template('login.html', currentUrl="/login")
 		else:
-			return render_template('base.html', content=render_template('login.html'))
+			return render_template('base.html', content=render_template('login.html', currentUrl="/login"))
 
 @app.route('/api/user_activity', methods=['GET'])
 def get_user_activity():

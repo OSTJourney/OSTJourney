@@ -6,6 +6,22 @@ body {
 	color: #b3b3b3;
 }
 
+#currentUrl {
+	display: none;
+}
+
+.error-msg, .success-msg {
+	font-style: italic;
+}
+
+.error-msg {
+	color: lightcoral;
+}
+
+.success-msg {
+	color: lightgreen;
+}
+
 /*Css for navigation bar*/
 nav {
 	position: fixed;

@@ -1,6 +1,6 @@
 const form = document.getElementById('register-form');
 const usernameField = document.getElementById('username');
-const emailField = document.getElementById('email'); // Champ email ajouté
+const emailField = document.getElementById('email');
 const passwordField = document.getElementById('password');
 const confirmPasswordField = document.getElementById('confirm_password');
 const errorMessageDiv = document.createElement('div');

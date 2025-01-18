@@ -1,6 +1,10 @@
+<h1 id="currentUrl">{{ currentUrl }}</h1>
 <h2>Login</h2>
 {% if error %}
-	<p>{{ error }}</p>
+	<p class="error-msg">{{ error }}</p>
+{% endif %}
+{% if success %}
+	<p class="success-msg">{{ success }}</p>
 {% endif %}
 <form id="login-form" method="POST" action="{{ url_for('login') }}">
 	<div id="error-message" class="error-message"></div>
@@ -12,3 +16,4 @@
 		   placeholder="Enter your password" minlength="8">
 	<button type="submit">Login</button>
 </form>
+<script src="{{ url_for('static', filename='js/dup_check.js') }}"></script>
