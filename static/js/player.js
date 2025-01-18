@@ -261,6 +261,8 @@ function attachAudioEventListeners() {
 			sendListeningData(song, 'end');
 			if (random == 1) {
 				change_song(Math.floor(Math.random() * 32018));
+			} else if (repeat == 1) {
+				change_song(song);
 			} else {
 				change_song(song + 1);
 			}
@@ -314,7 +316,9 @@ volume.oninput = function () {
 };
 
 var random_button = document.getElementById('player-button-random');
+var repeat_button = document.getElementById('player-button-repeat');
 var random = 0;
+var repeat = 0;
 
 random_button.addEventListener('click', function () {
 	if (random == 0) {
@@ -324,9 +328,19 @@ random_button.addEventListener('click', function () {
 	}
 });
 
+repeat_button.addEventListener('click', function () {
+	if (repeat == 0) {
+		repeat = 1;
+	} else {
+		repeat = 0;
+	}
+});
+
 document.getElementById('player-button-next').addEventListener('click', function () {
 	if (random == 1) {
 		change_song(Math.floor(Math.random() * 32018));
+	} else if (repeat == 1) {
+		change_song(song);
 	} else {
 		change_song(song + 1);
 	}
@@ -336,6 +350,8 @@ document.getElementById('player-button-next').addEventListener('click', function
 document.getElementById('player-button-back').addEventListener('click', function () {
 	if (random == 1) {
 		change_song(Math.floor(Math.random() * 32018));
+	} else if (repeat == 1) {
+		change_song(song);
 	} else {
 		change_song(song - 1);
 	}

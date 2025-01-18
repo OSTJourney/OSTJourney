@@ -284,6 +284,7 @@ nav {
 
 .player-slider {
 	outline: none;
+	appearance: none;
 	-webkit-appearance: none;
 	border-radius: 5px;
 	height: 1vh;

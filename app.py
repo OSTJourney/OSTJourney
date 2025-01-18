@@ -1,23 +1,28 @@
-from datetime import datetime, timedelta
+import json
+import os
 import re
-from flask import Flask, render_template, url_for, request, redirect, flash, session, send_from_directory, make_response ,jsonify, abort
+import uuid
+from datetime import datetime, timedelta
+
+from dotenv import load_dotenv
+from flask import Flask, render_template, url_for, request, redirect, flash, session, send_from_directory, make_response, jsonify, abort
 from itsdangerous import URLSafeTimedSerializer
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc, func
 from werkzeug.security import generate_password_hash, check_password_hash
-from config import Config
+
 from app_utils import *
-import uuid
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = Config.SECRET_KEY
+app.secret_key = os.getenv('SECRET_KEY')
 
 serializer = URLSafeTimedSerializer(app.secret_key)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///songs.db'
-app.config['SQLALCHEMY_BINDS'] = {
-	'users': 'sqlite:///users.db'
-}
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
+binds = os.getenv('SQLALCHEMY_BINDS', '{}')  # Utilise un dictionnaire vide par défaut
+app.config['SQLALCHEMY_BINDS'] = json.loads(binds) if binds else {}
 db = SQLAlchemy(app)
 
 class Songs(db.Model):
