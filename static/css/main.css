@@ -6,6 +6,11 @@ body {
 	color: #b3b3b3;
 }
 
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
 #currentUrl {
 	display: none;
 }
@@ -20,6 +25,17 @@ body {
 
 .success-msg {
 	color: lightgreen;
+}
+
+.no-select {
+	-webkit-user-select: none !important;
+	-moz-user-select: none !important;
+	-ms-user-select: none !important;
+	user-select: none !important;
+}
+
+.no-drag {
+	pointer-events: none;
 }
 
 /*Css for navigation bar*/
@@ -97,7 +113,7 @@ nav {
 	justify-content: center;
   }
   
-  .Song-info-text {
+.Song-info-text {
 	font-weight: bold;
 	max-height: 2vw;
 	height: fit-content;
@@ -141,17 +157,28 @@ nav {
 	}
 }
 
-#song-link-container {
-	margin-top: 1em;
-	margin-left: 10%;
+#copy-content {
+	display: flex;
+	width: fit-content;
+	flex-direction: column;
+	margin-left: 1em;
+}
+
+#copy-info {
 	display: flex;
 	flex-direction: row;
-	justify-content: center;
 	align-items: center;
+	cursor: pointer;
+}
+
+#song-link-container {
+	display: flex;
+	flex-direction: row;
 }
 
 #song-link {
 	margin-right: 1em;
+	
 }
 
 /*CSS For the audio player*/

@@ -6,20 +6,20 @@ var player_info_text = document.querySelector('#player-song-info-text');
 var player_cover = document.getElementById('player-cover');
 const parentWidth = document.getElementById('player-song-info-text').offsetWidth;
 const animationKeyframes = `
-  @keyframes scroll-left {
+	@keyframes scroll-left {
 	0% {
-	  transform: translateX(0%);
+		transform: translateX(0%);
 	}
 	42% {
-	  transform: translateX(calc(-100% + ${parentWidth}px));
+		transform: translateX(calc(-100% + ${parentWidth}px));
 	}
 	50% {
-	  transform: translateX(calc(-100% + ${parentWidth}px));
+		transform: translateX(calc(-100% + ${parentWidth}px));
 	}
 	92% {
-	  transform: translateX(0%);
+		transform: translateX(0%);
 	}
-  }
+	}
 `;
 
 const styleSheet = document.createElement('style');
@@ -351,6 +351,8 @@ var song_info_num = document.getElementById('Song-info-num');
 var song_info_title = document.getElementById('Song-info-title');
 var song_info_artist = document.getElementById('Song-info-artist');
 var song_info_album = document.getElementById('Song-info-album');
+var song_info_year = document.getElementById('Song-info-year');
+var song_info_publisher = document.getElementById('Song-info-publisher');
 var song_info_genre = document.getElementById('Song-info-genre');
 var song_link = document.getElementById('song-link');
 const song_link_copy = document.getElementById('song-link-copy');
@@ -358,55 +360,88 @@ var song_link_value = null;
 
 var song_info_status = 0;
 
+function copyTextToClipboard(text) {
+	if (navigator.clipboard) {
+	navigator.permissions.query({ name: 'clipboard-write' })
+		.then(permissionStatus => {
+		if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
+			navigator.clipboard.writeText(text)
+			.then(() => {
+				console.log('Text copied to clipboard');
+			})
+			.catch((err) => {
+				console.error('Error copying text: ', err);
+			});
+		} else {
+			console.error('Permission denied for clipboard-write');
+			alert('Permission denied for clipboard. Please enable it in your browser settings.');
+		}
+		})
+		.catch((err) => {
+		console.error('Error checking clipboard permissions: ', err);
+		});
+	} else {
+	console.error('Clipboard API not available in this browser');
+	alert('Clipboard API is not supported in your browser.');
+	}
+}
+
 song_link_copy.addEventListener('click', function () {
 	song_link_value = window.location.origin + "/?song=" + song;
 	if (song_link_value) {
-	  if (navigator.clipboard) {
-		navigator.permissions.query({ name: 'clipboard-write' })
-		  .then(permissionStatus => {
-			if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
-			  navigator.clipboard.writeText(song_link_value)
-				.then(() => {
-				  console.log('Song link copied to clipboard');
-				})
-				.catch((err) => {
-				  console.error('Error copying text: ', err);
-				});
-			} else {
-			  console.error('Permission denied for clipboard-write');
-			  alert('Permission denied for clipboard. Please enable it in your browser settings.');
-			}
-		  })
-		  .catch((err) => {
-			console.error('Error checking clipboard permissions: ', err);
-		  });
-	  } else {
-		console.error('Clipboard API not available in this browser');
-		alert('Clipboard API is not supported in your browser.');
-	  }
+		copyTextToClipboard(song_link_value);
 	}
-  });
-  
+});
+
+document.getElementById('copy-info').addEventListener('click', function () {
+	const songInfoText = `
+Title: ${song_info_title.textContent.trim()}
+Artist: ${song_info_artist.textContent.trim()}
+Album: ${song_info_album.textContent.trim()}
+Disk: ${song_info_num.textContent.split(" | ")[0].replace('Disk: ', '')} | No: ${song_info_num.textContent.split(" | ")[1].replace('No: ', '')}
+Release date: ${document.getElementById('Song-info-year').textContent.replace('Release date: ', '')}
+Publisher: ${document.getElementById('Song-info-publisher').textContent.replace('Publisher: ', '')}
+Genre: ${song_info_genre.textContent.trim()}
+`;
+
+	copyTextToClipboard(songInfoText);
+});
+
+const songInfoElements = [
+	song_info_title,
+	song_info_artist,
+	song_info_album,
+	song_info_year,
+	song_info_publisher,
+	song_info_genre
+];
+	
+songInfoElements.forEach(element => {
+	element.addEventListener('click', function () {
+		const textToCopy = element.textContent.trim().replace(/^.*?:\s*/, '');
+		copyTextToClipboard(textToCopy);
+	});
+});	
 
 document.getElementById('player-song-info').addEventListener('click', function (event) {
-  event.stopPropagation();
-  if (getComputedStyle(song_info_frame).display === 'none') {
-	song_info_frame.style.display = 'flex';
-	song_info_status = song;
-	load_song_info(song);
-  } else {
-	song_info_frame.style.display = 'none';
-  }
+	event.stopPropagation();
+	if (getComputedStyle(song_info_frame).display === 'none') {
+		song_info_frame.style.display = 'flex';
+		song_info_status = song;
+		load_song_info(song);
+	} else {
+		song_info_frame.style.display = 'none';
+	}
 });
 
 document.addEventListener('click', (event) => {
-  if (
-	getComputedStyle(song_info_frame).display === 'flex' &&
-	!song_info_frame.contains(event.target) &&
-	!player.contains(event.target)
-  ) {
-	song_info_frame.style.display = 'none';
-  }
+	if (
+		getComputedStyle(song_info_frame).display === 'flex' &&
+		!song_info_frame.contains(event.target) &&
+		!player.contains(event.target)
+	) {
+		song_info_frame.style.display = 'none';
+	}
 });
 
 function shouldScroll(element) {
@@ -468,45 +503,28 @@ function load_song_info(songNumber) {
 			const coverElement = document.getElementById('Song-info-cover');
 			coverElement.src = cover;
 
-			// Ajout du défilement pour chaque élément
-			const scrollElementTitle = document.getElementById('Song-info-title-scroll');
-			const scrollElementArtist = document.getElementById('Song-info-artist-scroll');
-			const scrollElementAlbum = document.getElementById('Song-info-album-scroll');
-			const scrollElementGenre = document.getElementById('Song-info-genre-scroll');
-		
-			document.getElementById('Song-info-title').addEventListener('mouseenter', function () {
-				if (shouldScroll(scrollElementTitle)) {
-					scrollElementTitle.classList.add('scroll-left-info');
-				}
+			const ScrollElements = [
+				{ element: 'Song-info-title', scrollElement: 'Song-info-title-scroll' },
+				{ element: 'Song-info-artist', scrollElement: 'Song-info-artist-scroll' },
+				{ element: 'Song-info-album', scrollElement: 'Song-info-album-scroll' },
+				{ element: 'Song-info-genre', scrollElement: 'Song-info-genre-scroll' }
+			];
+			
+			ScrollElements.forEach(info => {
+				const mainElement = document.getElementById(info.element);
+				const scrollElement = document.getElementById(info.scrollElement);
+			
+				mainElement.addEventListener('mouseenter', function () {
+					if (shouldScroll(scrollElement)) {
+						scrollElement.classList.add('scroll-left-info');
+					}
+				});
+			
+				mainElement.addEventListener('mouseleave', function () {
+					scrollElement.classList.remove('scroll-left-info');
+				});
 			});
-			document.getElementById('Song-info-artist').addEventListener('mouseenter', function () {
-				if (shouldScroll(scrollElementArtist)) {
-					scrollElementArtist.classList.add('scroll-left-info');
-				}
-			});
-			document.getElementById('Song-info-album').addEventListener('mouseenter', function () {
-				if (shouldScroll(scrollElementAlbum)) {
-					scrollElementAlbum.classList.add('scroll-left-info');
-				}
-			});
-			document.getElementById('Song-info-genre').addEventListener('mouseenter', function () {
-				if (shouldScroll(scrollElementGenre)) {
-					scrollElementGenre.classList.add('scroll-left-info');
-				}
-			});
-
-			document.getElementById('Song-info-title').addEventListener('mouseleave', function () {
-				scrollElementTitle.classList.remove('scroll-left-info');
-			});
-			document.getElementById('Song-info-artist').addEventListener('mouseleave', function () {
-				scrollElementArtist.classList.remove('scroll-left-info');
-			});
-			document.getElementById('Song-info-album').addEventListener('mouseleave', function () {
-				scrollElementAlbum.classList.remove('scroll-left-info');
-			});
-			document.getElementById('Song-info-genre').addEventListener('mouseleave', function () {
-				scrollElementGenre.classList.remove('scroll-left-info');
-			});
+			
 
 		})
 		.catch(error => {

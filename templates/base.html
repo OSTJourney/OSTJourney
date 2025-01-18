@@ -22,8 +22,8 @@
 			{% endif %}
 		</div>
 		<div id="Song-info" style="display: none;">
-			<div id="Song-info-top">
-				<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="Song-info-cover" alt="Cover">
+			<div id="Song-info-top" class="no-select">
+				<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="Song-info-cover" alt="Cover" class="no-drag">
 				<div id="Song-info-main">
 					<div id="Song-info-title" class="Song-info-text">
 						<div id='Song-info-title-scroll'></div>
@@ -48,18 +48,24 @@
 					</div>
 				</div>
 			</div>
-			<div id="song-link-container">
-				<a id="song-link">Link to song</a>
-				<button id="song-link-copy">copy</button>
-			</div> 
+			<div id="copy-content">
+				<div id="copy-info">
+					<span>Copy the song information</span>
+					<img src="{{ url_for('static', filename='images/various/copy.svg') }}" id="Song-info-copy" class="no-select no-drag" alt="Copy" style="width: 30px; height: 30px; margin: 1em;">
+				</div>
+				<div id="song-link-container">
+					<a id="song-link">Link to song</a>
+					<button id="song-link-copy">copy</button>
+				</div> 
+			</div>
 			<div id="additional-tags">
 			</div>
 		</div>			
 		{% block body %}{% endblock %}
 	</body>
-	<div class="footer">
+	<div class="footer no-select">
 		<div id="player-song-info">
-			<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="player-cover">
+			<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="player-cover" class="no-drag">
 			<div id="player-song-info-text">
 				<div id="player-song-title" class="player-song-info-text">
 					<span>Titre de la chanson tres long pour test le scroll</span>
