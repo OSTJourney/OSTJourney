@@ -126,19 +126,20 @@ function updateMetaTagsAndFavicon(title, artist, coverUrl) {
 	document.title = `OSTJourney | ${title} - ${artist}`;
 }
 
-const total_songs = fetch('/api/songs')
-	.then(response => response.json())
-	.then(data => {
-		return data.song_count;
-	})
-	.catch(error => {
-	console.error("Error fetching song count:", error);
-});
-
+let total_songs = 0;
 
 window.onload = async function () {
 	const urlParams = new URLSearchParams(window.location.search);
 
+	try {
+		const response = await fetch('/api/songs');
+		const data = await response.json();
+		total_songs = data.song_count;
+	} catch (error) {
+		console.error("Error fetching song count:", error);
+	}
+
+	let song;
 	if (urlParams.has('song')) {
 		const songParam = parseInt(urlParams.get('song'), 10);
 		if (!isNaN(songParam)) {
@@ -151,7 +152,6 @@ window.onload = async function () {
 			if (data.latest_session_id) {
 				song = data.latest_session_id;
 			} else {
-
 				song = Math.floor(Math.random() * total_songs);
 			}
 		} catch (error) {
