@@ -18,6 +18,9 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
+songs_dir = os.path.join(base_dir, "songs")
+
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
@@ -428,11 +431,19 @@ def get_song(id):
 		'duration': song.duration,
 		'path': song.path,
 		'tags': song.tags
-	}
+}
+
+@app.route('/api/songs', methods=['GET'])
+def get_songs():
+	song_count = Songs.query.count()
+
+	return jsonify({
+		'song_count': song_count
+})
 
 @app.route('/songs/<path:filename>')
 def media(filename):
-	return send_from_directory("/home/server/songs", filename)
+	return send_from_directory(songs_dir, filename)
 
 @app.route('/api/music/start', methods=['POST'])
 def start_music():

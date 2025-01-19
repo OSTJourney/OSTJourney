@@ -126,7 +126,16 @@ function updateMetaTagsAndFavicon(title, artist, coverUrl) {
 	document.title = `OSTJourney | ${title} - ${artist}`;
 }
 
-//15697
+const total_songs = fetch('/api/songs')
+	.then(response => response.json())
+	.then(data => {
+		return data.song_count;
+	})
+	.catch(error => {
+	console.error("Error fetching song count:", error);
+});
+
+
 window.onload = async function () {
 	const urlParams = new URLSearchParams(window.location.search);
 
@@ -143,11 +152,11 @@ window.onload = async function () {
 				song = data.latest_session_id;
 			} else {
 
-				song = Math.floor(Math.random() * 32018);
+				song = Math.floor(Math.random() * total_songs);
 			}
 		} catch (error) {
 			console.error('Error fetching the latest session:', error);
-			song = Math.floor(Math.random() * 32018);
+			song = Math.floor(Math.random() * total_songs);
 		}
 	}
 
@@ -260,7 +269,7 @@ function attachAudioEventListeners() {
 		audio.addEventListener("ended", function () {
 			sendListeningData(song, 'end');
 			if (random == 1) {
-				change_song(Math.floor(Math.random() * 32018));
+				change_song(Math.floor(Math.random() * total_songs));
 			} else if (repeat == 1) {
 				change_song(song);
 			} else {
@@ -338,7 +347,7 @@ repeat_button.addEventListener('click', function () {
 
 document.getElementById('player-button-next').addEventListener('click', function () {
 	if (random == 1) {
-		change_song(Math.floor(Math.random() * 32018));
+		change_song(Math.floor(Math.random() * total_songs));
 	} else if (repeat == 1) {
 		change_song(song);
 	} else {
@@ -349,7 +358,7 @@ document.getElementById('player-button-next').addEventListener('click', function
 
 document.getElementById('player-button-back').addEventListener('click', function () {
 	if (random == 1) {
-		change_song(Math.floor(Math.random() * 32018));
+		change_song(Math.floor(Math.random() * total_songs));
 	} else if (repeat == 1) {
 		change_song(song);
 	} else {

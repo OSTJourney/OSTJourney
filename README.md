@@ -58,18 +58,14 @@ SQLALCHEMY_BINDS = '{"users": "sqlite:///users.db"}'
 ```
 
 ### 2. **Initialize the Databases**
-Run:
-```bash
-flask db init
-flask db migrate -m "Initial migration"
-flask db upgrade
-```
+
 **Add Songs and Metadata**
 Put all your `.mp3` files in the `songs` folder and run the following script to populate the database with song data and extract metadata:
 ```
 python update_db.py
 ```
-**Note:** Depending on the number of files, this may take a few minutes to generate the database containing all the songs and their metadata, including cover art extraction.
+**Note:** Depending on the number of files, this may take a few minutes to generate the database containing all the songs and their metadata, including cover art extraction.</br></br>
+**Move** the resulting file `songs.db` in `instance`.
 
 ---
 
@@ -78,7 +74,7 @@ python update_db.py
 ### Start the Flask Development Server:
 
 ```bash
-flask run
+python app.py
 ```
 **Expected Output:**
 ```
