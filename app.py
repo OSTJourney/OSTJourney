@@ -334,14 +334,27 @@ def get_user_activity():
 						day_data = year_activities[current_date_str]
 						formatted_duration = format_duration(day_data['total_duration'])
 						day_data['formatted_duration'] = formatted_duration
+
+						if day_data['total_duration'] > 0:
+							year_data[year]['min_duration'] = min(year_data[year]['min_duration'], day_data['total_duration'])
+							year_data[year]['max_duration'] = max(year_data[year]['max_duration'], day_data['total_duration'])
+						if day_data['total_songs'] > 0:
+							year_data[year]['min_songs'] = min(year_data[year]['min_songs'], day_data['total_songs'])
+							year_data[year]['max_songs'] = max(year_data[year]['max_songs'], day_data['total_songs'])
 					else:
 						day_data = {'total_duration': 0, 'total_songs': 0, 'formatted_duration': '00:00:00'}
 
 					year_data[year]['data'][current_date_str] = day_data
-					year_data[year]['min_duration'] = min(year_data[year]['min_duration'], day_data['total_duration'])
-					year_data[year]['max_duration'] = max(year_data[year]['max_duration'], day_data['total_duration'])
-					year_data[year]['min_songs'] = min(year_data[year]['min_songs'], day_data['total_songs'])
-					year_data[year]['max_songs'] = max(year_data[year]['max_songs'], day_data['total_songs'])
+
+			if year_data[year]['min_duration'] == float('inf'):
+				year_data[year]['min_duration'] = 0
+			if year_data[year]['min_songs'] == float('inf'):
+				year_data[year]['min_songs'] = 0
+
+			if year_data[year]['max_duration'] == float('-inf'):
+				year_data[year]['max_duration'] = 0
+			if year_data[year]['max_songs'] == float('-inf'):
+				year_data[year]['max_songs'] = 0
 
 		return {'status': 'success', 'year_data': year_data}
 

@@ -520,6 +520,12 @@ nav {
 	color: #b3b3b3;
 }
 
+.heatmap-ratio-active
+{
+	background-color: #7C80FC;
+	color: #363a4f;
+}
+
 /* Table Styles */
 table {
 	border-collapse: collapse;

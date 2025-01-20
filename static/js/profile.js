@@ -78,42 +78,49 @@ fetch('/profile/history/24h')
 });
 
 //Activity Chart
-function getColorForDuration(duration, minDuration, maxDuration, isDuration) {
+function getColorForDuration(duration, minDuration, maxDuration, type) {
 	const range = maxDuration - minDuration;
+	duration -= minDuration;
+	maxDuration -= minDuration;
+	let palettes = [
+	// Palette 0 : green
+		[[22, 27, 34],
+		[14, 68, 41],
+		[0, 109, 50],
+		[38, 166, 65],
+		[57, 211, 83]],
+	// Palette 1 : blue
+		[[22, 27, 34],
+		[24, 48, 84],
+		[26, 69, 135],
+		[29, 90, 185],
+		[31, 111, 235]],
+	// Palette 2 : purple
+		[[27, 27, 34],
+		[48, 52, 89],
+		[73, 78, 143],
+		[99, 103, 198],
+		[124, 128, 252]]];
 
-	let r, g, b;
+	let selectedPalette = palettes[type];
 
-	if (!isDuration) {
-		if (duration === 0) {
-			r = 22; g = 27; b = 34;
-		} else if (duration <= range / 4) {
-			r = 14; g = 68; b = 41;
-		} else if (duration <= range / 2) {
-			r = 0; g = 109; b = 50;
-		} else if (duration <= (range * 3) / 4) {
-			r = 38; g = 166; b = 65;
-		} else {
-			r = 57; g = 211; b = 83;
-		}
-	} else {
-		if (duration === 0) {
-			r = 22; g = 27; b = 34;
-		} else if (duration <= range / 4) {
-			r = 24; g = 48; b = 84;
-		} else if (duration <= range / 2) {
-			r = 26; g = 69; b = 135;
-		} else if (duration <= (range * 3) / 4) {
-			r = 29; g = 90; b = 185;
-		} else {
-			r = 31; g = 111; b = 235;
-		}
-	}
+	let index;
+	if (duration < 0) index = 0;
+	else if (duration == 0 && minDuration == 0) index = 0;
+	else if (duration <= range / 4) index = 1;
+	else if (duration <= range / 2) index = 2;
+	else if (duration <= (range * 3) / 4) index = 3;
+	else index = 4;
+	if (type === 2) console.log(minDuration, maxDuration, duration, index);
+	let [r, g, b] = selectedPalette[index];
+
 	return `rgb(${r}, ${g}, ${b})`;
 }
 
+
 let yearData = {};
 let year = null;
-let isDuration = false;
+let type = 0;
 
 document.getElementById('heatmap-song').classList.add('heatmap-song-active');
 
@@ -126,6 +133,31 @@ async function fetchActivityData() {
 			yearData = data.year_data;
 			const years = Object.keys(yearData);
 
+			for (const year of years) {
+				const yearInfo = yearData[year];
+				const dailyData = yearInfo.data;
+
+				let minRatio = Infinity;
+				let maxRatio = -Infinity;
+				let hasValidData = false;
+
+				for (const date in dailyData) {
+					const { total_duration, total_songs } = dailyData[date];
+					const ratio = total_songs > 0 ? total_duration / total_songs : 0;
+
+					dailyData[date].ratio = ratio;
+
+					if (total_duration > 0 && total_songs > 0) {
+						hasValidData = true;
+						if (ratio < minRatio) minRatio = ratio;
+						if (ratio > maxRatio) maxRatio = ratio;
+					}
+				}
+
+				yearInfo.min_ratio = hasValidData ? minRatio : 0;
+				yearInfo.max_ratio = hasValidData ? maxRatio : 0;
+			}
+
 			const today = new Date();
 			const lastYear = today.getFullYear() - 1;
 
@@ -134,7 +166,7 @@ async function fetchActivityData() {
 			}
 			populateYearSelector(years, yearData);
 			year = years[0];
-			loadHeatmap(yearData, year, isDuration);
+			loadHeatmap(yearData, year, type);
 		} else {
 			console.error('Error fetching user activity data:', data.message);
 		}
@@ -142,6 +174,7 @@ async function fetchActivityData() {
 		console.error('Error fetching user activity data:', error);
 	}
 }
+
 
 function generateDefaultYearData(year) {
 	const defaultData = {};
@@ -151,7 +184,8 @@ function generateDefaultYearData(year) {
 			defaultData[currentDate] = {
 				total_duration: 0,
 				total_songs: 0,
-				formatted_duration: '0h 0m'
+				formatted_duration: '0h 0m',
+				ratio: 0
 			};
 		}
 	}
@@ -160,7 +194,9 @@ function generateDefaultYearData(year) {
 		min_duration: 0,
 		max_duration: 0,
 		min_songs: 0,
-		max_songs: 0
+		max_songs: 0,
+		min_ratio: 0,
+		max_ratio: 0
 	};
 }
 
@@ -177,37 +213,47 @@ function populateYearSelector(years, yearData) {
 
 	yearSelect.addEventListener('change', (event) => {
 		year = event.target.value;
-		loadHeatmap(yearData, year, isDuration);
+		loadHeatmap(yearData, year, type);
 	});
 }
 
 document.getElementById('heatmap-song').addEventListener('click', function () {
-	if (isDuration) {
-		isDuration = false;
-		this.classList.add('heatmap-song-active');
-		document.getElementById('heatmap-duration').classList.remove('heatmap-duration-active');
-		loadHeatmap(yearData, year, isDuration);
-		document.getElementById('heatmap-scale2').style.backgroundColor = 'rgb(14, 68, 41)';
-		document.getElementById('heatmap-scale3').style.backgroundColor = 'rgb(0, 109, 50)';
-		document.getElementById('heatmap-scale4').style.backgroundColor = 'rgb(38, 166, 65)';
-		document.getElementById('heatmap-scale5').style.backgroundColor = 'rgb(57, 211, 83)';
-	}
+	type = 0;
+	this.classList.add('heatmap-song-active');
+	document.getElementById('heatmap-duration').classList.remove('heatmap-duration-active');
+	document.getElementById('heatmap-ratio').classList.remove('heatmap-ratio-active');
+	document.getElementById('heatmap-scale2').style.backgroundColor = 'rgb(14, 68, 41)';
+	document.getElementById('heatmap-scale3').style.backgroundColor = 'rgb(0, 109, 50)';
+	document.getElementById('heatmap-scale4').style.backgroundColor = 'rgb(38, 166, 65)';
+	document.getElementById('heatmap-scale5').style.backgroundColor = 'rgb(57, 211, 83)';
+	loadHeatmap(yearData, year, type);
 });
 
 document.getElementById('heatmap-duration').addEventListener('click', function () {
-	if (!isDuration) {
-		isDuration = true;
-		this.classList.add('heatmap-duration-active');
-		document.getElementById('heatmap-song').classList.remove('heatmap-song-active');
-		loadHeatmap(yearData, year, isDuration);
-		document.getElementById('heatmap-scale2').style.backgroundColor = 'rgb(24, 48, 84)';
-		document.getElementById('heatmap-scale3').style.backgroundColor = 'rgb(26, 69, 135)';
-		document.getElementById('heatmap-scale4').style.backgroundColor = 'rgb(29, 90, 185)';
-		document.getElementById('heatmap-scale5').style.backgroundColor = 'rgb(31, 111, 235)';
-	}
+	type = 1;
+	this.classList.add('heatmap-duration-active');
+	document.getElementById('heatmap-song').classList.remove('heatmap-song-active');
+	document.getElementById('heatmap-ratio').classList.remove('heatmap-ratio-active');
+	document.getElementById('heatmap-scale2').style.backgroundColor = 'rgb(24, 48, 84)';
+	document.getElementById('heatmap-scale3').style.backgroundColor = 'rgb(26, 69, 135)';
+	document.getElementById('heatmap-scale4').style.backgroundColor = 'rgb(29, 90, 185)';
+	document.getElementById('heatmap-scale5').style.backgroundColor = 'rgb(31, 111, 235)';
+	loadHeatmap(yearData, year, type);
 });
 
-function loadHeatmap(yearData, year, isDuration) {
+document.getElementById('heatmap-ratio').addEventListener('click', function () {
+	type = 2;
+	this.classList.add('heatmap-ratio-active');
+	document.getElementById('heatmap-song').classList.remove('heatmap-song-active');
+	document.getElementById('heatmap-duration').classList.remove('heatmap-duration-active');
+	document.getElementById('heatmap-scale2').style.backgroundColor = 'rgb(48, 52, 89)';
+	document.getElementById('heatmap-scale3').style.backgroundColor = 'rgb(73, 78, 143)';
+	document.getElementById('heatmap-scale4').style.backgroundColor = 'rgb(99, 103, 198)';
+	document.getElementById('heatmap-scale5').style.backgroundColor = 'rgb(124, 128, 252)';
+	loadHeatmap(yearData, year, type);
+});
+
+function loadHeatmap(yearData, year, type) {
 	const heatmapContainer = document.getElementById('heatmap');
 	heatmapContainer.innerHTML = '';
 
@@ -216,6 +262,8 @@ function loadHeatmap(yearData, year, isDuration) {
 	const maxDuration = yearData[year].max_duration;
 	const minSongs = yearData[year].min_songs;
 	const maxSongs = yearData[year].max_songs;
+	const minRatio = yearData[year].min_ratio;
+	const maxRatio = yearData[year].max_ratio;
 
 	const firstDayOfYear = new Date(year, 0, 1);
 	const lastDayOfYear = new Date(year, 11, 31);
@@ -236,7 +284,7 @@ function loadHeatmap(yearData, year, isDuration) {
 		if (currentMonth !== previousMonth) {
 			const span = document.createElement('span');
 			span.textContent = monthNames[currentMonth];
-	  		th.appendChild(span);
+			th.appendChild(span);
 			previousMonth = currentMonth;
 		} else {
 			th.textContent = '';
@@ -267,14 +315,27 @@ function loadHeatmap(yearData, year, isDuration) {
 			if (targetDate.getFullYear() !== parseInt(year)) {
 				cell.style.backgroundColor = 'rgb(18, 18, 18)';
 			} else if (data[currentDate]) {
-				const { formatted_duration, total_duration, total_songs } = data[currentDate];
-				const value = isDuration ? total_duration : total_songs;
-				const minValue = isDuration ? minDuration : minSongs;
-				const maxValue = isDuration ? maxDuration : maxSongs;
+				const { formatted_duration, total_duration, total_songs, ratio } = data[currentDate];
 
-				const color = getColorForDuration(value, minValue, maxValue, isDuration);
+				let value, minValue, maxValue;
+				if (type === 0) {
+					value = total_songs;
+					minValue = minSongs;
+					maxValue = maxSongs;
+				} else if (type === 1) {
+					value = total_duration;
+					minValue = minDuration;
+					maxValue = maxDuration;
+				} else if (type === 2) {
+					value = ratio;
+					minValue = minRatio;
+					maxValue = maxRatio;
+				}
+
+				const color = getColorForDuration(value, minValue, maxValue, type);
 				cell.style.backgroundColor = color;
-				cell.title = `Date: ${currentDate}\nDuration: ${formatted_duration}\nSongs: ${total_songs}`;
+
+				cell.title = `Date: ${currentDate}\nDuration: ${formatted_duration}\nSongs: ${total_songs}\nRatio: ${ratio.toFixed(2)}`;
 			} else {
 				cell.style.backgroundColor = 'rgb(18, 18, 18)';
 			}

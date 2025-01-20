@@ -31,6 +31,7 @@
 			<div id="activity-heatmap-type">
 				<button class="activity-heatmap-button" id="heatmap-song">Songs played</button>
 				<button class="activity-heatmap-button" id="heatmap-duration">Listening time</button>
+				<button class="activity-heatmap-button" id="heatmap-ratio">Ratio</button>
 			</div>
 			<div id="heatmap-scale">
 				<p>Less&nbsp</p>
@@ -72,6 +73,8 @@
 	</table>
 	{% if load_button %}
 		<button id="load-more" data-offset="25">Load More</button>
+	{% else %}
+		<button id="load-more" data-offset="25" style="display: none;">Load More</button>
 	{% endif %}
 	<div style="height: 50vh;"></div>
 </div>
