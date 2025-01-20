@@ -125,6 +125,7 @@ nav {
 	white-space: nowrap;
 	overflow: hidden;
 	position: relative;
+	cursor: pointer !important;
 }
 
 .scroll-wrapper {

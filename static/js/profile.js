@@ -80,36 +80,29 @@ fetch('/profile/history/24h')
 //Activity Chart
 function getColorForDuration(duration, minDuration, maxDuration, isDuration) {
 	const range = maxDuration - minDuration;
-	const step = range / 4;
-	let level = Math.floor((duration - minDuration) / step);
 
-	if (duration > 0 && level === 0) {
-		level = 1;
-	}
-
-	level = Math.max(0, Math.min(level, 4));
 	let r, g, b;
 
 	if (!isDuration) {
-		if (level === 0) {
+		if (duration === 0) {
 			r = 22; g = 27; b = 34;
-		} else if (level === 1) {
+		} else if (duration <= range / 4) {
 			r = 14; g = 68; b = 41;
-		} else if (level === 2) {
+		} else if (duration <= range / 2) {
 			r = 0; g = 109; b = 50;
-		} else if (level === 3) {
+		} else if (duration <= (range * 3) / 4) {
 			r = 38; g = 166; b = 65;
 		} else {
 			r = 57; g = 211; b = 83;
 		}
 	} else {
-		if (level === 0) {
+		if (duration === 0) {
 			r = 22; g = 27; b = 34;
-		} else if (level === 1) {
+		} else if (duration <= range / 4) {
 			r = 24; g = 48; b = 84;
-		} else if (level === 2) {
+		} else if (duration <= range / 2) {
 			r = 26; g = 69; b = 135;
-		} else if (level === 3) {
+		} else if (duration <= (range * 3) / 4) {
 			r = 29; g = 90; b = 185;
 		} else {
 			r = 31; g = 111; b = 235;

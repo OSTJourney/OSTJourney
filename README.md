@@ -51,10 +51,21 @@ pip install -r requirements.txt
 
 ### 1. **Set Up Environment Variables**
 Create a `.env` file at the root of the project and add the following environment variables:
-```
-SECRET_KEY = "your_secret_key"
+```ini
+SECRET_KEY = "your_secret_key" # Put your secret key here
 SQLALCHEMY_DATABASE_URI = 'sqlite:///songs.db'
 SQLALCHEMY_BINDS = '{"users": "sqlite:///users.db"}'
+
+# SSL Configuration (only for production)
+SSL_CERT_PATH = ""  # Path to your SSL certificate (e.g. "ssl/cert.pem")
+SSL_KEY_PATH = ""   # Path to your SSL key (e.g. "ssl/key.pem")
+
+# Flask Environment
+FLASK_ENV = "development"  # Change to "production" when deploying in production
+
+# Flask Port (default: 5000)
+FLASK_PORT = 5000
+
 ```
 
 ### 2. **Initialize the Databases**
@@ -89,7 +100,6 @@ For deploying the website to a production environment:
 gunicorn -w 4 -b 0.0.0.0:8000 app:app
 ```
 3. **Environment Variables:** Ensure all environment variables are properly set for the production environment.
-4. **Disable Debug Mode:** Don't forget to disable Flask's debug mode by setting `app.run(debug=False)` in `app.py` before deploying.
 
 
 

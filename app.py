@@ -24,7 +24,7 @@ songs_dir = os.path.join(base_dir, "songs")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
-binds = os.getenv('SQLALCHEMY_BINDS', '{}')  # Utilise un dictionnaire vide par défaut
+binds = os.getenv('SQLALCHEMY_BINDS', '{}')
 app.config['SQLALCHEMY_BINDS'] = json.loads(binds) if binds else {}
 db = SQLAlchemy(app)
 
@@ -524,6 +524,11 @@ def end_music():
 		db.session.delete(listening_session)
 		db.session.commit()
 		return {'status': 'error', 'message': 'Listening session has expired'}
+	
+	if datetime.utcnow() < listening_session.start_time + timedelta(seconds=song.duration - 3):
+		db.session.delete(listening_session)
+		db.session.commit()
+		return {'status': 'error', 'message': 'Listening session is too short'}
 
 	duration_seconds = song.duration
 
@@ -572,4 +577,13 @@ def end_music():
 if __name__ == '__main__':
 	with app.app_context():
 		db.create_all()
-	app.run(debug=True)
+
+	ssl_cert_path = os.getenv('SSL_CERT_PATH')
+	ssl_key_path = os.getenv('SSL_KEY_PATH')
+	flask_env = os.getenv('FLASK_ENV')
+	flask_port = os.getenv('FLASK_PORT', 5000) 
+
+	if flask_env == 'production' and ssl_cert_path and ssl_key_path:
+		app.run(debug=False, host='0.0.0.0', port=int(flask_port), ssl_context=(ssl_cert_path, ssl_key_path))
+	else:
+		app.run(debug=True, host='127.0.0.1', port=int(flask_port))

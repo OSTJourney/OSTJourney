@@ -139,7 +139,6 @@ window.onload = async function () {
 		console.error("Error fetching song count:", error);
 	}
 
-	let song;
 	if (urlParams.has('song')) {
 		const songParam = parseInt(urlParams.get('song'), 10);
 		if (!isNaN(songParam)) {
@@ -215,7 +214,6 @@ function load_song(songNumber) {
 			player_title.textContent = title;
 			player_artist.textContent = artist;
 			player_album.textContent = album;
-
 			updateMetaTagsAndFavicon(title, artist, cover);
 
 			if (audio) {
@@ -225,16 +223,14 @@ function load_song(songNumber) {
 			audio = new Audio(file);
 			player_progress_bar.max = Math.floor(duration) * 100;
 
-			audio.addEventListener('canplaythrough', function() {
-				audio.play();
-				if (!audio.paused) {
-					player_button_play.src = playIcon;
-				}
-				attachAudioEventListeners();
-				audio.volume = volume.value / 100;
-				sendListeningData(songNumber, 'start');
-			});
-
+			audio.play();
+			if (!audio.paused) {
+				player_button_play.src = playIcon;
+			}
+			attachAudioEventListeners();
+			audio.volume = volume.value / 100;
+			sendListeningData(songNumber, 'start');
+			load_song_info(data);
 		})
 		.catch(error => {
 			console.error('Error while getting audio metadata', error);
@@ -392,7 +388,7 @@ function copyTextToClipboard(text) {
 		if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
 			navigator.clipboard.writeText(text)
 			.then(() => {
-				console.log('Text copied to clipboard');
+				alert('Text copied to clipboard');
 			})
 			.catch((err) => {
 				console.error('Error copying text: ', err);
@@ -453,7 +449,6 @@ document.getElementById('player-song-info').addEventListener('click', function (
 	if (getComputedStyle(song_info_frame).display === 'none') {
 		song_info_frame.style.display = 'flex';
 		song_info_status = song;
-		load_song_info(song);
 	} else {
 		song_info_frame.style.display = 'none';
 	}
@@ -474,85 +469,72 @@ function shouldScroll(element) {
 	return width > (window.innerWidth * 30.5 / 100);
 }
 
-function load_song_info(songNumber) {
-	const url = '/api/songs/' + songNumber;
+function load_song_info(data) {
+	const title = data.title || "Unknown Title";
+	const artist = data.artist || "Unknown Artist";
+	const album = data.album || "Unknown Album";
+	const cover = '/static/images/covers/' + (data.cover || "null") + '.jpg';
 
-	fetch(url)
-		.then(response => {
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
+	let tposValue = "N/A", trckValue = "N/A", tdrcValue = "Unknown", tpubValue = "Unknown", tconValue = "Unknown";
+
+	if (data.tags) {
+		try {
+			const tags = JSON.parse(data.tags);
+
+			if (Array.isArray(tags.Other)) {
+				const tpos = tags.Other.find(tag => tag[0] === "TPOS");
+				tposValue = tpos ? tpos[1] : "N/A";
+
+				const trck = tags.Other.find(tag => tag[0] === "TRCK");
+				trckValue = trck ? trck[1] : "N/A";
+
+				const tdrc = tags.Other.find(tag => tag[0] === "TDRC");
+				tdrcValue = tdrc ? tdrc[1] : "Unknown";
+
+				const tpub = tags.Other.find(tag => tag[0] === "TPUB");
+				tpubValue = tpub ? tpub[1] : "Unknown";
+
+				const tcon = tags.Other.find(tag => tag[0] === "TCON");
+				tconValue = tcon ? tcon[1] : "Unknown";
 			}
-			return response.json();
-		})
-		.then(data => {
-			const title = data.title || "Unknown Title";
-			const artist = data.artist || "Unknown Artist";
-			const album = data.album || "Unknown Album";
-			const cover = '/static/images/covers/' + data.cover + '.jpg';
+		} catch (error) {
+			console.warn('Error parsing tags:', error);
+		}
+	}
 
-			let tposValue = "N/A", trckValue = "N/A", tdrcValue = "Unknown", tpubValue = "Unknown", tconValue = "Unknown";
-			try {
-				const tags = JSON.parse(data.tags);
+	song_info_title.innerHTML = "<span>Title:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-title-scroll'>" + title + "</span> </div>";
+	song_info_artist.innerHTML = "<span>Artist:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-artist-scroll'>" + artist + "</span> </div>";
+	song_info_album.innerHTML = "<span>Album:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-album-scroll'>" + album + "</span> </div>";
+	song_info_genre.innerHTML = "<span>Genre:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-genre-scroll'>" + tconValue + "</span> </div>";
+	song_link.href = window.location.origin + "/?song=" + data.id;
 
-				if (Array.isArray(tags.Other)) {
-					const tpos = tags.Other.find(tag => tag[0] === "TPOS");
-					tposValue = tpos ? tpos[1] : "N/A";
+	document.getElementById('Song-info-year').textContent = "Release date: " + tdrcValue;
+	document.getElementById('Song-info-publisher').textContent = "Publisher: " + tpubValue;
+	const tposInfo = `Disk: ${tposValue} | No: ${trckValue}`;
+	song_info_num.textContent = tposInfo;
 
-					const trck = tags.Other.find(tag => tag[0] === "TRCK");
-					trckValue = trck ? trck[1] : "N/A";
+	const coverElement = document.getElementById('Song-info-cover');
+	coverElement.src = cover;
 
-					const tdrc = tags.Other.find(tag => tag[0] === "TDRC");
-					tdrcValue = tdrc ? tdrc[1] : "Unknown";
-
-					const tpub = tags.Other.find(tag => tag[0] === "TPUB");
-					tpubValue = tpub ? tpub[1] : "Unknown";
-
-					const tcon = tags.Other.find(tag => tag[0] === "TCON");
-					tconValue = tcon ? tcon[1] : "Unknown";
-				}
-			} catch (error) {
-				console.warn('Error parsing tags:', error);
+	const ScrollElements = [
+		{ element: 'Song-info-title', scrollElement: 'Song-info-title-scroll' },
+		{ element: 'Song-info-artist', scrollElement: 'Song-info-artist-scroll' },
+		{ element: 'Song-info-album', scrollElement: 'Song-info-album-scroll' },
+		{ element: 'Song-info-genre', scrollElement: 'Song-info-genre-scroll' }
+	];
+	
+	ScrollElements.forEach(info => {
+		const mainElement = document.getElementById(info.element);
+		const scrollElement = document.getElementById(info.scrollElement);
+	
+		mainElement.addEventListener('mouseenter', function () {
+			if (shouldScroll(scrollElement)) {
+				scrollElement.classList.add('scroll-left-info');
 			}
-
-			song_info_title.innerHTML = "<span>Title:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-title-scroll'>" + title + "</span> </div>";
-			song_info_artist.innerHTML = "<span>Artist:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-artist-scroll'>" + artist + "</span> </div>";
-			song_info_album.innerHTML = "<span>Album:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-album-scroll'>" + album + "</span> </div>";
-			song_info_genre.innerHTML = "<span>Genre:&nbsp</span><div class='scroll-wrapper'><span id='Song-info-genre-scroll'>" + tconValue + "</span> </div>";
-			song_link.href = window.location.origin + "/?song=" + songNumber;
-
-			document.getElementById('Song-info-year').textContent = "Release date: " + tdrcValue;
-			document.getElementById('Song-info-publisher').textContent = "Publisher: " + tpubValue;
-			const tposInfo = `Disk: ${tposValue} | No: ${trckValue}`;
-			song_info_num.textContent = tposInfo;
-
-			const coverElement = document.getElementById('Song-info-cover');
-			coverElement.src = cover;
-
-			const ScrollElements = [
-				{ element: 'Song-info-title', scrollElement: 'Song-info-title-scroll' },
-				{ element: 'Song-info-artist', scrollElement: 'Song-info-artist-scroll' },
-				{ element: 'Song-info-album', scrollElement: 'Song-info-album-scroll' },
-				{ element: 'Song-info-genre', scrollElement: 'Song-info-genre-scroll' }
-			];
-			
-			ScrollElements.forEach(info => {
-				const mainElement = document.getElementById(info.element);
-				const scrollElement = document.getElementById(info.scrollElement);
-			
-				mainElement.addEventListener('mouseenter', function () {
-					if (shouldScroll(scrollElement)) {
-						scrollElement.classList.add('scroll-left-info');
-					}
-				});
-			
-				mainElement.addEventListener('mouseleave', function () {
-					scrollElement.classList.remove('scroll-left-info');
-				});
-			});
-			
-
-		})
-		.catch(error => {
-			console.error('Error while getting audio metadata:', error);
 		});
+	
+		mainElement.addEventListener('mouseleave', function () {
+			scrollElement.classList.remove('scroll-left-info');
+		});
+	});
 }
