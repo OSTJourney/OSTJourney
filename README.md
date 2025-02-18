@@ -1,5 +1,9 @@
 # OSTJourney
 
+## Status
+[![Uptime Robot status](https://img.shields.io/uptimerobot/status/m798607003-1fc652fc21ce3e7aec79ddda)](https://stats.uptimerobot.com/VmQTCg5vcq)
+[![Uptime Robot ratio (30 days)](https://img.shields.io/uptimerobot/ratio/m798607003-1fc652fc21ce3e7aec79ddda)](https://stats.uptimerobot.com/VmQTCg5vcq)
+
 ## Description: 
 OSTJourney is a website designed for streaming audio files with advanced features to ensure uninterrupted and enjoyable listening experiences.
 
@@ -108,6 +112,8 @@ gunicorn -w 4 -b 0.0.0.0:8000 app:app
 All contributions are welcome!
 
 ## License
+
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey)](https://github.com/Moutigll/OSTJourney/blob/main/LICENSE)
 
 This project is licensed under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)**.
 
