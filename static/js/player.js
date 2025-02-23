@@ -382,29 +382,37 @@ var song_link_value = null;
 var song_info_status = 0;
 
 function copyTextToClipboard(text) {
-	if (navigator.clipboard) {
-	navigator.permissions.query({ name: 'clipboard-write' })
-		.then(permissionStatus => {
-		if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
-			navigator.clipboard.writeText(text)
-			.then(() => {
-				alert('Text copied to clipboard');
-			})
-			.catch((err) => {
-				console.error('Error copying text: ', err);
-			});
-		} else {
-			console.error('Permission denied for clipboard-write');
-			alert('Permission denied for clipboard. Please enable it in your browser settings.');
-		}
-		})
-		.catch((err) => {
-		console.error('Error checking clipboard permissions: ', err);
-		});
-	} else {
-	console.error('Clipboard API not available in this browser');
-	alert('Clipboard API is not supported in your browser.');
+	if (!navigator.clipboard) {
+		fallbackCopyTextToClipboard(text);
+		return;
 	}
+
+	navigator.clipboard.writeText(text)
+		.then(() => {
+			alert('Text copied to clipboard');
+		})
+		.catch(err => {
+			console.error('Error copying text: ', err);
+			alert('Failed to copy text. Trying alternative method.');
+			fallbackCopyTextToClipboard(text);
+		});
+}
+
+function fallbackCopyTextToClipboard(text) {
+	const textArea = document.createElement("textarea");
+	textArea.value = text;
+	textArea.style.position = "fixed";
+	textArea.style.opacity = 0;
+	document.body.appendChild(textArea);
+	textArea.select();
+	try {
+		document.execCommand('copy');
+		alert('Text copied to clipboard (fallback method)');
+	} catch (err) {
+		console.error('Fallback: Unable to copy', err);
+		alert('Clipboard copy failed.');
+	}
+	document.body.removeChild(textArea);
 }
 
 song_link_copy.addEventListener('click', function () {

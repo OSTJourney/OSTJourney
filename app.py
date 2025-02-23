@@ -111,7 +111,26 @@ class ListeningStatistics(db.Model):
 
 @app.route('/')
 def index():
-	return render_template('index.html')
+	song_id = request.args.get("song")
+	listened_count = None
+
+	if not song_id:
+		return render_template('index.html')
+	if song_id:
+		song = Songs.query.get(song_id)
+		if not song:
+			return render_template('index.html', error="Chanson non trouvée.")
+		user_id = session.get('user_id')
+		if user_id:
+			listened_count = db.session.query(func.count(ListeningHistory.id)).filter_by(
+				user_id=user_id,
+				song_id=song_id
+			).scalar()
+
+	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+		return render_template('song.html', song=song, listened_count=listened_count)
+	else:
+		return render_template('base.html', content=render_template('song.html', song=song, listened_count=listened_count))
 
 @app.route('/nav')
 def nav():
@@ -184,10 +203,8 @@ def login():
 			session['created_at'] = user.created_at
 
 			token = serializer.dumps({'user_id': user.id})
-			user_token = str(uuid.uuid4())
 			response = make_response(redirect(url_for('profile')))
-			response.set_cookie('session_token', token, max_age=3600*24, httponly=True)
-			response.set_cookie('user_token', user_token, max_age=86400, httponly=True)
+			response.set_cookie('session_token', token, max_age=30*24*3600, httponly=True)
 
 			return response
 		elif user:
@@ -202,89 +219,80 @@ def login():
 
 @app.route('/logout')
 def logout():
-	if 'user' in session:
-		session.pop('user_id', None)
-		session.pop('user', None)
-		session.pop('email', None)
-		session.pop('created_at', None)
-		response = make_response(redirect(url_for('login')))
-		response.delete_cookie('session_token')
-		response.delete_cookie('user_token')
-		return response
-	else:
-		return redirect(url_for('login'))
+	session.clear()
+	response = make_response(redirect(url_for('login')))
+	response.delete_cookie('session_token')
+	return response
+
 
 @app.route('/profile')
 def profile():
-	if 'user' in session:
-		token = request.cookies.get('session_token')
-		if not token:
-			return redirect(url_for('login'))
-
-		try:
-			user_data = serializer.loads(token)
-			user_id = user_data['user_id']
-		except:
-			return redirect(url_for('login'))
-
-		user = User.query.get(user_id)
-		if not user:
-			return redirect(url_for('login'))
-
-		total_listened = user.total_songs
-		total_duration_seconds = user.total_duration
-		listening_history = ListeningHistory.query.filter_by(user_id=user_id).order_by(desc(ListeningHistory.listen_time)).limit(25).all()
-
-		songs_list = []
-		for history in listening_history:
-			song = Songs.query.get(history.song_id)
-			if song:
-				songs_list.append({
-					'song_id': song.id,
-					'title': song.title,
-					'artist': song.artist,
-					'duration': format_duration(song.duration)
-				})
-
-		load_button = True
-		if len(songs_list) < 25:
-			load_button = False
-		total_duration = format_duration(total_duration_seconds)
-
-		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-			return render_template(
-				'profile.html',
-				username=user.username,
-				email=user.email,
-				created_at=user.created_at,
-				user_id=user.id,
-				total_duration=total_duration,
-				total_listened=total_listened,
-				songs_list=songs_list,
-				load_button=load_button,
-				currentUrl="/profile"
-			)
-
-		return render_template(
-			'base.html',
-			content=render_template(
-				'profile.html',
-				username=user.username,
-				email=user.email,
-				created_at=user.created_at,
-				user_id=user.id,
-				total_duration=total_duration,
-				total_listened=total_listened,
-				songs_list=songs_list,
-				load_button=load_button,
-				currentUrl="/profile"
-			)
-		)
-	else:
+	if 'user' not in session:
 		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 			return render_template('login.html', currentUrl="/login")
-		else:
-			return render_template('base.html', content=render_template('login.html', currentUrl="/login"))
+		return render_template('base.html', content=render_template('login.html', currentUrl="/login"))
+
+	token = request.cookies.get('session_token')
+	if not token:
+		return redirect(url_for('index'))
+
+	try:
+		user_data = serializer.loads(token)
+		user_id = user_data.get('user_id')
+	except:
+		return redirect(url_for('logout'))
+
+	user = User.query.get(user_id)
+	if not user:
+		return redirect(url_for('index'))
+
+	total_listened = user.total_songs
+	total_duration_seconds = user.total_duration
+	listening_history = ListeningHistory.query.filter_by(user_id=user_id).order_by(desc(ListeningHistory.listen_time)).limit(25).all()
+
+	songs_list = []
+	for history in listening_history:
+		song = Songs.query.get(history.song_id)
+		if song:
+			songs_list.append({
+				'song_id': song.id,
+				'title': song.title,
+				'artist': song.artist,
+				'duration': format_duration(song.duration)
+			})
+
+	load_button = len(songs_list) == 25
+	total_duration = format_duration(total_duration_seconds)
+
+	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+		return render_template(
+			'profile.html',
+			username=user.username,
+			email=user.email,
+			created_at=user.created_at,
+			user_id=user.id,
+			total_duration=total_duration,
+			total_listened=total_listened,
+			songs_list=songs_list,
+			load_button=load_button,
+			currentUrl="/profile"
+		)
+
+	return render_template(
+		'base.html',
+		content=render_template(
+			'profile.html',
+			username=user.username,
+			email=user.email,
+			created_at=user.created_at,
+			user_id=user.id,
+			total_duration=total_duration,
+			total_listened=total_listened,
+			songs_list=songs_list,
+			load_button=load_button,
+			currentUrl="/profile"
+		)
+	)
 
 @app.route('/api/user_activity', methods=['GET'])
 def get_user_activity():

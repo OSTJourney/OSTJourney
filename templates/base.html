@@ -56,11 +56,11 @@
 				<div id="song-link-container">
 					<a id="song-link">Link to song</a>
 					<button id="song-link-copy">copy</button>
-				</div> 
+				</div>
 			</div>
 			<div id="additional-tags">
 			</div>
-		</div>			
+		</div>
 		{% block body %}{% endblock %}
 	</body>
 	<div class="footer no-select">
@@ -68,13 +68,13 @@
 			<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="player-cover" class="no-drag">
 			<div id="player-song-info-text">
 				<div id="player-song-title" class="player-song-info-text">
-					<span>Titre de la chanson tres long pour test le scroll</span>
+					<span>Loading Title...</span>
 				</div>
 				<div id="player-song-artist" class="player-song-info-text">
-					<span>Artiste de la chanson</span>
+					<span>Loading Artist...</span>
 				</div>
 				<div id="player-song-album" class="player-song-info-text">
-					<span>Album</span>
+					<span>Loading Album...</span>
 				</div>
 			</div>
 		</div>
@@ -91,7 +91,7 @@
 			</div>
 		</div>
 		<div id="player-extra">
-			<span id="player-current-time">0:00/0:00</span>
+			<span id="player-current-time">0:00/?</span>
 			<div id="volume-container">
 				<img src="{{ url_for('static', filename='images/player/volume 100.png') }}" alt="Volume" id="volume-ico">
 				<input type="range" min="0" max="100" value="100" class="player-slider" id="player-volume-bar">
