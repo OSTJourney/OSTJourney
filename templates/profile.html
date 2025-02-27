@@ -13,7 +13,13 @@
 	<p><span>Number of tracks listened :</span> {{ total_listened }}</p>
 </div>
 <div class="total-duration">
-	<p><span>Total listen time :</span> {{ total_duration }} </p>
+	<p id="profile-duration">
+		<span>Total listen time :</span>
+		<span id="duration-value"></span>
+		<span id="profile-total-duration" style="visibility: hidden;">{{ total_duration }}</span>
+		<span id="profile-total-hours" style="visibility: hidden;">{{ total_hours }} hours</span>
+	</p>
+	  
 </div>
 <center>
 	<h3>Activity</h3>

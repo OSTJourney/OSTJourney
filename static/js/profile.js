@@ -29,6 +29,21 @@ document.getElementById('load-more').addEventListener('click', function() {
 		});
 });
 
+let storedTotalHours = document.getElementById('profile-total-hours').textContent;
+let storedTotalDuration = document.getElementById('profile-total-duration').textContent;
+var duration_element = document.getElementById('duration-value');
+document.getElementById('profile-total-hours').remove();
+document.getElementById('profile-total-duration').remove();
+duration_element.textContent =storedTotalDuration;
+
+document.getElementById('profile-duration').addEventListener('mouseover', function() {
+	duration_element.textContent = storedTotalHours;
+});
+
+document.getElementById('profile-duration').addEventListener('mouseout', function() {
+	duration_element.textContent = storedTotalDuration;
+});
+
 fetch('/profile/history/24h')
 .then(response => response.json())
 .then(data => {

@@ -377,24 +377,48 @@ nav {
 	font-size: 16px;
 }
 
-.profile-info span {
+.profile-info span, .total-listened span {
 	font-weight: bold;
 }
 
-.total-duration p {
+.profile-duration {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: fit-content;
+}
+
+#profile-duration  {
+	font-size: 16px;
+	width: max-content;
+}
+
+.total-duration {
 	font-size: 16px;
 	font-weight: bold;
+	min-width: fit-content;
+}
+
+#duration-value {
+	font-size: 16px;
+	font-weight: normal;
+}
+
+.total-duration:hover {
+	cursor: pointer;
 }
 
 .listening-history {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	max-height:min-content;
 }
 
 #load-more {
 	margin-top: 20px;
 	font-size: medium;
+	margin-bottom: 20px;
 	background-color: #a0b2ff;
 }
 

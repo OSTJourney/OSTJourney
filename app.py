@@ -25,7 +25,7 @@ songs_dir = os.path.join(base_dir, "songs")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Footer information
-BUILD = "dev 1.0.01"
+BUILD = "dev 1.0.02"
 REPO_OWNER = "Moutigll"
 COPYRIGHT = "© 2025 - Moutig"
 REPO_NAME = "OSTJourney"
@@ -292,6 +292,7 @@ def profile():
 
 	load_button = len(songs_list) == 25
 	total_duration = format_duration(total_duration_seconds)
+	total_hours = round(total_duration_seconds / 3600, 2)
 
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 		return render_template(
@@ -304,6 +305,7 @@ def profile():
 			total_listened=total_listened,
 			songs_list=songs_list,
 			load_button=load_button,
+			total_hours=total_hours,
 			currentUrl="/profile"
 		)
 
@@ -319,6 +321,7 @@ def profile():
 			total_listened=total_listened,
 			songs_list=songs_list,
 			load_button=load_button,
+			total_hours=total_hours,
 			currentUrl="/profile"
 		)
 	)
