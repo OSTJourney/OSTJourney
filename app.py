@@ -1,8 +1,9 @@
 import json
 import os
 import re
-import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+import requests
+import subprocess
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, url_for, request, redirect, flash, session, send_from_directory, make_response, jsonify, abort
@@ -22,6 +23,28 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 songs_dir = os.path.join(base_dir, "songs")
 
 serializer = URLSafeTimedSerializer(app.secret_key)
+
+# Footer information
+BUILD = "dev 1.0.01"
+REPO_OWNER = "Moutigll"
+COPYRIGHT = "© 2025 - Moutig"
+REPO_NAME = "OSTJourney"
+REPO_URL = f"https://github.com/{REPO_OWNER}/{REPO_NAME}"
+BRANCH = "main"
+
+def get_commit_from_github():
+	try:
+		local_commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode('utf-8')
+		url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/commits/{local_commit_hash}"
+		response = requests.get(url)
+		response.raise_for_status()
+		
+		return response.json()
+	except Exception as e:
+		print(f"Erreur API GitHub: {e}")
+		return None
+
+commit_data = get_commit_from_github()
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 binds = os.getenv('SQLALCHEMY_BINDS', '{}')
@@ -137,6 +160,12 @@ def nav():
 	if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
 		abort(404)
 	return render_template('nav.html')
+
+@app.route('/footer')
+def footer():
+	if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+		abort(404)
+	return render_template('footer.html', commit_data=commit_data, build=BUILD, repo_owner=REPO_OWNER, repo_name=REPO_NAME, repo_url=REPO_URL, branch=BRANCH, copy_right=COPYRIGHT)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -484,7 +513,7 @@ def start_music():
 	except Exception:
 		return {'status': 'error', 'message': 'Invalid or expired session token'}
 
-	song = Songs.query.get(song_id)
+	song = db.session.get(Songs, song_id)
 	if not song:
 		return {'status': 'error', 'message': 'Song not found'}
 
@@ -506,8 +535,8 @@ def start_music():
 	new_session = ListeningSession(
 		user_id=user_id,
 		song_id=song_id,
-		start_time=datetime.utcnow(),
-		expiration_time=datetime.utcnow() + timedelta(seconds=max_duration)
+		start_time=datetime.now(timezone.utc),
+		expiration_time=datetime.now(timezone.utc) + timedelta(seconds=max_duration)
 	)
 
 	db.session.add(new_session)
@@ -541,12 +570,12 @@ def end_music():
 	if not song:
 		return {'status': 'error', 'message': 'Song not found'}
 
-	if datetime.utcnow() > listening_session.expiration_time:
+	if datetime.now(timezone.utc) > listening_session.expiration_time:
 		db.session.delete(listening_session)
 		db.session.commit()
 		return {'status': 'error', 'message': 'Listening session has expired'}
 	
-	if datetime.utcnow() < listening_session.start_time + timedelta(seconds=song.duration - 3):
+	if datetime.now(timezone.utc) < listening_session.start_time + timedelta(seconds=song.duration - 3):
 		db.session.delete(listening_session)
 		db.session.commit()
 		return {'status': 'error', 'message': 'Listening session is too short'}
@@ -566,7 +595,7 @@ def end_music():
 	user.total_songs += 1
 	user.total_duration += duration_seconds
 
-	current_date = datetime.utcnow().date()
+	current_date = datetime.now(timezone.utc).date()
 	activity = UserActivity.query.filter_by(user_id=user_id, date=current_date).first()
 
 	if not activity:

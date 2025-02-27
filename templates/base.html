@@ -13,17 +13,21 @@
 	<body>
 		<div id="nav-container">
 		</div>
-		<div id="content">
-			{% if content %}
-				{{ content | safe }}
-			{% else %}
-				{% block content %}
-				{% endblock %}
-			{% endif %}
+		<div>
+			<div id="content">
+				{% if content %}
+					{{ content | safe }}
+				{% else %}
+					{% block content %}
+					{% endblock %}
+				{% endif %}
+			</div>
+			<div id="footer-container">
+			</div>
 		</div>
 		<div id="Song-info" style="display: none;">
 			<div id="Song-info-top" class="no-select">
-				<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="Song-info-cover" alt="Cover" class="no-drag">
+				<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="Song-info-cover" alt="Cover">
 				<div id="Song-info-main">
 					<div id="Song-info-title" class="Song-info-text">
 						<div id='Song-info-title-scroll'></div>

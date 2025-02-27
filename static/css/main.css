@@ -56,6 +56,7 @@ nav {
 
 #content {
 	margin-top: 7vh;
+	min-height: 67vh;
 }
 
 .user-btn {
@@ -587,4 +588,42 @@ a:active {
 
 a:visited {
 	color: #bcc0e9;
+}
+
+/*Footer*/
+
+#footer-container {
+	margin-top: 0;
+
+	height: 22vh;
+	background-color: #181818;
+	color: #b3b3b3;
+	display: flex;
+	align-items: center;
+	padding: 15px;
+	z-index: 1000;
+}
+
+footer {
+	margin-top: -12vh;
+	height: 8vh;
+	background-color: #181818;
+	color: #b3b3b3;
+	display: flex;
+	align-items: center;
+	padding: 15px;
+	z-index: 1000;
+	width: 100%;
+}
+
+.footer-content {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	border-bottom: solid 2px #000;
+	width: 100%;
+}
+
+#footer-commit {
+	margin-right: 3em;
 }

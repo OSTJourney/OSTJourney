@@ -1,8 +1,9 @@
 const navDiv = document.getElementById('nav-container');
+const footerDiv = document.getElementById('footer-container');
 let currentUrl = window.location.href;
 const contentDiv = document.getElementById('content');
 
-function fetchNav() {
+function fetchNavFooter() {
 	fetch("/nav", {
 		headers: {
 			'X-Requested-With': 'XMLHttpRequest'
@@ -19,6 +20,23 @@ function fetchNav() {
 	})
 	.catch(error => {
 		console.error('Error loading navbar:', error);
+	});
+	fetch("/footer", {
+		headers: {
+			'X-Requested-With': 'XMLHttpRequest'
+		}
+	})
+	.then(response => {
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+		return response.text();
+	})
+	.then(html => {
+		footerDiv.innerHTML = html;
+	})
+	.catch(error => {
+		console.error('Error loading footer:', error);
 	});
 }
 
@@ -45,7 +63,7 @@ function executeScripts(container) {
 
 function updatePage(url, html, mode) {
 	contentDiv.innerHTML = html;
-	fetchNav();
+	fetchNavFooter();
 	currentUrl = document.getElementById('currentUrl').textContent || url;
 	if (mode === 'replace') {
 		history.replaceState(null, '', currentUrl);
@@ -63,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		console.error('Error getting current URL (ignore if index):', e);
 	}
 
-	fetchNav();
+	fetchNavFooter();
 
 	document.addEventListener('click', function (e) {
 		const link = e.target.closest('a');

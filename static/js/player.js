@@ -523,6 +523,20 @@ function load_song_info(data) {
 
 	const coverElement = document.getElementById('Song-info-cover');
 	coverElement.src = cover;
+	coverElement.alt = `${title} - ${artist}`;
+	coverElement.addEventListener("click", () => {
+		window.open(cover, "_blank");
+	});
+	coverElement.style.cursor = "pointer";
+	coverElement.draggable = false;
+	coverElement.style.userSelect = "none";
+	coverElement.addEventListener("contextmenu", (event) => {
+		event.preventDefault();
+	});
+	coverElement.addEventListener("dragstart", (event) => {
+		event.preventDefault();
+	});
+
 
 	const ScrollElements = [
 		{ element: 'Song-info-title', scrollElement: 'Song-info-title-scroll' },
