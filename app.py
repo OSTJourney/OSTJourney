@@ -25,7 +25,7 @@ songs_dir = os.path.join(base_dir, "songs")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Footer information
-BUILD = "dev 1.0.02"
+BUILD = "dev 1.0.03"
 REPO_OWNER = "Moutigll"
 COPYRIGHT = "© 2025 - Moutig"
 REPO_NAME = "OSTJourney"
@@ -287,7 +287,8 @@ def profile():
 				'song_id': song.id,
 				'title': song.title,
 				'artist': song.artist,
-				'duration': format_duration(song.duration)
+				'duration': format_duration(song.duration),
+				'cover': song.cover
 			})
 
 	load_button = len(songs_list) == 25
@@ -428,7 +429,8 @@ def load_more_history():
 					'song_id': song.id,
 					'title': song.title,
 					'artist': song.artist,
-					'duration': song.duration
+					'duration': format_duration(song.duration),
+					'cover': song.cover
 				})
 
 		if not songs_list:

@@ -12,7 +12,7 @@ document.getElementById('load-more').addEventListener('click', function() {
 				data.songs.forEach(song => {
 					const row = document.createElement('tr');
 					row.innerHTML = `
-						<td><a href="/?song=${song.song_id}" target="_blank">${song.song_id}</a></td>
+						<td><a href="/static/images/covers/${song.cover}.jpg" target="_blank"><img src="/static/images/covers/${song.cover}.jpg" alt="${song.title}" class="tab-cover"></a>
 						<td><a href="/?song=${song.song_id}" target="_blank">${song.title}</a></td>
 						<td>${song.artist}</td>
 						<td>${song.duration}</td>

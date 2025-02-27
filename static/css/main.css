@@ -551,37 +551,57 @@ nav {
 	color: #363a4f;
 }
 
-/* Table Styles */
-table {
-	border-collapse: collapse;
-	width: 96%;
-	margin-top: 20px;
-	margin-left: 2%;
-	border: 3px solid black;
-	border-radius: 5px;
+#hourlyChart {
+	margin-right: 2em;
 }
 
-th, td {
-	border: 1px solid black;
-	padding: 8px;
+/* Table Styles */
+.song-tab {
+	border-collapse: separate;
+	width: 90%;
+	margin-top: 20px;
+	margin-left: 5%;
+	margin-right: 5%;
+	border-radius: 5px;
+	border-spacing: 0 10px;
+}
+
+.tab-cover {
+	vertical-align: middle;
+	margin-left: 0.2em;
+	border-radius: 5px;
+	width: 4em;
+	height: 4em;
+}
+
+.song-tab td {
 	text-align: left;
 }
 
-th {
-	background-color: #f2f2f2;
+.song-tab th {
+	visibility: hidden;
 }
 
-tr:nth-child(even) {
-	background-color: #363a4f;
+.song-tab tr {
+	margin-top: 1em;
+	font-size: larger;
+	background-color: #212121;
+	transition: background-color 0.2s ease;
 }
 
-tr:hover {
-	background-color: lightsteelblue;
+.song-tab tr:hover {
 	cursor: pointer;
+	background-color: #0c0c0c;
 }
 
-tr {
-	border-bottom: 1px solid #ddd;
+
+.song-tab-col1 {
+	width: 4.5em;
+	height: 4.5em;
+}
+
+.song-tab-col2 {
+	height: 4.5em;
 }
 
 /*CSS for the song page*/

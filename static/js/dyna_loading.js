@@ -3,6 +3,10 @@ const footerDiv = document.getElementById('footer-container');
 let currentUrl = window.location.href;
 const contentDiv = document.getElementById('content');
 
+const whitelist = [
+    /\.jpg$/
+];
+
 function fetchNavFooter() {
 	fetch("/nav", {
 		headers: {
@@ -86,6 +90,9 @@ document.addEventListener('DOMContentLoaded', function () {
 	document.addEventListener('click', function (e) {
 		const link = e.target.closest('a');
 		if (link) {
+			if (whitelist.some(pattern => pattern.test(url.pathname))) {
+				return;
+			}
 			e.preventDefault();
 			const url = link.href;
 			if (new URL(url).pathname === '/') {
