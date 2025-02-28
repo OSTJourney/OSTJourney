@@ -387,9 +387,7 @@ function loadSong(songNumber) {
 			player.controls.progressBar.max = Math.floor(duration) * 100;
 			player.controls.progressBar.value = 0;
 			audio.play();
-			if (audio.paused) {
-				player.controls.playButton.src = player.img.pause;
-			}
+			player.controls.playButton.src = audio.paused ? player.img.pause : player.img.play;
 			attachAudioEventListeners();
 			update_mediaSessionAPI(title, artist, album, cover);
 			sendListeningData(songNumber, 'start');

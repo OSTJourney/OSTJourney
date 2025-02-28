@@ -35,9 +35,11 @@
 		<table id="heatmap"></table>
 		<div id="heatmap-type">
 			<div id="activity-heatmap-type">
-				<button class="activity-heatmap-button" id="heatmap-song">Songs played</button>
+				<button class="activity-heatmap-button heatmap-song-active" id="heatmap-song">Songs played</button>
 				<button class="activity-heatmap-button" id="heatmap-duration">Listening time</button>
 				<button class="activity-heatmap-button" id="heatmap-ratio">Ratio</button>
+				<input type="checkbox" id="fixByPercentile">
+				<label for="fixByPercentile">Fix using percentil</label>
 			</div>
 			<div id="heatmap-scale">
 				<p>Less&nbsp</p>
@@ -52,9 +54,12 @@
 	</div>
 </center>
 
-<center><h3>Number of tracks listened per hour</h3></center>
-<canvas id="hourlyChart"></canvas>
-
+<center>
+	<h3>Number of tracks listened per hour</h3>
+	<div id="hourlyChartContainer">
+		<canvas id="hourlyChart"></canvas>
+	</div>
+</center>
 <div class="listening-history">
 	<center><h3>Last music listened :</h3></center>
 	<table class="song-tab">
@@ -87,7 +92,6 @@
 	{% else %}
 		<button id="load-more" data-offset="25" style="display: none;">Load More</button>
 	{% endif %}
-	<div style="height: 50vh;"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

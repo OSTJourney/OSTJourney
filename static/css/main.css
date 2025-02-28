@@ -556,8 +556,8 @@ nav {
 	color: #363a4f;
 }
 
-#hourlyChart {
-	margin-right: 2em;
+#hourlyChartContainer {
+	height: 70vh;
 }
 
 /* Table Styles */

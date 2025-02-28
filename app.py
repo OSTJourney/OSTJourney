@@ -25,7 +25,7 @@ songs_dir = os.path.join(base_dir, "songs")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Footer information
-BUILD = "dev 1.0.04"
+BUILD = "dev 1.0.05"
 REPO_OWNER = "Moutigll"
 COPYRIGHT = "© 2025 - Moutig"
 REPO_NAME = "OSTJourney"
