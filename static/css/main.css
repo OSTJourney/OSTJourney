@@ -103,6 +103,10 @@ nav {
 	border-radius: 5px;
 }
 
+#Song-info-cover:hover {
+	cursor: pointer;
+}
+
 #Song-info-main {
 	text-align: left;
 	overflow: hidden;
@@ -282,6 +286,7 @@ nav {
 	width: 2.7em;
 	height: 2.7em;
 	margin-left: 2.5em;
+	border-radius: 3px;
 }
 
 .player-slider {

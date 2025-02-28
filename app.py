@@ -25,7 +25,7 @@ songs_dir = os.path.join(base_dir, "songs")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Footer information
-BUILD = "dev 1.0.03"
+BUILD = "dev 1.0.04"
 REPO_OWNER = "Moutigll"
 COPYRIGHT = "© 2025 - Moutig"
 REPO_NAME = "OSTJourney"
@@ -540,8 +540,8 @@ def start_music():
 	new_session = ListeningSession(
 		user_id=user_id,
 		song_id=song_id,
-		start_time=datetime.now(timezone.utc),
-		expiration_time=datetime.now(timezone.utc) + timedelta(seconds=max_duration)
+		start_time=datetime.now(),
+		expiration_time=datetime.now() + timedelta(seconds=max_duration)
 	)
 
 	db.session.add(new_session)
@@ -571,16 +571,16 @@ def end_music():
 	if not listening_session:
 		return {'status': 'error', 'message': 'Listening session not found'}
 
-	song = Songs.query.get(song_id)
+	song = db.session.query(Songs).get(song_id)
 	if not song:
 		return {'status': 'error', 'message': 'Song not found'}
 
-	if datetime.now(timezone.utc) > listening_session.expiration_time:
+	if listening_session.expiration_time and datetime.now() > listening_session.expiration_time:
 		db.session.delete(listening_session)
 		db.session.commit()
 		return {'status': 'error', 'message': 'Listening session has expired'}
-	
-	if datetime.now(timezone.utc) < listening_session.start_time + timedelta(seconds=song.duration - 3):
+
+	if datetime.now() < listening_session.start_time + timedelta(seconds=song.duration - 3):
 		db.session.delete(listening_session)
 		db.session.commit()
 		return {'status': 'error', 'message': 'Listening session is too short'}
@@ -596,24 +596,19 @@ def end_music():
 
 	db.session.add(listening_history)
 
-	user = User.query.get(user_id)
+	user = db.session.query(User).get(user_id)
 	user.total_songs += 1
 	user.total_duration += duration_seconds
 
-	current_date = datetime.now(timezone.utc).date()
+	current_date = datetime.now().date()
 	activity = UserActivity.query.filter_by(user_id=user_id, date=current_date).first()
 
 	if not activity:
 		activity = UserActivity(user_id=user_id, date=current_date)
 		db.session.add(activity)
 
-	if activity.total_duration is None:
-		activity.total_duration = 0
-	if activity.total_songs is None:
-		activity.total_songs = 0
-
-	activity.total_duration += duration_seconds
-	activity.total_songs += 1
+	activity.total_duration = (activity.total_duration or 0) + duration_seconds
+	activity.total_songs = (activity.total_songs or 0) + 1
 
 	start_hour = listening_session.start_time.hour
 	listening_stat = ListeningStatistics.query.filter_by(user_id=user_id, hour=start_hour).first()
