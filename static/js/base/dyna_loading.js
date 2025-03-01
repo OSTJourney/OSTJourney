@@ -86,11 +86,10 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	fetchNavFooter();
-
 	document.addEventListener('click', function (e) {
 		const link = e.target.closest('a');
 		if (link) {
-			if (whitelist.some(pattern => pattern.test(url.pathname))) {
+			if (whitelist.some(regex => regex.test(link.href))) {
 				return;
 			}
 			e.preventDefault();

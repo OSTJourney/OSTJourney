@@ -58,6 +58,10 @@ function shouldScroll(element) {
 	return element.offsetWidth > (window.innerWidth * 30.5 / 100);
 }
 
+function openCoverHandler(event) {
+	window.open(event.currentTarget.src, "_blank");
+}
+
 function loadSongInfo(data) {
 	const title = data.title || "Unknown Title";
 	const artist = data.artist || "Unknown Artist";
@@ -104,9 +108,8 @@ function loadSongInfo(data) {
 		style: { cursor: "pointer", userSelect: "none" }
 	});
 
-	songInfo.cover.addEventListener("click", () => window.open(cover, "_blank"));
-	songInfo.cover.addEventListener("contextmenu", (e) => e.preventDefault());
-	songInfo.cover.addEventListener("dragstart", (e) => e.preventDefault());
+	songInfo.cover.removeEventListener("click", openCoverHandler);
+	songInfo.cover.addEventListener("click", openCoverHandler);
 
 	[
 		{ element: 'Song-info-title', scrollElement: 'Song-info-title-scroll' },
@@ -116,13 +119,16 @@ function loadSongInfo(data) {
 	].forEach(({ element, scrollElement }) => {
 		const mainEl = document.getElementById(element);
 		const scrollEl = document.getElementById(scrollElement);
+		mainEl.removeEventListener('mouseenter', onMouseEnter);
+		mainEl.removeEventListener('mouseleave', onMouseLeave);
 
-		mainEl.addEventListener('mouseenter', () => {
+		mainEl.addEventListener('mouseenter', onMouseEnter);
+		mainEl.addEventListener('mouseleave', onMouseLeave);
+		function onMouseEnter() {
 			if (shouldScroll(scrollEl)) scrollEl.classList.add('scroll-left-info');
-		});
-
-		mainEl.addEventListener('mouseleave', () => {
+		}
+		function onMouseLeave() {
 			scrollEl.classList.remove('scroll-left-info');
-		});
+		}
 	});
 }
