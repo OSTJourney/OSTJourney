@@ -25,7 +25,7 @@ songs_dir = os.path.join(base_dir, "songs")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Footer information
-BUILD = "dev 1.0.05"
+BUILD = "dev 1.0.06"
 REPO_OWNER = "Moutigll"
 COPYRIGHT = "© 2025 - Moutig"
 REPO_NAME = "OSTJourney"
@@ -155,6 +155,14 @@ def index():
 	else:
 		return render_template('base.html', content=render_template('song.html', song=song, listened_count=listened_count))
 
+@app.route('/robots.txt')
+def robots():
+	return send_from_directory('static', 'robots.txt')
+
+@app.route('/sitemap.xml')
+def sitemap():
+	return send_from_directory('static', 'sitemap.xml')
+
 @app.route('/nav')
 def nav():
 	if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
@@ -211,7 +219,7 @@ def register():
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 		return render_template('register.html', currentUrl="/register")
 	else:
-		return render_template('base.html', content=render_template('register.html'), currentUrl="/register")
+		return render_template('base.html', content=render_template('register.html'), currentUrl="/register", title="Register")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -244,7 +252,7 @@ def login():
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 		return render_template('login.html', currentUrl="/login")
 	else:
-		return render_template('base.html', content=render_template('login.html'), currentUrl="/login")
+		return render_template('base.html', content=render_template('login.html'), currentUrl="/login", title="Login")
 
 @app.route('/logout')
 def logout():

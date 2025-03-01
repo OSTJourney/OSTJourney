@@ -38,7 +38,6 @@ let duration = 0;
 let total_songs = 0;
 
 /*Player scroll style*/
-
 function removeOldStyle() {
 	const oldStyle = document.querySelector('#dynamic-animation-style');
 	if (oldStyle) {
@@ -91,7 +90,6 @@ player.metadata.infoText.addEventListener('mouseleave', function() {
 });
 
 /*Player action functions*/
-
 function changeSong(songNumber) {
 	if (audio) audio.pause();
 	song = songNumber;
@@ -427,5 +425,7 @@ window.onload = async function () {
 			song = Math.floor(Math.random() * total_songs);
 		}
 	}
-	loadSong(song);
+	player.controls.playButton.addEventListener('click', function () {
+		loadSong(song);
+	}, { once: true });
 };
