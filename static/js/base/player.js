@@ -36,6 +36,7 @@ let random = 0;
 let repeat = 0;
 let duration = 0;
 let total_songs = 0;
+const volume_gamma = 2.2;
 
 /*Player scroll style*/
 function removeOldStyle() {
@@ -284,7 +285,7 @@ player.controls.volumeIcon.addEventListener('click', function () {
 		volume.value = 0;
 	} else {
 		volume.value = old_volume;
-		audio.volume = old_volume / 100;
+		audio.volume = Math.pow(old_volume / 100, volume_gamma);
 	}
 	updateVolumeIcon();
 });
@@ -295,7 +296,8 @@ player.controls.progressBar.oninput = function () {
 };
 
 volume.oninput = function () {
-	audio.volume = volume.value / 100;
+	let linearVolume = volume.value / 100;
+	audio.volume = Math.pow(linearVolume, volume_gamma);
 	updateVolumeIcon();
 };
 
