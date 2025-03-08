@@ -1,10 +1,9 @@
 <footer>
-    <div class="footer-content">
-        {% if commit_data %}
-                <p>{{ copy_right }}</p><p id="footer-commit" style="margin-right: 3em;">{{ repo_name }} {{ build }} <a href="https://github.com/{{ repo_owner }}/{{ repo_name }}/commit/{{ commit_data.sha }}">{{ commit_data.sha[:7] }}</a></p>
-        {% else %}
-            <p>error: footer</p>
+	<div class="footer-content">
+		{% if commit_data %}
+			<p>{{ copy_right }} - Contact: <a href="mailto:admin@ostjourney.xyz">admin@ostjourney.xyz</a></p><p id="footer-commit" style="margin-right: 3em;">{{ repo_name }} {{ build }} <a href="https://github.com/{{ repo_owner }}/{{ repo_name }}/commit/{{ commit_data.sha }}">{{ commit_data.sha[:7] }}</a></p>
+		{% else %}
+			<p>error: footer</p>
         {% endif %}
-
-    </div>
+	</div>
 </footer>

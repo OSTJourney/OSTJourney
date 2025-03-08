@@ -19,12 +19,12 @@ const player = {
 		currentTime: document.getElementById('player-current-time'),
 	},
 	img: {
-		play: "/static/images/player/play.png",
-		pause: "/static/images/player/pause.png",
-		volume0: "/static/images/player/volume 0.png",
-		volume33: "/static/images/player/volume 33.png",
-		volume66: "/static/images/player/volume 66.png",
-		volume100: "/static/images/player/volume 100.png",
+		play: "/static/images/player/play.webp",
+		pause: "/static/images/player/pause.webp",
+		volume0: "/static/images/player/volume_mute.webp",
+		volume33: "/static/images/player/volume_33.webp",
+		volume66: "/static/images/player/volume_66.webp",
+		volume100: "/static/images/player/volume_100.webp",
 	},
 };
 
@@ -279,6 +279,7 @@ document.body.onkeyup = function (e) {
 }
 
 player.controls.volumeIcon.addEventListener('click', function () {
+	updateVolumeIcon();
 	if (volume.value > 0) {
 		old_volume = volume.value;
 		audio.volume = 0;
@@ -287,7 +288,6 @@ player.controls.volumeIcon.addEventListener('click', function () {
 		volume.value = old_volume;
 		audio.volume = Math.pow(old_volume / 100, volume_gamma);
 	}
-	updateVolumeIcon();
 });
 
 player.controls.progressBar.oninput = function () {
@@ -296,9 +296,9 @@ player.controls.progressBar.oninput = function () {
 };
 
 volume.oninput = function () {
+	updateVolumeIcon();
 	let linearVolume = volume.value / 100;
 	audio.volume = Math.pow(linearVolume, volume_gamma);
-	updateVolumeIcon();
 };
 
 player.controls.randomButton.addEventListener('click', function () {

@@ -10,9 +10,9 @@
 		<!-- Dynamic title with default fallback -->
 		<title>{{ title if title else 'OSTJourney' }}</title>
 		<!-- Favicon link -->
-		<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon-512x512.png') }}">
+		<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon-512x512.webp') }}">
 		<!-- Open Graph meta tags -->
-		<meta property="og:image" content="{{ url_for('static', filename='images/favicon-512x512.png') }}" />
+		<meta property="og:image" content="{{ url_for('static', filename='images/favicon-512x512.webp') }}" />
 		<meta property="og:site_name" content="OSTJourney" />
 		<meta property="og:title" content="{{ title if title else 'OSTJourney' }}" />
 		<meta property="og:type" content="website" />
@@ -38,7 +38,7 @@
 		</div>
 		<div id="Song-info" style="display: none;">
 			<div id="Song-info-top" class="no-select">
-				<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="Song-info-cover" alt="Cover">
+				<img src="{{ url_for('static', filename='images/covers/null.jpg') }}" id="Song-info-cover" alt="Cover">
 				<div id="Song-info-main">
 					<div id="Song-info-title" class="Song-info-text">
 						<div id='Song-info-title-scroll'></div>
@@ -80,7 +80,7 @@
 	</body>
 	<div class="footer no-select">
 		<div id="player-song-info">
-			<img src="https://upperground.art/wp-content/themes/artbat/assets/img/place.png" id="player-cover" class="no-drag" alt="player cover">
+			<img src="{{ url_for('static', filename='images/covers/null.jpg') }}" id="player-cover" class="no-drag" alt="player cover">
 			<div id="player-song-info-text">
 				<div id="player-song-title" class="player-song-info-text">
 					<span>Title</span>
@@ -95,20 +95,22 @@
 		</div>
 		<div id="player-center">
 			<div id="controls-container">
-				<img src="{{ url_for('static', filename='images/player/random.png') }}" alt="Random" class="player-controls" id="player-button-random">
-				<img src="{{ url_for('static', filename='images/player/back.png') }}" alt="Next" class="player-controls" id="player-button-back">
-				<img src="{{ url_for('static', filename='images/player/pause.png') }}" alt="Play" class="player-controls" id="player-button-play">
-				<img src="{{ url_for('static', filename='images/player/next.png') }}" alt="Back" class="player-controls" id="player-button-next">
-				<img src="{{ url_for('static', filename='images/player/repeat.png') }}" alt="Repeat" class="player-controls" id="player-button-repeat">
+				<img src="{{ url_for('static', filename='images/player/random.webp') }}" alt="Random" class="player-controls" id="player-button-random">
+				<img src="{{ url_for('static', filename='images/player/back.webp') }}" alt="Next" class="player-controls" id="player-button-back">
+				<img src="{{ url_for('static', filename='images/player/pause.webp') }}" alt="Play" class="player-controls" id="player-button-play">
+				<img src="{{ url_for('static', filename='images/player/next.webp') }}" alt="Back" class="player-controls" id="player-button-next">
+				<img src="{{ url_for('static', filename='images/player/repeat.webp') }}" alt="Repeat" class="player-controls" id="player-button-repeat">
 			</div>
 			<div id="player-progress-bar-container">
+				<label for="player-progress-bar" class="sr-only">Progress bar</label>
 				<input type="range" min="0" max="100" value="0" class="player-slider" id="player-progress-bar">
 			</div>
 		</div>
 		<div id="player-extra">
 			<span id="player-current-time">0:00/0:00</span>
 			<div id="volume-container">
-				<img src="{{ url_for('static', filename='images/player/volume 100.png') }}" alt="Volume" id="volume-ico">
+				<img src="{{ url_for('static', filename='images/player/volume_100.webp') }}" alt="Volume" id="volume-ico">
+				<label for="player-volume-bar" class="sr-only">Volume bar</label>
 				<input type="range" min="0" max="100" value="100" class="player-slider" id="player-volume-bar">
 			</div>
 		</div>
