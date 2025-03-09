@@ -628,7 +628,7 @@ nav {
 	align-items: center;
 }
 
-/*CSS for the login page*/
+/*CSS for the login and register page*/
 #login-container {
 	display: flex;
 	flex-direction: column;

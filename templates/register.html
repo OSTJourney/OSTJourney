@@ -7,7 +7,7 @@
 		<p class="error-msg">{{ error }}</p>
 	{% endif %}
 	<div id="login-container">
-		<form id="register-form" method="POST" action="{{ url_for('register') }}">
+		<form id="login-form" method="POST" action="{{ url_for('register') }}">
 			<div class="input-field">
 				<label for="username">Username:</label>
 				<input 
@@ -53,6 +53,7 @@
 					pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':\\\|,.<>\/?]).{8,20}"
 					title="Password must be at least 8 characters long, contain at least one number, one uppercase letter, one lowercase letter, and at least one special character (e.g., !, @, #, $, etc.).">
 			</div>
+			<a href="{{ url_for('login') }}">Login</a>
 			<button type="submit" id="login-btn">Register</button>
 		</form>
 	</div>

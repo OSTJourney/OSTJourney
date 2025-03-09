@@ -22,11 +22,12 @@
 					placeholder="Enter your password" minlength="8">
 			</div>
 			{% if email_enabled %}
-				<a href="{{ url_for('forgot_password') }}">Forgot password?</a>
+				<a href="#" id="forgot-password-link">Forgot password ?</a>
 			{% endif %}
 			<a href="{{ url_for('register') }}">Register</a>
 			<button type="submit" id="login-btn">Login</button>
 		</form>
 	</div>
 </center>
+<script src="{{ url_for('static', filename='js/forgot_password.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dup_check.js') }}"></script>

@@ -26,7 +26,7 @@ songs_dir = os.path.join(base_dir, "songs")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Footer information
-BUILD = "dev 1.0.08"
+BUILD = "dev 1.0.09"
 REPO_OWNER = "Moutigll"
 COPYRIGHT = "© 2025 - Moutig"
 REPO_NAME = "OSTJourney"
@@ -51,7 +51,10 @@ email_enabled = os.getenv('EMAIL_ENABLED', 'false').lower() == 'true'
 if email_enabled:
 	app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 	app.config['MAIL_PORT'] = os.getenv('MAIL_PORT')
-	app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'false').lower() == 'true'
+	app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+
+
+mail = Mail(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 binds = os.getenv('SQLALCHEMY_BINDS', '{}')
@@ -267,6 +270,48 @@ def logout():
 	response = make_response(redirect(url_for('login')))
 	response.delete_cookie('session_token')
 	return response
+
+@app.route("/reset_password_request", methods=["POST"])
+def reset_password_request():
+	if not email_enabled:
+		return jsonify({"success": False, "error": "Email is not enabled."}), 400
+	data = request.get_json()
+	email = data.get("email")
+
+	if not email:
+		return jsonify({"success": False, "error": "Email is required."}), 400
+
+	user = User.query.filter_by(email=email).first()
+	if not user:
+		return jsonify({"success": False, "error": "This email is not registered."}), 404
+
+	token = generate_reset_token(email)
+	reset_url = url_for("reset_password", token=token, _external=True)
+
+	if email_enabled:
+		msg = Message("Password Reset Request", recipients=[email])
+		msg.body = f"Click the link to reset your password: {reset_url}"
+		mail.send(msg)
+	
+	return jsonify({"success": True}), 200
+
+@app.route("/reset_password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+	email = verify_reset_token(token)
+	if not email:
+		flash("Invalid or expired token.", "danger")
+		return redirect(url_for("login"))
+
+	if request.method == "POST":
+		password = request.form.get("password")
+		user = User.query.filter_by(email=email).first()
+		if user:
+			user.set_password(password)
+			db.session.commit()
+			flash("Your password has been reset!", "success")
+			return redirect(url_for("login"))
+
+	return render_template("reset_password.html", token=token)
 
 @app.route('/settings')
 def settings():
