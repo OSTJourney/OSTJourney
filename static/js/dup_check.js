@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    if (!window.isFullPageLoaded) {
-        location.reload();
-    }
+	if (!window.isFullPageLoaded) {
+		location.reload();
+	}
 });

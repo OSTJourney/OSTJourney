@@ -34,9 +34,10 @@ def create_app():
 	app.config['SQLALCHEMY_BINDS'] = json.loads(binds) if binds else {}
 
 	# Mail configuration
-	app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
-	app.config['MAIL_PORT'] = os.getenv('MAIL_PORT')
-	app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+	if email_enabled:
+		app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+		app.config['MAIL_PORT'] = os.getenv('MAIL_PORT')
+		app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
 	# Initialize extensions
 	db.init_app(app)

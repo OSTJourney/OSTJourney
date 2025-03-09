@@ -57,6 +57,7 @@ pip install -r requirements.txt
 Create a `.env` file at the root of the project and add the following environment variables:
 ```ini
 SECRET_KEY = "your_secret_key" # Put your secret key here
+SECURITY_PASSWORD_SALT = "your_salt_value_here"  # Put your password salt here
 SQLALCHEMY_DATABASE_URI = 'sqlite:///songs.db'
 SQLALCHEMY_BINDS = '{"users": "sqlite:///users.db"}'
 
@@ -70,7 +71,14 @@ FLASK_ENV = "development"  # Change to "production" when deploying in production
 # Flask Port (default: 5000)
 FLASK_PORT = 5000
 
+# Email Configuration
+EMAIL_ENABLED = False
+MAIL_SERVER = "mail.ostjourney.xyz"
+MAIL_DEFAULT_SENDER = "no_reply@ostjourney.xyz"
+MAIL_PORT = 25
+
 ```
+You can put a mail server if you have one, else put False and all email functionalities will be disabled
 
 ### 2. **Initialize the Databases**
 

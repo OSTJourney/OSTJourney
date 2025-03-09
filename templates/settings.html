@@ -1,2 +1,49 @@
 <h1 id="currentUrl">{{ currentUrl }}</h1>
+<center>
+	<div class="header">
+		<h2>Settings</h2>
+	</div>
+	{% if success %}
+		<p class="success-msg">{{ success }}</p>
+	{% endif %}
+	{% if error %}
+		<p class="error-msg">{{ error }}</p>
+	{% endif %}
+	<div id="login-container">
+		<form id="login-form" method="POST" action="{{ url_for('session.change_password') }}">
+			<div class="input-field">
+				<label for="password">Old Password:</label>
+				<input 
+					type="password" 
+					id="old_password" 
+					name="old_password"
+					required
+					minlength="8">
+			</div>
+			<div class="input-field">
+				<label for="password">New Password:</label>
+				<input 
+					type="password"
+					id="password"
+					name="password"
+					required
+					minlength="8"
+					title="Password must be at least 8 characters long, contain at least one number, one uppercase letter, one lowercase letter, and at least one special character (e.g., !, @, #, $, etc.).">
+			</div>
+			<div class="input-field">
+				<label for="confirm_password">Confirm New Password:</label>
+				<input 
+					type="password"
+					id="confirm_password"
+					name="confirm_password"
+					required
+					minlength="8"
+					title="Password must be at least 8 characters long, contain at least one number, one uppercase letter, one lowercase letter, and at least one special character (e.g., !, @, #, $, etc.).">
+			</div>
+			<button type="submit" id="login-btn">Change Password</button>
+		</form>		
+	</div>
+</center>
+
+<script src="{{ url_for('static', filename='js/check_password.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dup_check.js') }}"></script>

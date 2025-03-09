@@ -6,7 +6,7 @@ from sqlalchemy import func
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db, email_enabled, limiter, mail
-from .app_utils import generate_reset_token, verify_reset_token
+from .app_utils import generate_reset_token, verify_reset_token, get_real_ip
 from .config import serializer
 from .models import User
 
@@ -81,7 +81,7 @@ def login():
 		else:
 			return render_template('login.html', error="Invalid email or password.", email=email, currentUrl="/login", email_enabled=email_enabled)
 	print("Is email_enabled:", email_enabled)
-	return render_template('base.html', content=render_template('login.html'), currentUrl="/login", title="Login", email_enabled=email_enabled)
+	return render_template('base.html', content=render_template('login.html', currentUrl="/login", title="Login", email_enabled=email_enabled))
 
 @session_bp.route('/logout')
 def logout():
@@ -147,3 +147,41 @@ def reset_password(token):
 
 	return render_template('base.html', content=render_template('reset_password.html', token=token, currentUrl="/reset_password"))
 
+@session_bp.route('/change_password', methods=['GET', 'POST'])
+def change_password():
+	if 'user' not in session:
+		return redirect(url_for('session.login'))
+
+	user_id = session['user_id']
+	user = User.query.get(user_id)
+
+	if request.method == 'POST':
+		old_password = request.form.get('old_password')
+		new_password = request.form.get('password')
+		confirm_password = request.form.get('confirm_password')
+
+		if not old_password or not new_password or not confirm_password:
+			return render_template('settings.html', error="Please fill in all fields.")
+		if new_password != confirm_password:
+			return render_template('settings.html', error="Passwords do not match.")
+		if not check_password_hash(user.password, old_password):
+			return render_template('settings.html', error="Old password is incorrect.")
+
+		password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};\'\\|,.<>\/?]).{8,40}$'
+		if not re.match(password_pattern, new_password):
+			return render_template('settings.html', error="Invalid password format.")
+
+		hashed_password = generate_password_hash(new_password, method='pbkdf2:sha256', salt_length=8)
+		user.password = hashed_password
+		db.session.commit()
+
+		ip_address = get_real_ip()
+		user_email = user.email
+
+		if email_enabled:
+			msg = Message("Password Change Notification", recipients=[user_email])
+			msg.body = f"Hello,\n\nYour password has been successfully changed. \n\n If you did not make this change, please contact support immediately.\n\nIP Address: {ip_address}"
+			mail.send(msg)
+		return render_template('settings.html', success="Password changed successfully.")
+
+	return render_template('settings.html', currentUrl="/settings")
