@@ -7,6 +7,8 @@ import subprocess
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, url_for, request, redirect, flash, session, send_from_directory, make_response, jsonify, abort
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 from flask_sqlalchemy import SQLAlchemy
@@ -26,7 +28,7 @@ songs_dir = os.path.join(base_dir, "songs")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Footer information
-BUILD = "dev 1.0.09"
+BUILD = "dev 1.0.10"
 REPO_OWNER = "Moutigll"
 COPYRIGHT = "© 2025 - Moutig"
 REPO_NAME = "OSTJourney"
@@ -55,6 +57,12 @@ if email_enabled:
 
 
 mail = Mail(app)
+
+limiter = Limiter(
+	key_func=get_real_ip,
+	app=app,
+	default_limits=[]
+)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 binds = os.getenv('SQLALCHEMY_BINDS', '{}')
@@ -141,6 +149,23 @@ class ListeningStatistics(db.Model):
 
 	def __repr__(self):
 		return f'<ListeningStatistics User {self.user_id} Hour {self.hour}: {self.listen_count} listens>'
+
+class BlacklistedIP(db.Model):
+	__bind_key__ = 'users'
+	id = db.Column(db.Integer, primary_key=True)
+	ip_address = db.Column(db.String(45), unique=True, nullable=False)
+	banned_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+	def __repr__(self):
+		return f'<BlacklistedIP {self.ip_address}>'
+
+@app.before_request
+def check_blacklist():
+	ip_address = get_real_ip()
+	blacklisted_ip = BlacklistedIP.query.filter_by(ip_address=ip_address).first()
+
+	if blacklisted_ip:
+		return render_template('banned.html', ip_address=ip_address, banned_at=blacklisted_ip.banned_at, ban_id=blacklisted_ip.id)
 
 @app.route('/')
 def index():
@@ -272,9 +297,11 @@ def logout():
 	return response
 
 @app.route("/reset_password_request", methods=["POST"])
+@limiter.limit("5 per hour")
 def reset_password_request():
 	if not email_enabled:
 		return jsonify({"success": False, "error": "Email is not enabled."}), 400
+	
 	data = request.get_json()
 	email = data.get("email")
 
@@ -296,22 +323,37 @@ def reset_password_request():
 	return jsonify({"success": True}), 200
 
 @app.route("/reset_password/<token>", methods=["GET", "POST"])
+@limiter.limit("3 per hour", methods=["POST"])
 def reset_password(token):
 	email = verify_reset_token(token)
-	if not email:
-		flash("Invalid or expired token.", "danger")
-		return redirect(url_for("login"))
+	if not email or 'user' in session:
+		return render_template('base.html', content=render_template('login.html', currentUrl="/login", error="Invalid or expired token."))
 
 	if request.method == "POST":
-		password = request.form.get("password")
+		form_token = request.form.get("token")
+		if form_token != token:
+			return render_template('base.html', content=render_template('reset_password.html', token=token, error="Invalid token."))
+
+		password = request.form.get("password").strip()
+		confirm_password = request.form.get("confirm_password").strip()
+
+		if password != confirm_password:
+			return render_template('base.html', content=render_template('reset_password.html', token=token, error="Passwords do not match."))
+
+		password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};\'\\|,.<>\/?]).{8,20}$'
+		if not re.match(password_pattern, password):
+			return render_template('base.html', content=render_template('reset_password.html', token=token, error="Invalid password format. Password must contain at least one number, one uppercase letter, one lowercase letter, and one special character."))
+
 		user = User.query.filter_by(email=email).first()
 		if user:
-			user.set_password(password)
+			hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
+			user.password = hashed_password
 			db.session.commit()
-			flash("Your password has been reset!", "success")
-			return redirect(url_for("login"))
+			return render_template('login.html', success="Password reset successfully. Please login.", email=email, currentUrl="/login")
+		else:
+			return render_template('base.html', content=render_template('login.html', currentUrl="/login", error="Invalid email."))
 
-	return render_template("reset_password.html", token=token)
+	return render_template('base.html', content=render_template('reset_password.html', token=token, currentUrl="/reset_password"))
 
 @app.route('/settings')
 def settings():
@@ -705,6 +747,19 @@ def end_music():
 	db.session.commit()
 
 	return {'status': 'success', 'message': 'Listening session ended and data updated'}
+
+@app.errorhandler(429)
+def ratelimit_error(e):
+	ip_address = get_real_ip()
+	blacklisted_ip = BlacklistedIP.query.filter_by(ip_address=ip_address).first()
+
+	if not blacklisted_ip:
+		blacklisted_ip = BlacklistedIP(ip_address=ip_address, banned_at=datetime.utcnow())
+		db.session.add(blacklisted_ip)
+		db.session.commit()
+
+	return jsonify({"success": False, "error": "Too many requests. Try again later."}), 429
+
 
 if __name__ == '__main__':
 	with app.app_context():

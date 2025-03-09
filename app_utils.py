@@ -1,5 +1,5 @@
 from itsdangerous import URLSafeTimedSerializer
-from flask import current_app
+from flask import current_app, request
 import os
 
 def generate_reset_token(email):
@@ -14,6 +14,8 @@ def verify_reset_token(token, expiration=3600):
 	except Exception:
 		return None
 
+def get_real_ip():
+	return request.headers.get("CF-Connecting-IP", request.remote_addr)
 
 def format_duration(seconds):
 	days, seconds = divmod(seconds, 86400)

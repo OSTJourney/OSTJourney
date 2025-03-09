@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Access Denied - Banned</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: rgb(91, 0, 175);
+			color: #721c24;
+			margin: 0;
+			padding: 0;
+			text-align: center;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
+
+		.container {
+			background-color: #fff;
+			padding: 20px;
+			border: 1px solid #f5c6cb;
+			border-radius: 10px;
+			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		h1 {
+			font-size: 2rem;
+			margin-bottom: 20px;
+		}
+
+		p {
+			font-size: 1.2rem;
+			margin: 10px 0;
+		}
+
+		.ip-address {
+			font-weight: bold;
+			color: #333;
+		}
+
+		.ban-date {
+			color: #555;
+		}
+
+		.back-link {
+			display: inline-block;
+			margin-top: 20px;
+			text-decoration: none;
+			color: #0056b3;
+		}
+
+		.back-link:hover {
+			text-decoration: underline;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Access Denied</h1>
+		<p>Your IP address <span class="ip-address">{{ ip_address }}</span> is currently banned.</p>
+		<p class="ban-date">You were banned on: {{ banned_at }}</p>
+		<p>If you believe this is a mistake, please contact support at <a href="mailto:support@ostjourney.xyz">support@ostjourney.xyz</a>.</p>
+		<p>Ban id: {{ ban_id }}</p>
+	</div>
+</body>
+</html>
