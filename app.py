@@ -1,12 +1,13 @@
 import json
 import os
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import requests
 import subprocess
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, url_for, request, redirect, flash, session, send_from_directory, make_response, jsonify, abort
+from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc, func
@@ -25,7 +26,7 @@ songs_dir = os.path.join(base_dir, "songs")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Footer information
-BUILD = "dev 1.0.06"
+BUILD = "dev 1.0.08"
 REPO_OWNER = "Moutigll"
 COPYRIGHT = "© 2025 - Moutig"
 REPO_NAME = "OSTJourney"
@@ -45,6 +46,12 @@ def get_commit_from_github():
 		return None
 
 commit_data = get_commit_from_github()
+
+email_enabled = os.getenv('EMAIL_ENABLED', 'false').lower() == 'true'
+if email_enabled:
+	app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+	app.config['MAIL_PORT'] = os.getenv('MAIL_PORT')
+	app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'false').lower() == 'true'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 binds = os.getenv('SQLALCHEMY_BINDS', '{}')
@@ -230,7 +237,7 @@ def login():
 		password = request.form.get('password')
 
 		if not email or not password:
-			return render_template('login.html', error="Please fill in all fields.", email=email, currentUrl="/login")
+			return render_template('login.html', error="Please fill in all fields.", email=email, currentUrl="/login", email_enabled=email_enabled)
 
 		user = User.query.filter_by(email=email).first()
 		if user and check_password_hash(user.password, password):
@@ -245,14 +252,14 @@ def login():
 
 			return response
 		elif user:
-			return render_template('login.html', error="Invalid password.", email=email, currentUrl="/login")
+			return render_template('login.html', error="Invalid password.", email=email, currentUrl="/login", email_enabled=email_enabled)
 		else:
-			return render_template('login.html', error="Invalid email.", email=email, currentUrl="/login")
+			return render_template('login.html', error="Invalid email.", email=email, currentUrl="/login", email_enabled=email_enabled)
 	
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-		return render_template('login.html', currentUrl="/login")
+		return render_template('login.html', currentUrl="/login", email_enabled=email_enabled)
 	else:
-		return render_template('base.html', content=render_template('login.html'), currentUrl="/login", title="Login")
+		return render_template('base.html', content=render_template('login.html', email_enabled=email_enabled), currentUrl="/login", title="Login")
 
 @app.route('/logout')
 def logout():
@@ -260,6 +267,28 @@ def logout():
 	response = make_response(redirect(url_for('login')))
 	response.delete_cookie('session_token')
 	return response
+
+@app.route('/settings')
+def settings():
+	if 'user' not in session:
+		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+			return render_template('login.html', currentUrl="/login")
+		return render_template('base.html', content=render_template('login.html', currentUrl="/login"))
+
+	token = request.cookies.get('session_token')
+	if not token:
+		return redirect(url_for('index'))
+
+	try:
+		user_data = serializer.loads(token)
+		user_id = user_data.get('user_id')
+	except:
+		return redirect(url_for('logout'))
+	
+	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+		return render_template('settings.html', currentUrl="/settings")
+	return render_template('base.html', content=render_template('settings.html'), currentUrl="/settings", title="Settings")
+	
 
 
 @app.route('/profile')

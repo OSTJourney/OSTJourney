@@ -1,19 +1,32 @@
 <h1 id="currentUrl">{{ currentUrl }}</h1>
-<h2>Login</h2>
-{% if error %}
-	<p class="error-msg">{{ error }}</p>
-{% endif %}
-{% if success %}
-	<p class="success-msg">{{ success }}</p>
-{% endif %}
-<form id="login-form" method="POST" action="{{ url_for('login') }}">
-	<div id="error-message" class="error-message"></div>
-	<label for="email">Email:</label>
-	<input type="email" id="email" name="email" required 
-		   placeholder="Enter your email" value="{{ email if email else '' }}">
-	<label for="password">Password:</label>
-	<input type="password" id="password" name="password" required 
-		   placeholder="Enter your password" minlength="8">
-	<button type="submit">Login</button>
-</form>
+<center>
+	<div class="header">
+		<h2>Login</h2>
+	</div>
+	{% if error %}
+		<p class="error-msg">{{ error }}</p>
+	{% endif %}
+	{% if success %}
+		<p class="success-msg">{{ success }}</p>
+	{% endif %}
+	<div id="login-container">
+		<form id="login-form" method="POST" action="{{ url_for('login') }}">
+			<div class="input-field">
+				<label for="email">Email:</label>
+				<input type="email" id="email" name="email" required 
+					placeholder="Enter your email" value="{{ email if email else '' }}">
+			</div>
+			<div class="input-field">
+				<label for="password">Password:</label>
+				<input type="password" id="password" name="password" required 
+					placeholder="Enter your password" minlength="8">
+			</div>
+			{% if email_enabled %}
+				<a href="{{ url_for('forgot_password') }}">Forgot password?</a>
+			{% endif %}
+			<a href="{{ url_for('register') }}">Register</a>
+			<button type="submit" id="login-btn">Login</button>
+		</form>
+	</div>
+</center>
 <script src="{{ url_for('static', filename='js/dup_check.js') }}"></script>

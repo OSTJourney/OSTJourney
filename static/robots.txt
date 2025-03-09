@@ -34,6 +34,7 @@ Allow: /login
 Allow: /register
 Disallow: /?
 Disallow: /profile
+Disallow: /settings
 Disallow: /nav
 Disallow: /footer
 Disallow: /api
