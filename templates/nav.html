@@ -1,12 +1,12 @@
 <nav>
 	<div id="user-menu">
 		{% if session.get('user') %}
-			<a href="{{ url_for('profile') }}" class="user-btn">Profile</a>
-			<a href="{{ url_for('settings') }}" class="user-btn">Settings</a>
-			<a href="{{ url_for('logout') }}" class="user-btn">Logout</a>
+			<a href="{{ url_for('user.profile') }}" class="user-btn">Profile</a>
+			<a href="{{ url_for('user.settings') }}" class="user-btn">Settings</a>
+			<a href="{{ url_for('session.logout') }}" class="user-btn">Logout</a>
 		{% else %}
-			<a href="{{ url_for('login') }}" class="user-btn">Login</a>
-			<a href="{{ url_for('register') }}" class="user-btn" class="dynamic-link">Register</a>
+			<a href="{{ url_for('session.login') }}" class="user-btn">Login</a>
+			<a href="{{ url_for('session.register') }}" class="user-btn">Register</a>
 		{% endif %}
 	</div>
 </nav>

@@ -1,6 +1,12 @@
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app, request
+from .config import REPO_OWNER, REPO_NAME, serializer
 import os
+
+import requests
+import subprocess
+
+
 
 def generate_reset_token(email):
 	serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
@@ -13,6 +19,17 @@ def verify_reset_token(token, expiration=3600):
 		return email
 	except Exception:
 		return None
+	
+def get_user_from_token():
+	token = request.cookies.get('session_token')
+	if not token:
+		return None, {'status': 'error', 'message': 'User not logged in'}
+	try:
+		user_data = serializer.loads(token)
+		user_id = user_data['user_id']
+		return user_id, None
+	except Exception:
+		return None, {'status': 'error', 'message': 'Invalid session token'}
 
 def get_real_ip():
 	return request.headers.get("CF-Connecting-IP", request.remote_addr)
@@ -33,3 +50,17 @@ def format_duration(seconds):
 		duration_parts.append(f"{round(seconds)} second{'s' if seconds > 1 else ''}")
 
 	return ', '.join(duration_parts) if duration_parts else "0 seconds"
+
+def get_commit_from_github():
+	try:
+		local_commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode('utf-8')
+		url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/commits/{local_commit_hash}"
+		response = requests.get(url)
+		response.raise_for_status()
+		
+		return response.json()
+	except Exception as e:
+		print(f"Erreur API GitHub: {e}")
+		return None
+	
+commit_data = get_commit_from_github()
