@@ -58,12 +58,15 @@
 	</style>
 </head>
 <body>
-	<div class="container">
-		<h1>Access Denied</h1>
-		<p>Your IP address <span class="ip-address">{{ ip_address }}</span> is currently banned.</p>
-		<p class="ban-date">You were banned on: {{ banned_at }}</p>
-		<p>If you believe this is a mistake, please contact support at <a href="mailto:support@ostjourney.xyz">support@ostjourney.xyz</a>.</p>
-		<p>Ban id: {{ ban_id }}</p>
-	</div>
+	<center>
+		<img src="{{ url_for('static', filename='images/various/banned.webp') }}" alt="Access Denied" style="width: 40vh;">
+		<div class="container">
+			<h1>Access Denied</h1>
+			<p>Your IP address <span class="ip-address">{{ ip_address }}</span> is currently banned.</p>
+			<p class="ban-date">You were banned on: {{ banned_at }}</p>
+			<p>If you believe this is a mistake, please contact support at <a href="mailto:support@ostjourney.xyz">support@ostjourney.xyz</a>.</p>
+			<p>Ban id: {{ ban_id }}</p>
+		</div>
+	</center>
 </body>
 </html>

@@ -28,7 +28,7 @@ songs_dir = os.path.join(base_dir, "songs")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Footer information
-BUILD = "dev 1.0.11"
+BUILD = "dev 1.0.12"
 REPO_OWNER = "Moutigll"
 COPYRIGHT = "© 2025 - Moutig"
 REPO_NAME = "OSTJourney"
@@ -317,7 +317,16 @@ def reset_password_request():
 
 	if email_enabled:
 		msg = Message("Password Reset Request", recipients=[email])
-		msg.body = f"Click the link to reset your password: {reset_url}"
+		msg.body = (
+			"Hello,\n\n"
+			"We have received a request to reset the password for your OSTJourney account.\n\n"
+			"If you made this request, please click the link below to reset your password:\n"
+			f"{reset_url}\n\n"
+			"This link is valid for a limited time. If you did not request a password reset, please ignore this email.\n\n"
+			"For any questions or assistance, feel free to contact our support team at support@ostjourney.xyz.\n\n"
+			"Thank you,\n"
+			"The OSTJourney Team"
+		)
 		mail.send(msg)
 	
 	return jsonify({"success": True}), 200
@@ -765,6 +774,9 @@ def ratelimit_error(e):
 
 	return jsonify({"success": False, "error": "Too many requests. Try again later."}), 429
 
+@app.errorhandler(404)
+def page_not_found(error):
+	return render_template('404.html'), 404
 
 if __name__ == '__main__':
 	with app.app_context():
