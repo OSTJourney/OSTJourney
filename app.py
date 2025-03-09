@@ -28,7 +28,7 @@ songs_dir = os.path.join(base_dir, "songs")
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Footer information
-BUILD = "dev 1.0.10"
+BUILD = "dev 1.0.11"
 REPO_OWNER = "Moutigll"
 COPYRIGHT = "© 2025 - Moutig"
 REPO_NAME = "OSTJourney"
@@ -228,7 +228,7 @@ def register():
 		if password != confirm_password:
 			return render_template('register.html', error="Passwords do not match.", username=username, email=email, currentUrl="/register")
 
-		password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};\'\\|,.<>\/?]).{8,20}$'
+		password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};\'\\|,.<>\/?]).{8,40}$'
 		if not re.match(password_pattern, password):
 			return render_template('register.html', error="Invalid password.", username=username, email=email, currentUrl="/register")
 
@@ -300,7 +300,7 @@ def logout():
 @limiter.limit("5 per hour")
 def reset_password_request():
 	if not email_enabled:
-		return jsonify({"success": False, "error": "Email is not enabled."}), 400
+		return jsonify({"success": False, "error": "Email is not enabled, please contact support@ostjourney.xyz."}), 400
 	
 	data = request.get_json()
 	email = data.get("email")
@@ -322,12 +322,17 @@ def reset_password_request():
 	
 	return jsonify({"success": True}), 200
 
+@app.route("/test/<token>")
+def test(token):
+	return render_template('base.html', content=render_template('reset_password.html', token=token, currentUrl="/reset_password"))
+
+
 @app.route("/reset_password/<token>", methods=["GET", "POST"])
 @limiter.limit("3 per hour", methods=["POST"])
 def reset_password(token):
 	email = verify_reset_token(token)
 	if not email or 'user' in session:
-		return render_template('base.html', content=render_template('login.html', currentUrl="/login", error="Invalid or expired token."))
+		return render_template('base.html', content=render_template('login.html', currentUrl="/login", error="Already logged or invalid/expired token."))
 
 	if request.method == "POST":
 		form_token = request.form.get("token")
@@ -340,7 +345,7 @@ def reset_password(token):
 		if password != confirm_password:
 			return render_template('base.html', content=render_template('reset_password.html', token=token, error="Passwords do not match."))
 
-		password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};\'\\|,.<>\/?]).{8,20}$'
+		password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};\'\\|,.<>\/?]).{8,40}$'
 		if not re.match(password_pattern, password):
 			return render_template('base.html', content=render_template('reset_password.html', token=token, error="Invalid password format. Password must contain at least one number, one uppercase letter, one lowercase letter, and one special character."))
 

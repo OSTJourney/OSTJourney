@@ -20,7 +20,7 @@ if (forgotPasswordLink) {
 		.then(response => response.json())
 		.then(data => {
 			if (data.success) {
-				alert("An email has been sent to reset your password.");
+				alert("An email has been sent to reset your password.\nDon't forget to check your spam folder.\nIf it doesn't work, please contact support at support@ostjourney.xyz.");
 			} else {
 				alert(data.error);
 			}
