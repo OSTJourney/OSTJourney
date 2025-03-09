@@ -22,7 +22,7 @@
 					placeholder="Enter your password" minlength="8">
 			</div>
 			{% if email_enabled %}
-				<a href="#" id="forgot-password-link">Forgot password ?</a>
+				<a href="#" id="forgot-password-link" class="no-dynamic-load">Forgot password ?</a>
 			{% endif %}
 			<a href="{{ url_for('register') }}">Register</a>
 			<button type="submit" id="login-btn">Login</button>

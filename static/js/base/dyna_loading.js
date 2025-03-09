@@ -89,9 +89,9 @@ document.addEventListener('DOMContentLoaded', function () {
 	document.addEventListener('click', function (e) {
 		const link = e.target.closest('a');
 		if (link) {
-			if (whitelist.some(regex => regex.test(link.href))) {
+			if (whitelist.some(regex => regex.test(link.href)) || link.classList.contains('no-dynamic-load')) {
 				return;
-			}
+			}			
 			e.preventDefault();
 			const url = link.href;
 			if (new URL(url).pathname === '/') {
