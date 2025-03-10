@@ -383,7 +383,7 @@ function loadSong(songNumber) {
 				audio.pause();
 			}
 			audio = new Audio(file);
-			audio.volume = volume.value / 100;
+			audio.volume = Math.pow(volume.value / 100, volume_gamma);
 			player.controls.progressBar.max = Math.floor(duration) * 100;
 			player.controls.progressBar.value = 0;
 			audio.play();

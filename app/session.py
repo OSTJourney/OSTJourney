@@ -111,7 +111,16 @@ def reset_password_request():
 
 	if email_enabled:
 		msg = Message("Password Reset Request", recipients=[email])
-		msg.body = f"Hello, \n\nTo reset your password, click the link below: {reset_url}"
+		msg.body = (
+			"Hello,\n\n"
+			"We have received a request to reset the password for your OSTJourney account.\n\n"
+			"If you made this request, please click the link below to reset your password:\n"
+			f"{reset_url}\n\n"
+			"This link is valid for a limited time. If you did not request a password reset, please ignore this email.\n\n"
+			"For any questions or assistance, feel free to contact our support team at support@ostjourney.xyz.\n\n"
+			"Thank you,\n"
+			"The OSTJourney Team"
+		)
 		mail.send(msg)
 
 	return jsonify({"success": True}), 200
