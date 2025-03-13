@@ -375,6 +375,44 @@ nav {
 	background: #363a4f; 
 }
 
+/*Css for consent banner*/
+#consent-banner {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #333;
+	color: white;
+	padding: 20px;
+	text-align: left;
+	font-size: 14px;
+	z-index: 1000;
+	box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
+	max-height: 33vh;
+	overflow-y: auto;
+}
+
+
+#consent-banner h3 {
+	margin-top: 0;
+}
+
+#consent-banner .section a {
+	color: #4CAF50;
+	text-decoration: none;
+}
+
+#consent-banner button {
+	background-color: #4CAF50;
+	color: white;
+	border: none;
+	padding: 8px 16px;
+	cursor: pointer;
+}
+
+#consent-banner button:hover {
+	background-color: #45a049;
+}
 
 /*CSS for profile page*/
 .header {

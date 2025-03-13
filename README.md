@@ -56,20 +56,23 @@ pip install -r requirements.txt
 ### 1. **Set Up Environment Variables**
 Create a `.env` file at the root of the project and add the following environment variables:
 ```ini
+# Flask Security
 SECRET_KEY = "your_secret_key" # Put your secret key here
 SECURITY_PASSWORD_SALT = "your_salt_value_here"  # Put your password salt here
+
+# Database Configuration
 SQLALCHEMY_DATABASE_URI = 'sqlite:///songs.db'
 SQLALCHEMY_BINDS = '{"users": "sqlite:///users.db"}'
 
 # SSL Configuration (only for production)
-SSL_CERT_PATH = ""  # Path to your SSL certificate (e.g. "ssl/cert.pem")
-SSL_KEY_PATH = ""   # Path to your SSL key (e.g. "ssl/key.pem")
+SSL_CERT_PATH = "ssl/cert.pem"  # Path to your SSL certificate
+SSL_KEY_PATH = "ssl/key.pem"    # Path to your SSL key
 
 # Flask Environment
 FLASK_ENV = "development"  # Change to "production" when deploying in production
 
-# Flask Port (default: 5000)
-FLASK_PORT = 5000
+# Flask Port
+FLASK_PORT = 5000  # Default: 5000
 
 # Email Configuration
 EMAIL_ENABLED = False
@@ -77,8 +80,13 @@ MAIL_SERVER = "mail.ostjourney.xyz"
 MAIL_DEFAULT_SENDER = "no_reply@ostjourney.xyz"
 MAIL_PORT = 25
 
+# Umami Analytics Configuration
+UMAMI_SCRIPT_URL = "https://cloud.umami.is/script.js"
+UMAMI_WEBSITE_ID = "your-umami-website-id"
+UMAMI_PUB_STATS_URL = "https://cloud.umami.is/share/your-public-stats-url"
 ```
-You can put a mail server if you have one, else put False and all email functionalities will be disabled
+- You can put a mail server if you have one, else put False and all email functionalities will be disabled.
+- If you want analytics, you can add a Umami script.
 
 ### 2. **Initialize the Databases**
 
