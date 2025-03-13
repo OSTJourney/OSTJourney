@@ -19,8 +19,10 @@
 		<meta property="og:url" content="{{ url_for('static', filename='') }}" />
 		<meta property="og:description" content="{{ description if description else 'Listen to your favorite OST, remix and more on OSTJourney.' }}" />
 		<meta name="description" content="{{ description if description else 'Listen to your favorite OST, remix and more on OSTJourney.' }}">
-
-		<meta name="keywords" content="OST, music, game, remix, soundtrack, listen, journey, ostjourney, nintendo" />
+		<meta name="keywords" content="OST, music, game, remix, soundtrack, listen, journey, ostjourney, nintendo, ost" />
+		{% if umami_script_url and umami_website_id %}
+			<script defer src="{{ umami_script_url }}" data-website-id="{{ umami_website_id }}"></script>
+		{% endif %}
 	</head>	
 	<body>
 		<div id="nav-container">

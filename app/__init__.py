@@ -42,7 +42,6 @@ def create_app():
 	# Initialize extensions
 	db.init_app(app)
 	mail.init_app(app)
-
 	limiter.init_app(app)
 
 	# Register blueprints
@@ -57,5 +56,13 @@ def create_app():
 	app.register_blueprint(session_bp)
 	app.register_blueprint(user_bp)
 	app.register_blueprint(various_bp)
+
+	# Inject Umami tracking variables if they are set
+	@app.context_processor
+	def inject_umami():
+		return {
+			"umami_script_url": os.getenv("UMAMI_SCRIPT_URL"),
+			"umami_website_id": os.getenv("UMAMI_WEBSITE_ID")
+		}
 
 	return app
