@@ -1,7 +1,7 @@
 import os
 import json
 
-from flask import Flask
+from flask import Flask, render_template, request
 from flask_limiter import Limiter
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
@@ -46,7 +46,7 @@ def create_app():
 
 	# Register blueprints
 	from app.api import api_bp
-	from app.errors import errors_bp
+	from app.errors import errors_bp, ratelimit_error, page_not_found  # Import the error handler functions
 	from app.session import session_bp
 	from app.user import user_bp
 	from app.various import various_bp
@@ -57,12 +57,31 @@ def create_app():
 	app.register_blueprint(user_bp)
 	app.register_blueprint(various_bp)
 
+	# Error handling
+	app.register_error_handler(429, ratelimit_error)
+	app.register_error_handler(404, page_not_found)
+	
+	@app.before_request
+	def check_blacklist():
+		from app.models import BlacklistedIP
+
+		if request.path == "/static/images/various/banned.webp":
+			return  
+
+		ip_address = get_real_ip()
+		blacklisted_ip = BlacklistedIP.query.filter_by(ip_address=ip_address).first()
+
+		if blacklisted_ip:
+			return render_template('banned.html', ip_address=ip_address, banned_at=blacklisted_ip.banned_at, ban_id=blacklisted_ip.id)
+
+
 	# Inject Umami tracking variables if they are set
 	@app.context_processor
 	def inject_umami():
 		return {
 			"umami_script_url": os.getenv("UMAMI_SCRIPT_URL"),
-			"umami_website_id": os.getenv("UMAMI_WEBSITE_ID")
+			"umami_website_id": os.getenv("UMAMI_WEBSITE_ID"),
+			"umami_stats_url": os.getenv("UMAMI_PUB_STATS_URL")
 		}
 
 	return app

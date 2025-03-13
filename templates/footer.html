@@ -1,5 +1,8 @@
 <footer>
 	<div class="footer-content">
+		{% if umami_stats_url %}
+			<p>Statistics: <a href="{{ umami_stats_url }}" class="no-dynamic-load" target="_blank">umami</a></p>
+		{% endif %}
 		{% if commit_data %}
 			<p>{{ copy_right }} - Contact: <a href="mailto:admin@ostjourney.xyz">admin@ostjourney.xyz</a></p><p id="footer-commit" style="margin-right: 3em;">{{ repo_name }} {{ build }} <a href="https://github.com/{{ repo_owner }}/{{ repo_name }}/commit/{{ commit_data.sha }}" class="no-dynamic-load" target="_blank">{{ commit_data.sha[:7] }}</a></p>
 		{% else %}

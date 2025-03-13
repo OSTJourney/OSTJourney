@@ -22,11 +22,3 @@ def ratelimit_error(e):
 @errors_bp.errorhandler(404)
 def page_not_found(error):
 	return render_template('404.html'), 404
-
-@errors_bp.before_request
-def check_blacklist():
-	ip_address = get_real_ip()
-	blacklisted_ip = BlacklistedIP.query.filter_by(ip_address=ip_address).first()
-
-	if blacklisted_ip:
-		return render_template('banned.html', ip_address=ip_address, banned_at=blacklisted_ip.banned_at, ban_id=blacklisted_ip.id)
