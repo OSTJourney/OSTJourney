@@ -415,7 +415,7 @@ window.onload = async function () {
 		}
 	} else {
 		try {
-			const response = await fetch('/latest');
+			const response = await fetch('/api/latest');
 			const data = await response.json();
 			if (data.latest_session_id) {
 				song = data.latest_session_id;

@@ -197,3 +197,16 @@ def end_music():
 	db.session.commit()
 
 	return {'status': 'success', 'message': 'Listening session ended and data updated'}
+
+
+@api_bp.route('/api/latest', methods=['GET'])
+def get_latest():
+	user_id, error = get_user_from_token()
+	if error:
+		return error
+	latest_session = ListeningSession.query.filter_by(user_id=user_id).order_by(ListeningSession.start_time.desc()).first()
+		
+	if latest_session:
+		return jsonify({'latest_session_id': latest_session.song_id})
+	else:
+		return jsonify({'error': 'No listening session found for the user'}), 404
