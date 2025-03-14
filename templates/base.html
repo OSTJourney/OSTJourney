@@ -12,7 +12,7 @@
 		<!-- Favicon link -->
 		<link rel="icon" type="image/x-icon" href="{{ icon if icon else url_for('static', filename='images/favicon-512x512.webp') }}">
 		<!-- Open Graph meta tags -->
-		<meta property="og:image" content="{{ url_for('static', filename='images/favicon-512x512.webp') }}" />
+		<meta property="og:image" content="{{ icon if icon else url_for('static', filename='images/favicon-512x512.webp') }}" />
 		<meta property="og:site_name" content="OSTJourney" />
 		<meta property="og:title" content="{{ title if title else 'OSTJourney' }}" />
 		<meta property="og:type" content="website" />

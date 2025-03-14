@@ -28,12 +28,21 @@ def index():
 			user_id=user_id,
 			song_id=song_id
 		).scalar()
+	
 	if isinstance(song.tags, str):
 		song.tags = json.loads(song.tags)
+
+	cover_image = song.cover if song.cover and song.cover.strip() else "null"
+	
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 		return render_template('song.html', song=song, listened_count=listened_count, currentUrl=request.url, title=song.title)
 	
-	return render_template('base.html', content=render_template('song.html', song=song, listened_count=listened_count, currentUrl=request.url, title=song.title, icon="/static/img/covers/" + song.cover + ".jpg"))
+	return render_template('base.html', 
+							content=render_template('song.html', 
+								song=song, 
+								listened_count=listened_count), 
+						   title=song.title, 
+						   icon=f"/static/images/covers/{cover_image}.jpg")
 
 @various_bp.route('/robots.txt')
 def robots():
