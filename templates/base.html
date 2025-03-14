@@ -10,7 +10,7 @@
 		<!-- Dynamic title with default fallback -->
 		<title>{{ title if title else 'OSTJourney' }}</title>
 		<!-- Favicon link -->
-		<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon-512x512.webp') }}">
+		<link rel="icon" type="image/x-icon" href="{{ icon if icon else url_for('static', filename='images/favicon-512x512.webp') }}">
 		<!-- Open Graph meta tags -->
 		<meta property="og:image" content="{{ url_for('static', filename='images/favicon-512x512.webp') }}" />
 		<meta property="og:site_name" content="OSTJourney" />
@@ -25,6 +25,11 @@
 		{% endif %}
 	</head>	
 	<body>
+		{%if error %}
+			<div class="error-msg">
+				{{ error }}
+			</div>
+		{% endif %}
 		<div id="nav-container">
 		</div>
 		<div>
@@ -125,10 +130,6 @@
 			<p>We use Umami, a privacy-focused analytics tool, to collect anonymous statistics about how you use our website. Umami is fully compliant with GDPR, does not use cookies, and does not track personal data. All collected data is self-hosted on our own server, ensuring that no third-party has access to it. This data helps us improve the user experience and the content we offer. The information collected includes aggregated metrics such as page views, referrers, and device types, but does not identify individual users.</p>
 			{% if umami_stats_url %}<p>You can view our statistics on <a href="{{ umami_stats_url }}" class="no-dynamic-load" target="_blank">Umami</a>.</p>{% endif %}
 		</div>		
-		<div class="umami-button">
-			<button id="accept-btn">Accept Umami Data Collection</button>
-			<button id="decline-btn">Decline</button>
-		</div>
 		<div class="section">
 			<h4>2. Cloudflare Proxy</h4>
 			<p>We use Cloudflare to help protect and speed up our website. As part of this, Cloudflare collects some basic information, such as your IP address, browser type, and device details, which is necessary for security and performance optimization. Unfortunately, Cloudflare cookies are required for these features and cannot be disabled.</p>
@@ -142,12 +143,43 @@
 			</div>
 		</div>
 		<div class="section">
-			<h4>4. Contact for Data Inquiries</h4>
-			<p>If you have any concerns or requests regarding your data and privacy, you can contact us at <a href="mailto:privacy@ostjourney.xyz">privacy@ostjourney.xyz</a>.</p>
+			<h4>4. Cookies Used</h4>
+			<table>
+				<tr>
+					<th>Cookie Name</th>
+					<th>Purpose</th>
+				</tr>
+				<tr>
+					<td><code>cf_clearance</code></td>
+					<td>Set by Cloudflare to verify security challenges.</td>
+				</tr>
+				<tr>
+					<td><code>session</code></td>
+					<td>Stores your login session to keep you authenticated.</td>
+				</tr>
+				<tr>
+					<td><code>session_token</code></td>
+					<td>Used for secure authentication of your session.</td>
+				</tr>
+				<tr>
+					<td><code>data_consent</code></td>
+					<td>Indicates whether Umami tracking is allowed or not.</td>
+				</tr>
+			</table>
 		</div>		
+		<div class="section">
+			<h4>5. Contact for Data Inquiries</h4>
+			<p>If you have any concerns or requests regarding your data and privacy, you can contact us at <a href="mailto:privacy@ostjourney.xyz">privacy@ostjourney.xyz</a>.</p>
+		</div>	
+		<div class="umami-button">
+			<button id="accept-btn">Accept Umami Data Collection</button>
+			<button id="decline-btn">Decline</button>
+		</div>	
 	</div>
 	<script>
 		window.isFullPageLoaded = true;
+		window.UMAMI_SCRIPT_URL = "{{ umami_script_url }}";
+		window.UMAMI_WEBSITE_ID = "{{ umami_website_id }}";
 	</script>
 	<script src="{{ url_for('static', filename='js/base/player.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/base/song-info.js') }}"></script>

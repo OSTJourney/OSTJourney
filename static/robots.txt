@@ -32,7 +32,6 @@
 User-agent: *
 Allow: /login
 Allow: /register
-Disallow: /?
 Disallow: /profile
 Disallow: /settings
 Disallow: /nav
@@ -41,6 +40,9 @@ Disallow: /api
 Disallow: /latest
 Disallow: /songs
 Sitemap: https://ostjourney.xyz/sitemap.xml
+
+User-agent: Googlebot
+Disallow: /?
 
 User-agent: BaiduSpider
 Disallow: /

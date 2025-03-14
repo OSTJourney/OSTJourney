@@ -4,7 +4,7 @@ let currentUrl = window.location.href;
 const contentDiv = document.getElementById('content');
 
 const whitelist = [
-    /\.jpg$/
+	/\.jpg$/
 ];
 
 function fetchNavFooter() {
@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	fetchNavFooter();
+
 	document.addEventListener('click', function (e) {
 		const link = e.target.closest('a');
 		if (link) {
@@ -93,12 +94,13 @@ document.addEventListener('DOMContentLoaded', function () {
 				return;
 			}			
 			e.preventDefault();
-			const url = link.href;
-			if (new URL(url).pathname === '/') {
+
+			const url = new URL(link.href);
+			if (url.pathname === '/' && !url.searchParams.has('song')) {
 				contentDiv.innerHTML = '';
-				history.pushState(null, '', url);
+				history.pushState(null, '', url.href);
 			} else {
-				fetch(url, {
+				fetch(url.href, {
 					headers: {
 						'X-Requested-With': 'XMLHttpRequest'
 					}
@@ -110,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					return response.text();
 				})
 				.then(html => {
-					updatePage(url, html, 'push');
+					updatePage(url.href, html, 'push');
 				})
 				.catch(error => console.error('Fetch error:', error));
 			}
@@ -118,24 +120,25 @@ document.addEventListener('DOMContentLoaded', function () {
 	});
 
 	window.addEventListener('popstate', function () {
-		const url = window.location.href;
-		if (new URL(url).pathname === '/') {
+		const url = new URL(window.location.href);
+		if (url.pathname === '/' && !url.searchParams.has('song')) {
 			contentDiv.innerHTML = '';
 		} else {
-			fetch(url, {
+			fetch(url.href, {
 				headers: {
 					'X-Requested-With': 'XMLHttpRequest'
 				}
 			})
 			.then(response => response.text())
 			.then(html => {
-				updatePage(url, html, 'replace');
+				updatePage(url.href, html, 'replace');
 			})
 			.catch(error => {
 				console.error('Fetch error on popstate:', error);
 			});
 		}
 	});
+
 	const forms = document.querySelectorAll('form');
 	getForms(forms);
 });

@@ -28,6 +28,10 @@ a {
 
 .error-msg, .success-msg {
 	font-style: italic;
+	position: absolute;
+	top: 13vh;
+	left: 1em;
+	font-size: larger;
 }
 
 .error-msg {
@@ -410,6 +414,22 @@ nav {
 	cursor: pointer;
 }
 
+#consent-banner table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 10px;
+}
+
+#consent-banner th, #consent-banner td {
+	border: 1px solid white;
+	padding: 8px;
+	text-align: left;
+}
+
+#consent-banner th {
+	background-color: #444;
+}
+
 #consent-banner button:hover {
 	background-color: #45a049;
 }
@@ -660,10 +680,104 @@ nav {
 
 /*CSS for the song page*/
 #song-page {
-	margin-top: 10.5vh;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+	margin: 10.5vh;
+	padding: 20px;
+	background-color: #212121;
+	border-radius: 8px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+	color: #b3b3b3;
+	width: 100%;
+	max-width: 80vw;
+}
+
+#song-page-cover {
+	width: 180px;
+	height: 180px;
+	object-fit: cover;
+	border-radius: 8px;
+	margin-bottom: 15px;
+}
+
+#song-page-title {
+	font-size: 2rem;
+	font-weight: bold;
+	margin-bottom: 10px;
+	color: #ffffff;
+}
+
+#song-page-artist, #song-page-album, #song-page-year, #song-page-publisher, #song-page-genre {
+	font-size: 1rem;
+	margin: 5px 0;
+	color: #b3b3b3;
+}
+
+#song-page-listened-count {
+	font-size: 1rem;
+	color: #a0b2ff;
+}
+
+#song-page-tags-title {
+	font-size: 1.5rem;
+	font-weight: bold;
+	margin-top: 20px;
+	color: #ffffff;
+}
+
+#song-page-tags-table {
+	width: 100%;
+	margin-top: 10px;
+	border-collapse: collapse;
+}
+
+#song-page-tags-table th, #song-page-tags-table td {
+	padding: 12px;
+	text-align: left;
+	border: 1px solid #444;
+}
+
+#song-page-tags-table-th-name {
+	width: 30%;
+}
+
+#song-page-tags-table-th-value {
+	width: 70%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+#song-page-tags-name, #song-page-tags-value {
+	font-size: 1rem;
+	color: #b3b3b3;
+}
+
+#song-page-tags-value {
+	max-height: 5em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow-y: auto;
+}
+
+#song-page-tags-table td {
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	max-width: 70vw;
+}
+
+#song-page-tags-table tr:hover {
+	background-color: #333;
+	cursor: pointer;
+}
+
+
+/* Pour le consent banner */
+#consent-banner th {
+	background-color: #444;
+}
+
+#consent-banner button:hover {
+	background-color: #45a049;
 }
 
 /*CSS for the login and register page*/
@@ -744,8 +858,6 @@ nav {
 #login-form a:hover {
 	text-decoration: underline;
 }
-
-
 
 /*Links*/
 

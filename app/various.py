@@ -1,3 +1,4 @@
+import json
 from sqlalchemy import func
 
 from flask import Blueprint, abort, render_template, request, send_from_directory, session
@@ -19,7 +20,7 @@ def index():
 
 	song = Songs.query.get(song_id)
 	if not song:
-		return render_template('index.html', error="Chanson non trouvée.")
+		return render_template('index.html', error="Song not found")
 
 	user_id = session.get('user_id')
 	if user_id:
@@ -27,11 +28,12 @@ def index():
 			user_id=user_id,
 			song_id=song_id
 		).scalar()
-
+	if isinstance(song.tags, str):
+		song.tags = json.loads(song.tags)
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-		return render_template('song.html', song=song, listened_count=listened_count)
+		return render_template('song.html', song=song, listened_count=listened_count, currentUrl=request.url, title=song.title)
 	
-	return render_template('base.html', content=render_template('song.html', song=song, listened_count=listened_count))
+	return render_template('base.html', content=render_template('song.html', song=song, listened_count=listened_count, currentUrl=request.url, title=song.title, icon="/static/img/covers/" + song.cover + ".jpg"))
 
 @various_bp.route('/robots.txt')
 def robots():

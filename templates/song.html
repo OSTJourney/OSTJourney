@@ -1,5 +1,36 @@
+<h1 id="currentUrl">{{ currentUrl }}</h1>
 <div id="song-page">
+	<a href="/static/images/covers/{{ song.cover if song.cover else 'null' }}.jpg" id="song-page-cover-link" target="_blank">
+		<img src="/static/images/covers/{{ song.cover if song.cover else 'null' }}.jpg" id="song-page-cover" alt="Cover">
+	</a>	
+	<h1 id="song-page-title">{{ song.title }}</h1>
+	<p id="song-page-artist">{{ song.artist }}</p>
+	<p id="song-page-album">{{ song.album }}</p>
+	<p id="song-page-year">{{ song.year }}</p>
+	<p id="song-page-publisher">{{ song.publisher }}</p>
+	<p id="song-page-genre">{{ song.genre }}</p>
 	{% if listened_count %}
-		<p><span>Number of times listened :</span> {{ listened_count }}</p>
+		<p id="song-page-listened-count"><span>Number of times listened :</span> {{ listened_count }}</p>
+	{% endif %}
+	{% if song.tags %}
+		<h2 id="song-page-tags-title">Tags</h2>
+		<table id="song-page-tags-table" border="1">
+			<thead>
+				<tr>
+					<th id="song-page-tags-table-th-name">Tag Name</th>
+					<th id="song-page-tags-table-th-value">Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for tag_category, tags in song.tags.items() %}
+					{% for tag in tags %}
+						<tr>
+							<td id="song-page-tags-name">{{ tag[0] }}</td>
+							<td id="song-page-tags-value">{{ tag[1] }}</td>
+						</tr>
+					{% endfor %}
+				{% endfor %}
+			</tbody>
+		</table>
 	{% endif %}
 </div>

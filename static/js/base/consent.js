@@ -8,14 +8,17 @@ document.addEventListener("DOMContentLoaded", function() {
 	if (!consentCookie) {
 		consentBanner.style.display = 'block';
 	}
+
 	acceptBtn.addEventListener('click', function() {
 		document.cookie = "data_consent=true; path=/; max-age=" + 60*60*24*365;
 		consentBanner.style.display = 'none';
 
-		const script = document.createElement('script');
-		script.src = "{{ umami_script_url }}";
-		script.setAttribute('data-website-id', "{{ umami_website_id }}");
-		document.head.appendChild(script);
+		if (window.UMAMI_SCRIPT_URL && window.UMAMI_WEBSITE_ID) {
+			const script = document.createElement('script');
+			script.src = window.UMAMI_SCRIPT_URL;
+			script.setAttribute('data-website-id', window.UMAMI_WEBSITE_ID);
+			document.head.appendChild(script);
+		}
 	});
 
 	declineBtn.addEventListener('click', function() {
