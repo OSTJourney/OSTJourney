@@ -60,7 +60,7 @@ def create_app():
 	# Error handling
 	app.register_error_handler(429, ratelimit_error)
 	app.register_error_handler(404, page_not_found)
-	
+
 	@app.before_request
 	def check_blacklist():
 		from app.models import BlacklistedIP
