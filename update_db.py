@@ -16,6 +16,7 @@ from time import monotonic
 base_dir = covers_folder = os.path.join(os.getcwd(), "songs")
 covers_folder = covers_folder = os.path.join(os.getcwd(), "static", "images", "covers")
 db_file = "songs.db"
+log_file = "log.txt"
 hashes = []
 
 
@@ -36,6 +37,19 @@ CREATE TABLE IF NOT EXISTS songs (
 ''')
 conn.commit()
 
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS log_additions (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	year INTEGER,
+	month INTEGER,
+	day INTEGER,
+	first_id INTEGER,
+	last_id INTEGER,
+	comment TEXT
+)
+''')
+conn.commit()
+
 
 added = 0
 updated = 0
@@ -45,16 +59,13 @@ new_cover = 0
 startid = cursor.execute("SELECT COUNT(*) FROM songs").fetchone()[0]
 file_count = 0
 start_time = monotonic()
+new_songs_ids = []
 
 def update_last_line(text):
 	sys.stdout.write("\033[F")
 	sys.stdout.write("\033[K")
 	sys.stdout.write(text)
 	sys.stdout.flush()
-
-import os
-
-import sys
 
 def clear_console_except_top(lines_to_keep=5):
 	sys.stdout.write("\033[H")
@@ -111,6 +122,8 @@ for root, _, files in os.walk(base_dir):
 								file_id = frame.text
 				except Exception as e:
 					print(f"Error while retrieving ID for {file}: {e}")
+					with open(log_file, "a") as log:
+						log.write(f"Error while retrieving ID for {file}: {e}\n")
 
 				# Create ID if not found
 				if not file_id:
@@ -126,6 +139,7 @@ for root, _, files in os.walk(base_dir):
 						if frame.description == "42id":
 							frame.text = str(file_id)
 					audio_file.tag.save()
+					new_songs_ids.append(file_id)
 					new_files += 1
 
 
@@ -139,6 +153,8 @@ for root, _, files in os.walk(base_dir):
 				except Exception as e:
 					duration = 0
 					print(f"Error while retrieving duration for {file}: {e}")
+					with open(log_file, "a") as log:
+						log.write(f"Error while retrieving duration for {file}: {e}\n")
 
 				# Extract all text tags
 				tags = {
@@ -154,12 +170,16 @@ for root, _, files in os.walk(base_dir):
 										tags["TXXX"].append([frame.description, frame.text])
 								except Exception as e:
 									print(f"Error while extracting TXXX tags for {file}: {e}")
+									with open(log_file, "a") as log:
+										log.write(f"Error while extracting TXXX tags for {file}: {e}\n")
 							else:
 								try:
 									if frame.text is not None:
 										tags["Other"].append([frame_id.decode('utf-8'), frame.text])
 								except Exception as e:
 									print(e)
+									with open(log_file, "a") as log:
+										log.write(f"Error while extracting Other tags for {file}: {e}\n")
 				tags_json = json.dumps(tags)
 
 				# Extract cover and check if already exists
@@ -169,7 +189,7 @@ for root, _, files in os.walk(base_dir):
 						image_data = img.image_data
 						image = Image.open(BytesIO(image_data))
 						image = image.convert("RGB")
-						image = image.resize((512, 512))
+						image = image.resize((512, 512), Image.ANTIALIAS)
 
 						output_path = os.path.join(covers_folder + "/temp", f"{os.path.splitext(file)[0]}.jpg")
 						image.save(output_path, "JPEG")
@@ -223,10 +243,12 @@ for root, _, files in os.walk(base_dir):
 				estimated_time = str(datetime.timedelta(seconds=estimated_time))
 
 				clear_console_except_top()
-				print(f"[{datetime.datetime.now().strftime('%H:%M:%S.%f')[:23]}] File: {relative_path} No: {file_count}/{startid + new_files}  added: {added} updated: {updated} errors: {errors} new covers: {new_cover} ETA: {estimated_time}\n")
+				print(f"[{datetime.datetime.now().strftime('%H:%M:%S.%f')[:23]}] File:{relative_path} No:{file_count}/{startid + new_files}  added:{added} updated:{updated} errors:{errors} new covers:{new_cover} ETA: {estimated_time}\n")
 			except Exception as e:
 				errors += 1
 				print(f"Error with file {file}: {traceback.format_exc()}")
+				with open(log_file, "a") as log:
+					log.write(f"Error with file {file}: {traceback.format_exc()}\n")
 
 
 # Final summary
@@ -264,6 +286,20 @@ for song_id, album in songs_with_null_cover:
 		cover_found += 1
 
 print(f"{cover_found} covers recovered in {round(monotonic() - time, 3)}s")
+
+# Log additions
+if new_files > 0:
+	cursor.execute('''
+	INSERT INTO log_additions (year, month, day, first_id, last_id, comment)
+	VALUES (?, ?, ?, ?, ?, ?)
+	''', (
+		datetime.datetime.now().year,
+		datetime.datetime.now().month,
+		datetime.datetime.now().day,
+		new_songs_ids[0],
+		new_songs_ids[-1],
+		f"Added {new_files} new songs"
+	))
 
 conn.commit()
 conn.close()
