@@ -66,6 +66,13 @@ function executeScripts(container) {
 }
 
 function updatePage(url, html, mode) {
+	oldScripts = contentDiv.querySelectorAll('script[src]');
+	oldScripts.forEach(script => {
+		const scriptSrc = script.getAttribute('src');
+		if (scriptSrc) {
+			script.remove();
+		}
+	});
 	contentDiv.innerHTML = html;
 	fetchNavFooter();
 	currentUrl = document.getElementById('currentUrl').textContent || url;

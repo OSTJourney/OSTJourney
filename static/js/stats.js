@@ -17,6 +17,6 @@ function updateStats() {
 		.catch(error => console.error('Error fetching stats:', error));
 }
 
-setInterval(updateStats, 15000);
-
-updateStats();
+document.getElementById('update-stats').addEventListener('click', function() {
+	updateStats();
+});

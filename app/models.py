@@ -44,6 +44,7 @@ class User(db.Model):
 		return f'<User {self.username}>'
 
 class UserToken(db.Model):
+	__bind_key__ = 'users'
 	id = db.Column(db.String(255), primary_key=True)
 	last_ping = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 

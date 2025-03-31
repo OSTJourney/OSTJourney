@@ -69,8 +69,8 @@ def stats():
 			'listening_count': listening_count,
 			'listening_duration': listening_duration,
 		}
-	song_count = current_app.songs_count
-	duration_count = current_app.songs_duration
+	song_count = current_app.config['SONGS_COUNT']
+	duration_count = current_app.config['SONGS_DURATION']
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 		return render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users))
 	return render_template('base.html', content=render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users)), title="Statistics", currentUrl="/stats")

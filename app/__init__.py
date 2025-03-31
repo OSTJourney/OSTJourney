@@ -1,13 +1,14 @@
 import os
 import json
 
+from dotenv import load_dotenv
 from flask import Flask, render_template, request
 from flask_limiter import Limiter
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
-from dotenv import load_dotenv
+from sqlalchemy import func
 
-from .app_utils import get_real_ip
+from .app_utils import format_duration, get_real_ip
 
 load_dotenv()
 
@@ -43,6 +44,14 @@ def create_app():
 	db.init_app(app)
 	mail.init_app(app)
 	limiter.init_app(app)
+
+	with app.app_context():
+		db.create_all()
+		from .models import Songs
+
+		#This values should not change once the app is started so we process them only once to reduce the load on the database
+		app.config['SONGS_COUNT'] = db.session.query(func.count(Songs.id)).scalar()
+		app.config['SONGS_DURATION'] = format_duration(db.session.query(func.sum(Songs.duration)).scalar())
 
 	# Register blueprints
 	from app.api import api_bp
