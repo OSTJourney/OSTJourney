@@ -14,6 +14,18 @@ class Songs(db.Model):
 	def __repr__(self):
 		return f'<Song {self.id}: {self.title} by {self.artist}>'
 
+class LogAdditions(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	year = db.Column(db.Integer)
+	month = db.Column(db.Integer)
+	day = db.Column(db.Integer)
+	first_id = db.Column(db.Integer)
+	last_id = db.Column(db.Integer)
+	comment = db.Column(db.Text)
+
+	def __repr__(self):
+		return f'<LogAddition {self.id}: {self.comment}>'
+
 class User(db.Model):
 	__bind_key__ = 'users'
 	id = db.Column(db.Integer, primary_key=True)

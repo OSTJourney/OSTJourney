@@ -4,9 +4,11 @@
 			<a href="{{ url_for('user.profile') }}" class="user-btn">Profile</a>
 			<a href="{{ url_for('user.settings') }}" class="user-btn">Settings</a>
 			<a href="{{ url_for('session.logout') }}" class="user-btn">Logout</a>
+			<a href="{{ url_for('various.latest') }}" class="user-btn">Latest</a>
 		{% else %}
 			<a href="{{ url_for('session.login') }}" class="user-btn">Login</a>
 			<a href="{{ url_for('session.register') }}" class="user-btn">Register</a>
+			<a href="{{ url_for('various.latest') }}" class="user-btn">Latest</a>
 		{% endif %}
 	</div>
 </nav>

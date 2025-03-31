@@ -210,3 +210,21 @@ def get_latest():
 		return jsonify({'latest_session_id': latest_session.song_id})
 	else:
 		return jsonify({'error': 'No listening session found for the user'}), 404
+	
+@api_bp.route('/api/get_songs', methods=['GET'])
+def get_songs_api():
+	start = request.args.get('start', 0, type=int)
+	end = request.args.get('end', 25, type=int)
+	if start < 0 or end <= start or end - start > 50:
+		return jsonify({'error': 'Invalid range'}), 400
+	songs = Songs.query.slice(start, end).all()
+	songs_list = []
+	for song in songs:
+		songs_list.append({
+			'id': song.id,
+			'title': song.title,
+			'artist': song.artist,
+			'cover': song.cover,
+			'duration': format_duration(song.duration),
+		})
+	return jsonify({'songs': songs_list})

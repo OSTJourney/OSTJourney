@@ -189,7 +189,7 @@ for root, _, files in os.walk(base_dir):
 						image_data = img.image_data
 						image = Image.open(BytesIO(image_data))
 						image = image.convert("RGB")
-						image = image.resize((512, 512), Image.ANTIALIAS)
+						image = image.resize((512, 512), Image.LANCZOS)
 
 						output_path = os.path.join(covers_folder + "/temp", f"{os.path.splitext(file)[0]}.jpg")
 						image.save(output_path, "JPEG")

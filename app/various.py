@@ -6,7 +6,7 @@ from flask import Blueprint, abort, render_template, request, send_from_director
 from app import songs_dir
 from app.app_utils import commit_data
 from app.config import BUILD, BRANCH, COPYRIGHT, REPO_NAME, REPO_OWNER, REPO_URL
-from .models import db, ListeningHistory, Songs
+from .models import db, ListeningHistory, LogAdditions, Songs
 
 various_bp = Blueprint('various', __name__)
 
@@ -43,6 +43,14 @@ def index():
 								listened_count=listened_count), 
 						   title=song.title, 
 						   icon=f"/static/images/covers/{cover_image}.jpg")
+
+@various_bp.route('/latest')
+def latest():
+	additions = db.session.query(LogAdditions).order_by(LogAdditions.id.desc()).all()
+	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+		return render_template('latest.html', additions=additions)
+	return render_template('base.html', content=render_template('latest.html', additions=additions), title="Latest Additions", currentUrl="/latest")
+	
 
 @various_bp.route('/robots.txt')
 def robots():

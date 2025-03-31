@@ -1,0 +1,43 @@
+<h1 id="currentUrl">{{ currentUrl }}</h1>
+<center>
+	<h1 style="padding-top: 2em;">Latest songs added</h1>
+	{% for addition in additions %}
+		<div class="addition-container">
+			<div class="addition-info">
+				<span class="addition-id">{{ addition.id }}</span>
+				<span class="addition-start-id">{{ addition.first_id }}</span>
+				<span class="addition-end-id">{{ addition.last_id }}</span>
+			</div>
+			<div class="addition-date">
+				{{ addition.year }}-{{ addition.month }}-{{ addition.day }}
+			</div>
+			<div class="num-additions">
+				{{ addition.last_id - addition.first_id }} songs added
+			</div>
+			<div class="addition-comment">
+				<pre style="text-align: left;">
+					{{ addition.comment }}
+				</pre>
+			</div>
+			<button class="addition-button">
+				See songs
+			</button>
+			<div class="song-list" style="display: none;">
+				<table class="song-tab">
+					<thead>
+						<tr>
+							<th>Song ID</th>
+							<th>Title</th>
+							<th>Artist</th>
+							<th>Duration</th>
+						</tr>
+					</thead>
+					<tbody class="songs-tbody">
+					</tbody>
+				</table>
+			</div>
+		</div>
+	{% endfor %}
+</center>
+<script src="{{ url_for('static', filename='js/latest.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dup_check.js') }}"></script>

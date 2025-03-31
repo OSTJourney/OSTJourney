@@ -8,7 +8,7 @@ document.getElementById('load-more').addEventListener('click', function() {
 				if (data.songs.length < 25) {
 					button.style.display = 'none';
 				}
-				const tbody = document.getElementById('songs-tbody');
+				const tbody = document.getElementsByClassName('songs-tbody')[0];
 				data.songs.forEach(song => {
 					const row = document.createElement('tr');
 					row.innerHTML = `
