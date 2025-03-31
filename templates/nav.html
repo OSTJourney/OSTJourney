@@ -12,5 +12,13 @@
 			<a href="{{ url_for('various.stats') }}" class="user-btn">Stats</a>
 			<a href="{{ url_for('various.latest') }}" class="user-btn">Latest</a>
 		{% endif %}
+		<div>
+			<input type="search" id="search-bar" placeholder="Search for a song..." />
+			<img id="search-icon" src="{{ url_for('static', filename='images/various/loop.svg') }}" alt="Search" />
+			<div id="search-results" class="no-select">
+				<p>No results found</p>
+				<!-- Search results will be populated here -->
+			</div>
+		</div>
 	</div>
 </nav>

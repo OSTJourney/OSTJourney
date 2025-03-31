@@ -93,6 +93,98 @@ nav {
 	margin-right: 1em;
 }
 
+#search-bar {
+	width: 12vw;
+	height: 3em;
+	margin-left: 1em;
+	color: #b3b3b3;
+	background-color: #181818;
+	border: 3px solid #000;
+	border-radius: 5px;
+	padding: 0.5em;
+	font-size: 1em;
+	transition: width 0.3s ease;
+}
+
+#search-icon {
+	position: absolute;
+	width: 2em;
+	height: 2em;
+	top: 2em;
+	margin-left: -2.5em;
+}
+
+#search-icon:hover {
+	cursor: pointer;
+}
+
+#search-bar:focus {
+	width: 30vw;
+	outline: none;
+}
+
+#search-results {
+	transform-origin: top left;
+	position: absolute;
+	opacity: 0;
+	visibility: hidden;
+	z-index: 1000;
+	width: 12vw;
+	transform: scaleY(0);
+	margin-left: 1em;
+	background-color: #181818;
+	border: 3px solid #000;
+	border-radius: 5px;
+	overflow-y: auto;
+	height: 0;
+	overflow-x: hidden;
+	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+	transition: all 0.3s ease;
+}
+
+#search-results.show {
+	opacity: 1;
+	visibility: visible;
+	width: 50vw;
+	transform: scaleY(1);
+	height: fit-content;
+	max-height: 55vh;
+	transition: all 0.3s ease;
+}
+
+
+#search-results p {
+	padding-left: 1em;
+	font-size: 1em;
+	color: #b3b3b3;
+}
+
+.result-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 1em;
+	border-bottom: 1px solid #000;
+	cursor: pointer;
+}
+
+.result-row:hover {
+	background-color: #252525;
+}
+
+.result-row > * {
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+.result-cover {
+	width: 2.5em;
+	height: 2.5em;
+	margin-right: 1em;
+	border-radius: 5px;
+}
+
 /*Css for the song info pop-up*/
 #Song-info {
 	position: fixed;

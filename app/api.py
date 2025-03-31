@@ -245,3 +245,31 @@ def ping():
 	db.session.commit()
 
 	return {'status': 'success', 'message': 'Ping successful'}
+
+@api_bp.route('/api/search', methods=['GET'])
+def search():
+	query = request.args.get('query', '').strip()
+	if not query:
+		return {'status': 'error', 'message': 'Query is required'}
+
+	words = query.split()
+
+	filters = [Songs.tags.like(f'%{word}%') for word in words]
+
+	songs = Songs.query.filter(*filters).limit(15).all()
+
+	if not songs:
+		return {'status': 'error', 'message': 'No songs found'}
+
+	songs_list = [
+		{
+			'id': song.id,
+			'title': song.title,
+			'artist': song.artist,
+			'cover': song.cover,
+			'duration': format_duration(song.duration),
+		}
+		for song in songs
+	]
+
+	return {'status': 'success', 'songs': songs_list}
