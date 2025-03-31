@@ -43,6 +43,13 @@ class User(db.Model):
 	def __repr__(self):
 		return f'<User {self.username}>'
 
+class UserToken(db.Model):
+	id = db.Column(db.String(255), primary_key=True)
+	last_ping = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+	def __repr__(self):
+		return f'<UserToken {self.id} last pinged at {self.last_ping}>'
+
 class ListeningHistory(db.Model):
 	__bind_key__ = 'users'
 	id = db.Column(db.Integer, primary_key=True)

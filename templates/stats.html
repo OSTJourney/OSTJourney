@@ -1,0 +1,15 @@
+<h1 id="currentUrl">{{ currentUrl }}</h1>
+<center>
+	<h1 style="padding-top: 2em;">Site Statistics</h1>
+	<div class="stats-container">
+		<p><strong>Total Songs:</strong> <span id="song-count">{{ song_count }}</span></p>
+		<p><strong>Total Duration:</strong> <span id="duration-count">{{ duration_count }}</span></p>
+		<p><strong>Total Users:</strong> <span id="user-count">{{ user_count }}</span></p>
+		<p><strong>Currently Listening:</strong> <span id="currently-listening">{{ active_users }}</span></p>
+		<p><strong>Total Listened Time:</strong> <span id="listening-duration">{{ total_listening_duration }}</span></p>
+		<p><strong>Total Songs Listened:</strong> <span id="total-listened">{{ total_listened }}</span></p>
+		<p id="last-update"><strong>Last Update:</strong> <span id="last-update-time">On page load</span></p>
+	</div>
+</center>
+<script src="{{ url_for('static', filename='js/stats.js') }}"></script>
+<script src=""{{ url_for('static', filename='js/dup_check.js') }}"></script>

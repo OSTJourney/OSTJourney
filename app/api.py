@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from flask import Blueprint, jsonify, request, session
 
-from .models import db, ListeningHistory, ListeningSession, ListeningStatistics, Songs, User, UserActivity
+from .models import db, ListeningHistory, ListeningSession, ListeningStatistics, Songs, User, UserActivity, UserToken
 from .app_utils import format_duration, get_user_from_token
 
 api_bp = Blueprint('api', __name__)
@@ -228,3 +228,20 @@ def get_songs_api():
 			'duration': format_duration(song.duration),
 		})
 	return jsonify({'songs': songs_list})
+
+@api_bp.route('/api/ping', methods=['POST'])
+def ping():
+	data = request.get_json()
+	token = data.get('token')
+	if not token:
+		return {'status': 'error', 'message': 'Token is required'}
+
+	user_token = db.session.query(UserToken).filter_by(id=token).first()
+	if not user_token:
+		db.session.add(UserToken(id=token))
+		db.session.commit()
+		user_token = db.session.query(UserToken).filter_by(id=token).first()
+	user_token.last_ping = datetime.utcnow()
+	db.session.commit()
+
+	return {'status': 'success', 'message': 'Ping successful'}

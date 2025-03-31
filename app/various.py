@@ -1,12 +1,13 @@
 import json
+from datetime import datetime, timedelta
 from sqlalchemy import func
 
-from flask import Blueprint, abort, render_template, request, send_from_directory, session
+from flask import abort, Blueprint, current_app, render_template, request, send_from_directory, session
 
 from app import songs_dir
-from app.app_utils import commit_data
+from app.app_utils import commit_data, format_duration
 from app.config import BUILD, BRANCH, COPYRIGHT, REPO_NAME, REPO_OWNER, REPO_URL
-from .models import db, ListeningHistory, LogAdditions, Songs
+from .models import db, ListeningHistory, LogAdditions, Songs, User, UserToken
 
 various_bp = Blueprint('various', __name__)
 
@@ -47,10 +48,32 @@ def index():
 @various_bp.route('/latest')
 def latest():
 	additions = db.session.query(LogAdditions).order_by(LogAdditions.id.desc()).all()
+	for addition in additions:
+		addition.duration = format_duration(db.session.query(func.sum(Songs.duration)).filter(Songs.id >= addition.first_id, Songs.id <= addition.last_id).scalar())
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 		return render_template('latest.html', additions=additions)
 	return render_template('base.html', content=render_template('latest.html', additions=additions), title="Latest Additions", currentUrl="/latest")
-	
+
+@various_bp.route('/stats')
+def stats():
+	user_count = db.session.query(func.count(User.id)).scalar()
+	listening_count = db.session.query(func.sum(User.total_songs)).scalar()
+	listening_duration = format_duration(db.session.query(func.sum(User.total_duration)).scalar())
+
+	lim = datetime.utcnow() - timedelta(seconds=70)
+	active_users = db.session.query(UserToken).filter(UserToken.last_ping > lim).all()
+	if request.args.get('json'):
+		return {
+			'user_count': user_count,
+			'active_users': len(active_users),
+			'listening_count': listening_count,
+			'listening_duration': listening_duration,
+		}
+	song_count = current_app.songs_count
+	duration_count = current_app.songs_duration
+	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+		return render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users))
+	return render_template('base.html', content=render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users)), title="Statistics", currentUrl="/stats")
 
 @various_bp.route('/robots.txt')
 def robots():

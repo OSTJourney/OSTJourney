@@ -431,3 +431,35 @@ window.onload = async function () {
 		loadSong(song);
 	}, { once: true });
 };
+
+function generateUniqueId() {
+	return 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+}
+
+function getUserId() {
+	let userId = localStorage.getItem('userId');
+
+	if (!userId) {
+	  userId = generateUniqueId();
+	  localStorage.setItem('userId', userId);
+	}
+  
+	return userId;
+}
+
+const userId = getUserId();
+
+function sendPing() {
+	if (!audio) return;
+	if (audio.paused) return;
+	if (audio.ended) return;
+	fetch('/api/ping', {
+	  method: 'POST',
+	  headers: {
+		'Content-Type': 'application/json'
+	  },
+	  body: JSON.stringify({ token: userId, status: 'active' })
+	})
+}
+
+setInterval(sendPing, 30000);

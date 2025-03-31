@@ -35,11 +35,19 @@ def get_real_ip():
 	return request.headers.get("CF-Connecting-IP", request.remote_addr)
 
 def format_duration(seconds):
+	months, seconds = divmod(seconds, 2592000)
+	weeks, seconds = divmod(seconds, 604800)
 	days, seconds = divmod(seconds, 86400)
 	hours, seconds = divmod(seconds, 3600)
 	minutes, seconds = divmod(seconds, 60)
 
 	duration_parts = []
+	months += weeks // 4
+	weeks = weeks % 4
+	if months > 0:
+		duration_parts.append(f"{round(months)} month{'s' if months > 1 else ''}")
+	if weeks > 0:
+		duration_parts.append(f"{round(weeks)} week{'s' if weeks > 1 else ''}")
 	if days > 0:
 		duration_parts.append(f"{round(days)} day{'s' if days > 1 else ''}")
 	if hours > 0:
