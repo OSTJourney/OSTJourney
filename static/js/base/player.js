@@ -272,11 +272,16 @@ function attachAudioEventListeners() {
 }
 
 /*Page controls*/
-document.body.onkeyup = function (e) {
-	if (e.key == " " || e.code == "Space" || e.keyCode == 32) {
-		handlePause();
+document.addEventListener("keydown", function (e) {
+	if (e.key === " " || e.code === "Space" || e.keyCode === 32) {
+		const activeElement = document.activeElement;
+		if (activeElement.tagName !== "INPUT" && activeElement.tagName !== "TEXTAREA" && !activeElement.isContentEditable) {
+			e.preventDefault();
+			handlePause();
+		}
 	}
-}
+});
+
 
 player.controls.volumeIcon.addEventListener('click', function () {
 	updateVolumeIcon();

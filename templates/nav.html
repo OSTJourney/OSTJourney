@@ -14,7 +14,19 @@
 		{% endif %}
 		<div>
 			<input type="search" id="search-bar" placeholder="Search for a song..." />
-			<img id="search-icon" src="{{ url_for('static', filename='images/various/loop.svg') }}" alt="Search" />
+			<a id="search-link"><img id="search-icon" src="{{ url_for('static', filename='images/various/loop.svg') }}" alt="Search" /></a>
+			<div id="dropdown-search">
+				<button class="dropdown-search">Field</button>
+				<div class="dropdown-content">
+					<a href="#" class="search-option" data-field="tags">Tags (all)</a>
+					<a href="#" class="search-option" data-field="title">Title</a>
+					<a href="#" class="search-option" data-field="artist">Artist</a>
+				</div>
+			</div>
+			<div id="search-time">
+				<p>Duration min</p><input id="min-time-search-value" placeholder="seconds">
+				<p>max</p><input id="max-time-search-value" placeholder="seconds">
+			</div>
 			<div id="search-results" class="no-select">
 				<p>No results found</p>
 				<!-- Search results will be populated here -->

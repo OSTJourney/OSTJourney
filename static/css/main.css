@@ -94,9 +94,10 @@ nav {
 }
 
 #search-bar {
+	position: absolute;
 	width: 12vw;
 	height: 3em;
-	margin-left: 1em;
+	top: 1.5em;
 	color: #b3b3b3;
 	background-color: #181818;
 	border: 3px solid #000;
@@ -107,11 +108,10 @@ nav {
 }
 
 #search-icon {
-	position: absolute;
+	position: relative;
 	width: 2em;
 	height: 2em;
 	top: 2em;
-	margin-left: -2.5em;
 }
 
 #search-icon:hover {
@@ -121,6 +121,16 @@ nav {
 #search-bar:focus {
 	width: 30vw;
 	outline: none;
+}
+
+#dropdown-search, #search-time {
+	opacity: 0;
+	visibility: hidden;
+}
+
+#dropdown-search.show, #search-time.show {
+	opacity: 1;
+	visibility: visible;
 }
 
 #search-results {

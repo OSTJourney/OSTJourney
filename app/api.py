@@ -251,6 +251,10 @@ def search():
 	query = request.args.get('query', '').strip()
 	if not query:
 		return {'status': 'error', 'message': 'Query is required'}
+	if len(query) < 3:
+		return {'status': 'error', 'message': 'Query must be at least 3 characters long'}
+	if len(query) > 100:
+		return {'status': 'error', 'message': 'Query must be less than 100 characters long'}
 
 	words = query.split()
 
