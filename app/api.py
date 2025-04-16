@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request, session
 
 from .models import db, ListeningHistory, ListeningSession, ListeningStatistics, Songs, User, UserActivity, UserToken
-from .app_utils import format_duration, get_user_from_token
+from .app_utils import format_duration, get_real_ip,get_user_from_token
 
 api_bp = Blueprint('api', __name__)
 
@@ -236,11 +236,30 @@ def ping():
 	if not token:
 		return {'status': 'error', 'message': 'Token is required'}
 
+	ip = get_real_ip()
+	if not ip:
+		return {'status': 'error', 'message': 'IP not found'}
+
+	expiration_time = datetime.utcnow() - timedelta(minutes=30)
+	db.session.query(UserToken)\
+		.filter(UserToken.last_ping < expiration_time)\
+		.delete()
+	db.session.commit()
+
 	user_token = db.session.query(UserToken).filter_by(id=token).first()
+
 	if not user_token:
-		db.session.add(UserToken(id=token))
-		db.session.commit()
-		user_token = db.session.query(UserToken).filter_by(id=token).first()
+		active_token_count = db.session.query(UserToken)\
+			.filter(UserToken.ip == ip)\
+			.count()
+
+		if active_token_count >= 5:
+			return {'status': 'error', 'message': 'Too many active tokens from this IP'}
+
+		user_token = UserToken(id=token, ip=ip)
+		db.session.add(user_token)
+
+	user_token.ip = ip
 	user_token.last_ping = datetime.utcnow()
 	db.session.commit()
 

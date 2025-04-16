@@ -46,6 +46,7 @@ class User(db.Model):
 class UserToken(db.Model):
 	__bind_key__ = 'users'
 	id = db.Column(db.String(255), primary_key=True)
+	ip = db.Column(db.String(45), nullable=False)
 	last_ping = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 	def __repr__(self):

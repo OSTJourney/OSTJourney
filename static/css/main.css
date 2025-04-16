@@ -579,7 +579,7 @@ nav {
 .total-duration {
 	font-size: 16px;
 	font-weight: bold;
-	min-width: fit-content;
+	width: fit-content;
 }
 
 #duration-value {

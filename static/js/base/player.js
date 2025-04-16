@@ -72,10 +72,8 @@ function updateAnimation() {
 	document.head.appendChild(styleSheet);
 }
 
-updateAnimation();
-window.addEventListener('resize', updateAnimation);
-
 player.metadata.infoText.addEventListener('mouseenter', function() {
+	updateAnimation();
 	if (player.metadata.title.offsetWidth > player.metadata.infoText.offsetWidth)
 		player.metadata.title.classList.add('scroll-left');
 	if (player.metadata.artist.offsetWidth > player.metadata.infoText.offsetWidth)
@@ -140,6 +138,9 @@ function next_song() {
 		changeSong(song);
 	} else {
 		changeSong(song + 1);
+		if (song > total_songs) {
+			song = 1
+		}
 	}
 }
 
@@ -150,6 +151,9 @@ function previous_song() {
 		changeSong(song);
 	} else {
 		changeSong(song - 1);
+		if (song == 0) {
+			song = total_songs;
+		}
 	}
 }
 
@@ -284,7 +288,6 @@ document.addEventListener("keydown", function (e) {
 
 
 player.controls.volumeIcon.addEventListener('click', function () {
-	updateVolumeIcon();
 	if (volume.value > 0) {
 		old_volume = volume.value;
 		audio.volume = 0;
@@ -293,6 +296,7 @@ player.controls.volumeIcon.addEventListener('click', function () {
 		volume.value = old_volume;
 		audio.volume = Math.pow(old_volume / 100, volume_gamma);
 	}
+	updateVolumeIcon();
 });
 
 player.controls.progressBar.oninput = function () {
@@ -301,9 +305,9 @@ player.controls.progressBar.oninput = function () {
 };
 
 volume.oninput = function () {
-	updateVolumeIcon();
 	let linearVolume = volume.value / 100;
 	audio.volume = Math.pow(linearVolume, volume_gamma);
+	updateVolumeIcon();
 };
 
 player.controls.randomButton.addEventListener('click', function () {
@@ -467,4 +471,4 @@ function sendPing() {
 	})
 }
 
-setInterval(sendPing, 30000);
+setInterval(sendPing, 15000);
