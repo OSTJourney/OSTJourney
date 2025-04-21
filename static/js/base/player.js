@@ -1,7 +1,7 @@
 //WebSocket for rcp
 let socket = null;
 function startRpcClient() {
-	socket = new WebSocket('ws://localhost:4242');
+	socket = new WebSocket('ws://localhost:4224');
 	
 	socket.onopen = function () {
 		console.log('WebSocket connection established');
@@ -366,7 +366,7 @@ player.controls.playButton.addEventListener('click', function () {
 
 /*Inform server for listening stats*/
 function sendListeningData(songId, eventType) {
-	if (!document.cookie.split(';').some(c => c.trim().startsWith('session='))) {
+	if (!settings.connected) {
 		return;
 	}
 	if (eventType !== 'start' && eventType !== 'end') {
@@ -423,7 +423,6 @@ function loadSong(songNumber) {
 			player.controls.currentTime.innerHTML = "0:00/" + formatDuration(duration);
 			updateMetaTagsAndFavicon(title, artist, cover);
 			loadSongInfo(data);
-			
 
 			if (audio) {
 				audio.pause();
@@ -435,9 +434,9 @@ function loadSong(songNumber) {
 			audio.play();
 			player.controls.playButton.src = audio.paused ? player.img.pause : player.img.play;
 			attachAudioEventListeners();
+			sendListeningData(songNumber, 'start');
 			audio.addEventListener('loadedmetadata', function () {
 				update_mediaSessionAPI(title, artist, album, cover);
-				sendListeningData(songNumber, 'start');
 				if (settings.enable_rpc) {
 					socket.send(JSON.stringify({ title, artist, image: cover, duration, link: `${window.location.origin}/?song=${songNumber}`, paused: false }));
 				}

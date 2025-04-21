@@ -1,4 +1,5 @@
 settings = {
+	connected: false,
 	enable_rpc: false,
 };
 
@@ -12,6 +13,7 @@ fetch("/api/settings")
 	})
 	.then((data) => {
 		if (data.status === 'success') {
+			settings.connected = true;
 			settings.enable_rpc = data.settings.enable_rpc;
 		} else {
 			console.error("Error in API response:", data.message);
