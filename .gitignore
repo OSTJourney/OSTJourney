@@ -1,0 +1,11 @@
+myapp.sock
+env/
+venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+static/images/covers/*
+songs/*
+instance/*
+songs.db

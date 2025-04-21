@@ -30,7 +30,7 @@ Before getting started, ensure your system has the following installed:
 
 ### 1. **Clone the Project**
 ```
-git clone https://github.com/Moutigll/OSTJourney.git
+git clone https://github.com/OSTJourney/OSTJourney.git
 cd OSTJourney
 ```
 ### 2. **Create and Activate a Virtual Environment**
@@ -129,7 +129,7 @@ All contributions are welcome!
 
 ## License
 
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey)](https://github.com/Moutigll/OSTJourney/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey)](https://github.com/OSTJourney/OSTJourney/blob/main/LICENSE)
 
 This project is licensed under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)**.
 

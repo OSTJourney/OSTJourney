@@ -75,6 +75,26 @@ def stats():
 		return render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users))
 	return render_template('base.html', content=render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users)), title="Statistics", currentUrl="/stats")
 
+@various_bp.route('/search')
+def search():
+	query = request.args.get('query', '').strip()
+	if not query:
+		return render_template('base.html', content=render_template('search.html'), title="Search", currentUrl="/search", search="None")
+	if len(query) < 3:
+		return render_template('base.html', content=render_template('search.html'), title="Search", currentUrl="/search", search="Request too short")
+	if len(query) > 100:
+		return render_template('base.html', content=render_template('search.html'), title="Search", currentUrl="/search", search="Request too long")
+
+	words = query.split()
+	filters = [Songs.tags.like(f'%{word}%') for word in words]
+	song_ids = Songs.query.with_entities(Songs.id).filter(*filters).all()
+	song_ids = [song.id for song in song_ids]
+
+	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+		return render_template('search.html', songs=song_ids, query=query)
+	return render_template('base.html', content=render_template('search.html', songs=song_ids, query=query), title="Search", currentUrl="/search")
+
+
 @various_bp.route('/robots.txt')
 def robots():
 	return send_from_directory('../static', 'robots.txt')

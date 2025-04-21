@@ -8,6 +8,8 @@ document.addEventListener("input", function (event) {
 		}
 		clearTimeout(debounceTimeout);
 		const searchValue = event.target.value.toLowerCase();
+		const searchLink = document.getElementById("search-link");
+		searchLink.href = `/search/?query=${encodeURIComponent(searchValue)}`;
 		debounceTimeout = setTimeout(() => {
 			getResult(searchValue);
 		}, 300);
@@ -48,17 +50,26 @@ function getResult(searchValue) {
 
 document.addEventListener("focusout", function (event) {
 	const resultsContainer = document.getElementById("search-results");
+	const dropDown = document.getElementById("dropdown-search");
+	const searchTime = document.getElementById("search-time");
 
 	setTimeout(() => {
 		resultsContainer.classList.remove("show");
+		dropDown.classList.remove("show");
+		searchTime.classList.remove("show");
 	}, 100);
 
 });
 
 document.addEventListener("focusin", function (event) {
 	const resultsContainer = document.getElementById("search-results");
+	const dropDown = document.getElementById("dropdown-search");
+	const searchTime = document.getElementById("search-time");
+
 	if (event.target.id === "search-bar") {
 		resultsContainer.classList.add("show");
+		dropDown.classList.add("show");
+		searchTime.classList.add("show");
 	}
 }
 );

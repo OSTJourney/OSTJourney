@@ -42,10 +42,24 @@ class User(db.Model):
 
 	def __repr__(self):
 		return f'<User {self.username}>'
+	
+class UserSettings(db.Model):
+	__bind_key__ = 'users'
+	id = db.Column(db.Integer, primary_key=True)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
+
+	enable_rpc = db.Column(db.Boolean, default=False)
+
+	user = db.relationship('User', backref=db.backref('settings', uselist=False))
+
+	def __repr__(self):
+		return f'<UserSettings {self.user_id} RPC: {self.enable_rpc}>'
+
 
 class UserToken(db.Model):
 	__bind_key__ = 'users'
 	id = db.Column(db.String(255), primary_key=True)
+	ip = db.Column(db.String(45), nullable=False)
 	last_ping = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 	def __repr__(self):

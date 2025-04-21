@@ -72,13 +72,15 @@ var duration_element = document.getElementById('duration-value');
 document.getElementById('profile-total-hours').remove();
 document.getElementById('profile-total-duration').remove();
 duration_element.textContent = storedTotalDuration;
+var duration_elem_state = 0;
 
 document.getElementById('profile-duration').addEventListener('mouseover', function() {
-	duration_element.textContent = storedTotalHours;
-});
-
-document.getElementById('profile-duration').addEventListener('mouseout', function() {
-	duration_element.textContent = storedTotalDuration;
+	if (duration_elem_state == 0) {
+		duration_element.textContent = storedTotalHours;
+	} else {
+		duration_element.textContent = storedTotalDuration;
+	}
+	duration_elem_state = 1 - duration_elem_state;
 });
 
 const heatMap = {

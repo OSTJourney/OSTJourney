@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 
 from flask import Blueprint, jsonify, request, session
 
-from .models import db, ListeningHistory, ListeningSession, ListeningStatistics, Songs, User, UserActivity, UserToken
-from .app_utils import format_duration, get_user_from_token
+from .models import db, ListeningHistory, ListeningSession, ListeningStatistics, Songs, User, UserActivity, UserToken, UserSettings
+from .app_utils import format_duration, get_real_ip,get_user_from_token
 
 api_bp = Blueprint('api', __name__)
 
@@ -236,11 +236,30 @@ def ping():
 	if not token:
 		return {'status': 'error', 'message': 'Token is required'}
 
+	ip = get_real_ip()
+	if not ip:
+		return {'status': 'error', 'message': 'IP not found'}
+
+	expiration_time = datetime.utcnow() - timedelta(minutes=30)
+	db.session.query(UserToken)\
+		.filter(UserToken.last_ping < expiration_time)\
+		.delete()
+	db.session.commit()
+
 	user_token = db.session.query(UserToken).filter_by(id=token).first()
+
 	if not user_token:
-		db.session.add(UserToken(id=token))
-		db.session.commit()
-		user_token = db.session.query(UserToken).filter_by(id=token).first()
+		active_token_count = db.session.query(UserToken)\
+			.filter(UserToken.ip == ip)\
+			.count()
+
+		if active_token_count >= 5:
+			return {'status': 'error', 'message': 'Too many active tokens from this IP'}
+
+		user_token = UserToken(id=token, ip=ip)
+		db.session.add(user_token)
+
+	user_token.ip = ip
 	user_token.last_ping = datetime.utcnow()
 	db.session.commit()
 
@@ -251,6 +270,10 @@ def search():
 	query = request.args.get('query', '').strip()
 	if not query:
 		return {'status': 'error', 'message': 'Query is required'}
+	if len(query) < 3:
+		return {'status': 'error', 'message': 'Query must be at least 3 characters long'}
+	if len(query) > 100:
+		return {'status': 'error', 'message': 'Query must be less than 100 characters long'}
 
 	words = query.split()
 
@@ -273,3 +296,20 @@ def search():
 	]
 
 	return {'status': 'success', 'songs': songs_list}
+
+@api_bp.route('/api/settings', methods=['GET'])
+def get_settings():
+	user_id, error = get_user_from_token()
+	if error:
+		return error
+
+	settings = UserSettings.query.filter_by(user_id=user_id).first()
+	if not settings:
+		return {'status': 'error', 'message': 'User settings not found'}
+
+	return {
+		'status': 'success',
+		'settings': {
+			'enable_rpc': settings.enable_rpc,
+		}
+	}

@@ -1,0 +1,29 @@
+<h1 id="currentUrl">{{ currentUrl }}</h1>
+<center>
+	<h1 style="padding-top: 2em;">Search results for "{{ search }}"</h1>
+	{% if songs %}
+		<table class="song-tab">
+			<thead>
+				<tr>
+					<th>Song ID</th>
+					<th>Title</th>
+					<th>Artist</th>
+					<th>Duration</th>
+				</tr>
+			</thead>
+			<tbody class="songs-tbody">
+				{% for song in songs %}
+					<tr class="song-row" data-id="{{ song.id }}">
+						<td>{{ song.id }}</td>
+						<td>{{ song.title }}</td>
+						<td>{{ song.artist }}</td>
+						<td>{{ song.duration }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	{% else %}
+		<p>No results found :(</p>
+	{% endif %}
+</center>
+<script src="{{ url_for('static', filename='js/dup_check.js') }}"></script>

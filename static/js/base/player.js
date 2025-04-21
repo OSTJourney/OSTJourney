@@ -1,4 +1,22 @@
-// Définition du player
+//WebSocket for rcp
+let socket = null;
+function startRpcClient() {
+	socket = new WebSocket('ws://localhost:4242');
+	
+	socket.onopen = function () {
+		console.log('WebSocket connection established');
+	};
+
+	socket.onerror = function (error) {
+		console.log("WebSocket error:", error);
+	};
+
+	return socket;
+}
+
+startRpcClient();
+
+// Definition of player
 const player = {
 	metadata: {
 		title: document.getElementById('player-song-title'),
@@ -72,10 +90,8 @@ function updateAnimation() {
 	document.head.appendChild(styleSheet);
 }
 
-updateAnimation();
-window.addEventListener('resize', updateAnimation);
-
 player.metadata.infoText.addEventListener('mouseenter', function() {
+	updateAnimation();
 	if (player.metadata.title.offsetWidth > player.metadata.infoText.offsetWidth)
 		player.metadata.title.classList.add('scroll-left');
 	if (player.metadata.artist.offsetWidth > player.metadata.infoText.offsetWidth)
@@ -127,9 +143,17 @@ function handlePause() {
 	if (audio.paused) {
 		audio.play();
 		player.controls.playButton.src = player.img.play;
+		if (settings.enable_rpc) {
+			const message = { paused: false };
+			socket.send(JSON.stringify(message));
+		}
 	} else {
 		audio.pause();
 		player.controls.playButton.src = player.img.pause;
+		if (settings.enable_rpc) {
+			const message = { paused: true };
+			socket.send(JSON.stringify(message));
+		}
 	}
 }
 
@@ -140,6 +164,9 @@ function next_song() {
 		changeSong(song);
 	} else {
 		changeSong(song + 1);
+		if (song > total_songs) {
+			song = 1
+		}
 	}
 }
 
@@ -150,6 +177,9 @@ function previous_song() {
 		changeSong(song);
 	} else {
 		changeSong(song - 1);
+		if (song == 0) {
+			song = total_songs;
+		}
 	}
 }
 
@@ -247,6 +277,14 @@ function update_mediaSessionAPI(title, artist, album, cover) {
 	Object.keys(actions).forEach(action => {
 		navigator.mediaSession.setActionHandler(action, actions[action]);
 	});
+
+	if ('setPositionState' in navigator.mediaSession && audio?.duration) {
+		navigator.mediaSession.setPositionState({
+			duration: audio.duration,
+			playbackRate: audio.playbackRate,
+			position: audio.currentTime,
+		});
+	}
 }
 
 function attachAudioEventListeners() {
@@ -272,14 +310,18 @@ function attachAudioEventListeners() {
 }
 
 /*Page controls*/
-document.body.onkeyup = function (e) {
-	if (e.key == " " || e.code == "Space" || e.keyCode == 32) {
-		handlePause();
+document.addEventListener("keydown", function (e) {
+	if (e.key === " " || e.code === "Space" || e.keyCode === 32) {
+		const activeElement = document.activeElement;
+		if (activeElement.tagName !== "INPUT" && activeElement.tagName !== "TEXTAREA" && !activeElement.isContentEditable) {
+			e.preventDefault();
+			handlePause();
+		}
 	}
-}
+});
+
 
 player.controls.volumeIcon.addEventListener('click', function () {
-	updateVolumeIcon();
 	if (volume.value > 0) {
 		old_volume = volume.value;
 		audio.volume = 0;
@@ -288,6 +330,7 @@ player.controls.volumeIcon.addEventListener('click', function () {
 		volume.value = old_volume;
 		audio.volume = Math.pow(old_volume / 100, volume_gamma);
 	}
+	updateVolumeIcon();
 });
 
 player.controls.progressBar.oninput = function () {
@@ -296,9 +339,9 @@ player.controls.progressBar.oninput = function () {
 };
 
 volume.oninput = function () {
-	updateVolumeIcon();
 	let linearVolume = volume.value / 100;
 	audio.volume = Math.pow(linearVolume, volume_gamma);
+	updateVolumeIcon();
 };
 
 player.controls.randomButton.addEventListener('click', function () {
@@ -323,6 +366,9 @@ player.controls.playButton.addEventListener('click', function () {
 
 /*Inform server for listening stats*/
 function sendListeningData(songId, eventType) {
+	if (!document.cookie.split(';').some(c => c.trim().startsWith('session='))) {
+		return;
+	}
 	if (eventType !== 'start' && eventType !== 'end') {
 		console.error('Invalid event type:', eventType);
 		return;
@@ -389,8 +435,13 @@ function loadSong(songNumber) {
 			audio.play();
 			player.controls.playButton.src = audio.paused ? player.img.pause : player.img.play;
 			attachAudioEventListeners();
-			update_mediaSessionAPI(title, artist, album, cover);
-			sendListeningData(songNumber, 'start');
+			audio.addEventListener('loadedmetadata', function () {
+				update_mediaSessionAPI(title, artist, album, cover);
+				sendListeningData(songNumber, 'start');
+				if (settings.enable_rpc) {
+					socket.send(JSON.stringify({ title, artist, image: cover, duration, link: `${window.location.origin}/?song=${songNumber}`, paused: false }));
+				}
+			});
 		})
 		.catch(error => {
 			console.error('Error while getting audio metadata', error);
@@ -462,4 +513,4 @@ function sendPing() {
 	})
 }
 
-setInterval(sendPing, 30000);
+setInterval(sendPing, 15000);
