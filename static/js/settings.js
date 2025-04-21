@@ -13,7 +13,6 @@ fetch("/api/settings")
 	.then((data) => {
 		if (data.status === 'success') {
 			settings.enable_rpc = data.settings.enable_rpc;
-			console.log("Settings updated:", settings);
 		} else {
 			console.error("Error in API response:", data.message);
 		}

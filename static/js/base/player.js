@@ -1,4 +1,22 @@
-// Définition du player
+//WebSocket for rcp
+let socket = null;
+function startRpcClient() {
+	socket = new WebSocket('ws://localhost:4242');
+	
+	socket.onopen = function () {
+		console.log('WebSocket connection established');
+	};
+
+	socket.onerror = function (error) {
+		console.log("WebSocket error:", error);
+	};
+
+	return socket;
+}
+
+startRpcClient();
+
+// Definition of player
 const player = {
 	metadata: {
 		title: document.getElementById('player-song-title'),
@@ -125,9 +143,17 @@ function handlePause() {
 	if (audio.paused) {
 		audio.play();
 		player.controls.playButton.src = player.img.play;
+		if (settings.enable_rpc) {
+			const message = { paused: false };
+			socket.send(JSON.stringify(message));
+		}
 	} else {
 		audio.pause();
 		player.controls.playButton.src = player.img.pause;
+		if (settings.enable_rpc) {
+			const message = { paused: true };
+			socket.send(JSON.stringify(message));
+		}
 	}
 }
 
@@ -412,6 +438,9 @@ function loadSong(songNumber) {
 			audio.addEventListener('loadedmetadata', function () {
 				update_mediaSessionAPI(title, artist, album, cover);
 				sendListeningData(songNumber, 'start');
+				if (settings.enable_rpc) {
+					socket.send(JSON.stringify({ title, artist, image: cover, duration, link: `${window.location.origin}/?song=${songNumber}`, paused: false }));
+				}
 			});
 		})
 		.catch(error => {
