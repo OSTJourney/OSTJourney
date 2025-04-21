@@ -251,6 +251,14 @@ function update_mediaSessionAPI(title, artist, album, cover) {
 	Object.keys(actions).forEach(action => {
 		navigator.mediaSession.setActionHandler(action, actions[action]);
 	});
+
+	if ('setPositionState' in navigator.mediaSession && audio?.duration) {
+		navigator.mediaSession.setPositionState({
+			duration: audio.duration,
+			playbackRate: audio.playbackRate,
+			position: audio.currentTime,
+		});
+	}
 }
 
 function attachAudioEventListeners() {
@@ -332,6 +340,9 @@ player.controls.playButton.addEventListener('click', function () {
 
 /*Inform server for listening stats*/
 function sendListeningData(songId, eventType) {
+	if (!document.cookie.split(';').some(c => c.trim().startsWith('session='))) {
+		return;
+	}
 	if (eventType !== 'start' && eventType !== 'end') {
 		console.error('Invalid event type:', eventType);
 		return;
@@ -398,8 +409,10 @@ function loadSong(songNumber) {
 			audio.play();
 			player.controls.playButton.src = audio.paused ? player.img.pause : player.img.play;
 			attachAudioEventListeners();
-			update_mediaSessionAPI(title, artist, album, cover);
-			sendListeningData(songNumber, 'start');
+			audio.addEventListener('loadedmetadata', function () {
+				update_mediaSessionAPI(title, artist, album, cover);
+				sendListeningData(songNumber, 'start');
+			});
 		})
 		.catch(error => {
 			console.error('Error while getting audio metadata', error);

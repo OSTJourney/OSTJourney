@@ -1,10 +1,10 @@
-from flask import Blueprint, jsonify, redirect, render_template, request, session, url_for
+from flask import Blueprint, jsonify, redirect, render_template, request, session, url_for, make_response
 from sqlalchemy import desc
 
 from app import email_enabled
 from .app_utils import format_duration
 from .config import serializer
-from .models import db, ListeningHistory, ListeningStatistics, Songs, User
+from .models import db, ListeningHistory, ListeningStatistics, Songs, User, UserSettings
 
 user_bp = Blueprint('user', __name__)
 
@@ -155,7 +155,29 @@ def settings():
 		user_id = user_data.get('user_id')
 	except:
 		return redirect(url_for('session.logout'))
-	
+	settings = UserSettings.query.filter_by(user_id=user_id).first()
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-		return render_template('settings.html', currentUrl="/settings")
-	return render_template('base.html', content=render_template('settings.html'), currentUrl="/settings", title="Settings")
+		return render_template('settings.html', currentUrl="/settings", title="Settings", enable_rpc=settings.enable_rpc)
+	return render_template('base.html', content=render_template('settings.html'), currentUrl="/settings", title="Settings", enable_rpc=settings.enable_rpc)
+
+@user_bp.route('/settings/update', methods=['POST'])
+def update_settings():
+	if 'user' not in session:
+		return redirect(url_for('session.login'))
+
+	token = request.cookies.get('session_token')
+	if not token:
+		return render_template('settings.html', currentUrl="/settings", title="Settings", enable_rpc=False, error="Unauthorized")
+
+	try:
+		user_data = serializer.loads(token)
+		user_id = user_data.get('user_id')
+	except:
+		return render_template('settings.html', currentUrl="/settings", title="Settings", enable_rpc=False, error="Unauthorized")
+
+	enable_rpc = 'enable_rpc' in request.form
+	settings = UserSettings.query.filter_by(user_id=user_id).first()
+	settings.enable_rpc = enable_rpc
+	db.session.commit()
+
+	return render_template('settings.html', currentUrl="/settings", title="Settings", enable_rpc=enable_rpc, success="Settings updated successfully.")

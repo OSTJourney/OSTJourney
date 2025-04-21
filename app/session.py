@@ -8,7 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app import db, email_enabled, limiter, mail
 from .app_utils import generate_reset_token, verify_reset_token, get_real_ip
 from .config import serializer
-from .models import User
+from .models import User, UserSettings
 
 session_bp = Blueprint('session', __name__)
 
@@ -51,6 +51,10 @@ def register():
 		db.session.add(new_user)
 		db.session.commit()
 
+		user_settings = UserSettings(user_id=new_user.id, enable_rpc=False)
+		db.session.add(user_settings)
+		db.session.commit()
+
 		return render_template('login.html', success="Account created successfully. Please login.", email=email, currentUrl="/login", email_enabled=email_enabled)
 
 	return render_template('base.html', content=render_template('register.html'), currentUrl="/register", title="Register")
@@ -80,7 +84,6 @@ def login():
 			return response
 		else:
 			return render_template('login.html', error="Invalid email or password.", email=email, currentUrl="/login", email_enabled=email_enabled)
-	print("Is email_enabled:", email_enabled)
 	return render_template('base.html', content=render_template('login.html', currentUrl="/login", title="Login", email_enabled=email_enabled))
 
 @session_bp.route('/logout')
@@ -163,6 +166,7 @@ def change_password():
 
 	user_id = session['user_id']
 	user = User.query.get(user_id)
+	settings = UserSettings.query.filter_by(user_id=user_id).first()
 
 	if request.method == 'POST':
 		old_password = request.form.get('old_password')
@@ -170,15 +174,15 @@ def change_password():
 		confirm_password = request.form.get('confirm_password')
 
 		if not old_password or not new_password or not confirm_password:
-			return render_template('settings.html', error="Please fill in all fields.")
+			return render_template('settings.html', error="Please fill in all fields.", enable_rpc=settings.enable_rpc)
 		if new_password != confirm_password:
-			return render_template('settings.html', error="Passwords do not match.")
+			return render_template('settings.html', error="Passwords do not match.", enable_rpc=settings.enable_rpc)
 		if not check_password_hash(user.password, old_password):
-			return render_template('settings.html', error="Old password is incorrect.")
+			return render_template('settings.html', error="Old password is incorrect.", enable_rpc=settings.enable_rpc)
 
 		password_pattern = r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};\'\\|,.<>\/?]).{8,40}$'
 		if not re.match(password_pattern, new_password):
-			return render_template('settings.html', error="Invalid password format.")
+			return render_template('settings.html', error="Invalid password format.", enable_rpc=settings.enable_rpc)
 
 		hashed_password = generate_password_hash(new_password, method='pbkdf2:sha256', salt_length=8)
 		user.password = hashed_password
@@ -191,6 +195,6 @@ def change_password():
 			msg = Message("Password Change Notification", recipients=[user_email])
 			msg.body = f"Hello,\n\nYour password has been successfully changed. \n\n If you did not make this change, please contact support immediately.\n\nIP Address: {ip_address}"
 			mail.send(msg)
-		return render_template('settings.html', success="Password changed successfully.")
+		return render_template('settings.html', success="Password changed successfully.", enable_rpc=settings.enable_rpc)
 
-	return render_template('settings.html', currentUrl="/settings")
+	return render_template('settings.html', currentUrl="/settings", title="Settings", enable_rpc=settings.enable_rpc)

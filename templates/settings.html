@@ -43,7 +43,18 @@
 			<button type="submit" id="login-btn">Change Password</button>
 		</form>		
 	</div>
+	<div id="check-box-settings">
+		<form method="POST" action="{{ url_for('user.update_settings') }}" id="settings-form">
+			<label>
+				<input type="checkbox" name="enable_rpc" {% if enable_rpc %}checked{% endif %}>
+				Enable RPC
+			</label>
+			<button type="submit">Save</button>
+		</form>		
+	</div>
+
 </center>
 
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 <script src="{{ url_for('static', filename='js/check_password.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dup_check.js') }}"></script>

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from flask import Blueprint, jsonify, request, session
 
-from .models import db, ListeningHistory, ListeningSession, ListeningStatistics, Songs, User, UserActivity, UserToken
+from .models import db, ListeningHistory, ListeningSession, ListeningStatistics, Songs, User, UserActivity, UserToken, UserSettings
 from .app_utils import format_duration, get_real_ip,get_user_from_token
 
 api_bp = Blueprint('api', __name__)
@@ -296,3 +296,20 @@ def search():
 	]
 
 	return {'status': 'success', 'songs': songs_list}
+
+@api_bp.route('/api/settings', methods=['GET'])
+def get_settings():
+	user_id, error = get_user_from_token()
+	if error:
+		return error
+
+	settings = UserSettings.query.filter_by(user_id=user_id).first()
+	if not settings:
+		return {'status': 'error', 'message': 'User settings not found'}
+
+	return {
+		'status': 'success',
+		'settings': {
+			'enable_rpc': settings.enable_rpc,
+		}
+	}
