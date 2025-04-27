@@ -3,7 +3,9 @@ let debounceTimeout;
 document.addEventListener("input", function (event) {
 	if (event.target.id === "search-bar") {
 		if (event.target.value.length < 3) {
-			document.getElementById("search-results").innerHTML = "<p>No results found</p>";
+			const resultsContainer = document.getElementById("search-results");
+			resultsContainer.classList.remove("has-results");
+			resultsContainer.innerHTML = "<p>No results found</p>";
 			return;
 		}
 		clearTimeout(debounceTimeout);
@@ -21,20 +23,20 @@ function getResult(searchValue) {
 		.then(response => response.json())
 		.then(data => {
 			const resultsContainer = document.getElementById("search-results");
-			const currentHeight = resultsContainer.scrollHeight;
 			resultsContainer.innerHTML = "";
 
-			if (data.songs.length === 0) {
+			if (!data.songs || data.songs.length < 1) {
+				resultsContainer.classList.remove("has-results");
 				resultsContainer.innerHTML = "<p>No results found</p>";
 				return;
 			}
-
+			resultsContainer.classList.add("has-results");
 			data.songs.forEach(song => {
 				const songElement = document.createElement("div");
 				songElement.classList.add("song-result");
 				songElement.innerHTML = `
 					<div class="result-row">
-						<a href="/static/images/covers/${song.cover ? song.cover : 'null'}.jpg" class="result-cover-link">
+						<a href="/static/images/covers/${song.cover ? song.cover : 'null'}.jpg" class="result-cover-link" target="_blank">
 							<img src="/static/images/covers/${song.cover ? song.cover : 'null'}.jpg" alt="${song.title}" class="result-cover">
 						</a>
 						<a href="/?song=${song.id}">${song.title}</a>
@@ -48,28 +50,57 @@ function getResult(searchValue) {
 		.catch(error => console.error("Error fetching search results:", error));
 }
 
-document.addEventListener("focusout", function (event) {
+function isInsideSearchElements(target) {
+	return (
+		target.id === "dropdown-content-search" ||
+		target.id === "search-bar" ||
+		target.closest("#dropdown-content-search") ||
+		target.closest("#search-bar")
+	);
+}
+
+document.addEventListener("click", function (event) {
+	if (isInsideSearchElements(event.target)) {
+		return;
+	}
+
 	const resultsContainer = document.getElementById("search-results");
-	const dropDown = document.getElementById("dropdown-search");
+	const dropDown = document.getElementById("dropdown-content-search");
 	const searchTime = document.getElementById("search-time");
 
-	setTimeout(() => {
+	setTimeout(function () {
 		resultsContainer.classList.remove("show");
 		dropDown.classList.remove("show");
 		searchTime.classList.remove("show");
 	}, 100);
-
 });
 
 document.addEventListener("focusin", function (event) {
+	if (event.target.id !== "search-bar") {
+		return;
+	}
+
 	const resultsContainer = document.getElementById("search-results");
-	const dropDown = document.getElementById("dropdown-search");
+	const dropDown = document.getElementById("dropdown-content-search");
 	const searchTime = document.getElementById("search-time");
 
-	if (event.target.id === "search-bar") {
-		resultsContainer.classList.add("show");
-		dropDown.classList.add("show");
-		searchTime.classList.add("show");
+	resultsContainer.classList.add("show");
+	dropDown.classList.add("show");
+	searchTime.classList.add("show");
+});
+
+document.addEventListener("change", function (event) {
+	const checkbox = event.target;
+	if (checkbox.id === "advanced-search-toggle") {
+		const dropdownSearch = document.getElementById("dropdown-search");
+		const searchResults = document.getElementById("search-results");
+
+		if (checkbox.checked) {
+			dropdownSearch.classList.add("show");
+			searchResults.classList.add("advanced-search");
+		} else {
+			dropdownSearch.classList.remove("show");
+			searchResults.classList.remove("advanced-search");
+		}
 	}
-}
-);
+});

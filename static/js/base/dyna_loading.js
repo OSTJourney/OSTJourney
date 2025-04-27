@@ -50,18 +50,20 @@ function executeScripts(container) {
 	const scripts = container.querySelectorAll('script[src]');
 	scripts.forEach(script => {
 		const scriptSrc = script.getAttribute('src');
-		fetch(scriptSrc)
-			.then(response => response.text())
-			.then(scriptContent => {
-				try {
-					eval(scriptContent);
-				} catch (e) {
-					console.error('Error executing script:', e);
-				}
-			})
-			.catch(error => {
-				console.error('Error loading script:', error);
-			});
+		if (scriptSrc) {
+			fetch(scriptSrc)
+				.then(response => response.text())
+				.then(scriptContent => {
+					try {
+						eval(scriptContent);
+					} catch (e) {
+						console.error('Error executing script:', e);
+					}
+				})
+				.catch(error => {
+					console.error('Error loading script:', error);
+				});
+		}
 	});
 }
 

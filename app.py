@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
+from livereload import Server
 from app import create_app
 
 load_dotenv()
@@ -18,4 +19,9 @@ if __name__ == '__main__':
 	if flask_env == 'production' and ssl_cert_path and ssl_key_path:
 		app.run(debug=False, host='0.0.0.0', port=flask_port, ssl_context=(ssl_cert_path, ssl_key_path))
 	else:
-		app.run(debug=True, host='127.0.0.1', port=flask_port)
+		server = Server(app.wsgi_app)
+		server.watch('static/css/*.css')
+		server.watch('static/js/')
+		server.watch('templates/*.html')
+
+		server.serve(host='127.0.0.1', port=flask_port, debug=True)
