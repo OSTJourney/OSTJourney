@@ -5,6 +5,7 @@ from flask import Blueprint, jsonify, request, session
 
 from .models import db, ListeningHistory, ListeningSession, ListeningStatistics, Songs, User, UserActivity, UserToken, UserSettings
 from .app_utils import format_duration, get_real_ip,get_user_from_token
+from .search import SearchGetRawArgs, SearchBuildFilters, SafeInt
 
 api_bp = Blueprint('api', __name__)
 
@@ -85,8 +86,22 @@ def get_song(id):
 
 @api_bp.route('/api/songs', methods=['GET'])
 def get_songs():
-	song_count = Songs.query.count()
-	return jsonify({'song_count': song_count})
+	ids = request.args.getlist('ids')
+	if not ids:
+		song_count = Songs.query.count()
+		return jsonify({'song_count': song_count})
+	if len(ids) > 25:
+		return jsonify({'error': 'Too many IDs provided'}), 400
+	song_ids = [int(id) for id in ids]
+	songs = Songs.query.filter(Songs.id.in_(song_ids)).all()
+	return jsonify([{
+	'id': song.id,
+		'title': song.title,
+		'artist': song.artist,
+		'album': song.album,
+		'cover': song.cover,
+		'duration': song.duration,
+	} for song in songs])
 
 @api_bp.route('/api/music/start', methods=['POST'])
 def start_music():
@@ -266,69 +281,26 @@ def ping():
 
 	return {'status': 'success', 'message': 'Ping successful'}
 
-def parse_terms(s: str) -> list[str]:
-	"""
-	Extract terms from a string, handling quoted strings and spaces.
-	"""
-	pattern = re.compile(r'"([^"]+)"|\'([^\']+)\'|(\S+)')
-	return [m.group(1) or m.group(2) or m.group(3)
-			for m in pattern.finditer(s)]
-
-def safe_int(value):
-	"""
-	Convert a string to an integer, returning None if the string is empty.
-	Raises ValueError if the string cannot be converted to an integer.
-	"""
-	if not value:
-		return None
-	try:
-		return int(value)
-	except ValueError:
-		raise ValueError("must be an integer")
-
 @api_bp.route('/api/search', methods=['GET'])
 def search():
-	raw = {
-		'query': request.args.get('query', '').strip(),
-		'title': request.args.get('title', '').strip(),
-		'artist': request.args.get('artist', '').strip(),
-		'album': request.args.get('album', '').strip(),
-		'min': request.args.get('min', '').strip(),
-		'max': request.args.get('max', '').strip(),
-	}
-
-	text_fields = ('query', 'title', 'artist', 'album')
+	raw = SearchGetRawArgs()
 
 	try:
-		min_t = safe_int(raw['min'])
-		max_t = safe_int(raw['max'])
+		min_t = SafeInt(raw['min'])
+		max_t = SafeInt(raw['max'])
 	except ValueError:
 		return jsonify(status='error', message="'min' and 'max' must be integers"), 400
+
+	text_fields = ('query', 'title', 'artist', 'album')
 	has_valid_text_field = any(len(raw[k]) > 1 for k in text_fields if raw[k])
 	if not has_valid_text_field and min_t is None and max_t is None:
-		return jsonify(status='error',
-					   message='At least one valid search field (query/title/artist/album or min/max) is required'), 400
+		return jsonify(status='error', message='At least one valid search field (query/title/artist/album or min/max) is required'), 400
+
 	for k in text_fields:
 		if len(raw[k]) > 500:
 			return jsonify(status='error', message=f"'{k}' must be ≤ 500 characters"), 400
 
-	filters = []
-	field_map = {
-		'query': Songs.tags,
-		'title': Songs.title,
-		'artist': Songs.artist,
-		'album': Songs.album
-	}
-	for key, column in field_map.items():
-		if raw[key]:
-			for term in parse_terms(raw[key]):
-				filters.append(column.ilike(f'%{term}%'))
-
-	if min_t is not None:
-		filters.append(Songs.duration >= min_t)
-	if max_t is not None:
-		filters.append(Songs.duration <= max_t)
-
+	filters = SearchBuildFilters(raw, min_t, max_t)
 	songs = Songs.query.filter(*filters).limit(15).all()
 	if not songs:
 		return jsonify(status='success', message='No songs found'), 200
@@ -344,6 +316,7 @@ def search():
 		}
 
 	return jsonify(status='success', songs=[fmt(s) for s in songs]), 200
+
 
 
 @api_bp.route('/api/settings', methods=['GET'])

@@ -29,7 +29,7 @@ a {
 .error-msg, .success-msg {
 	font-style: italic;
 	position: absolute;
-	top: 13vh;
+	top: 9vh;
 	left: 1em;
 	font-size: larger;
 }
@@ -110,7 +110,7 @@ nav {
 
 #search-bar {
 	font-size: 1em;
-	width: 12vw;
+	width: 15vw;
 	height: 3em;
 	color: #b3b3b3;
 	background-color: #181818;

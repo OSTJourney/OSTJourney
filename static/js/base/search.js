@@ -1,5 +1,42 @@
 let debounceTimeout;
 
+function getSecondsFromTimeString(timeString) {
+	let totalSeconds = 0;
+
+	const hoursMatch = timeString.match(/(\d+)h/);
+	const minutesMatch = timeString.match(/(\d+)m/);
+
+	if (hoursMatch) {
+		totalSeconds += parseInt(hoursMatch[1], 10) * 3600;
+	}
+	if (minutesMatch) {
+		totalSeconds += parseInt(minutesMatch[1], 10) * 60;
+	}
+
+	const remainingString = timeString.replace(/(\d+)h/, "").replace(/(\d+)m/, "").trim();
+	const remainingSeconds = parseInt(remainingString, 10);
+
+	if (!isNaN(remainingSeconds)) {
+		totalSeconds += remainingSeconds;
+	} else if (remainingString !== "") {
+		return "Invalid time format";
+	}
+
+	return totalSeconds;
+}
+
+document.addEventListener("keydown", function (event) {
+	if (event.key === "Enter" && (event.target.id === "search-bar" ||
+		event.target.id === "search-title" ||
+		event.target.id === "search-artist" ||
+		event.target.id === "search-album" ||
+		event.target.id === "min-time-search-value" ||
+		event.target.id === "max-time-search-value")) {
+		event.preventDefault();
+		document.getElementById("search-link").click();
+	}
+});
+
 document.addEventListener("input", function (event) {
 	const inputs = {
 		searchBar:   document.getElementById("search-bar"),
@@ -35,8 +72,14 @@ document.addEventListener("input", function (event) {
 		}
 	});
 	["min","max"].forEach(field => {
-		if (vals[field] !== "" && !/^\d+$/.test(vals[field])) {
-			errors.push(`${field} must be an integer`);
+		if (vals[field] !== "") {
+			const seconds = getSecondsFromTimeString(vals[field]);
+			if (typeof seconds === "number") {
+				vals[field] = seconds;
+			} else {
+				errors.push(`${field} must be a valid time format (?h?m? accepted)`);
+				vals[field] = "";
+			}
 		}
 	});
 
@@ -63,7 +106,7 @@ document.addEventListener("input", function (event) {
 		if (v !== "") params[k] = v;
 	});
 
-	inputs.searchLink.href = "/search/?" + new URLSearchParams(params).toString();
+	inputs.searchLink.href = "/search?" + new URLSearchParams(params).toString();
 	clearTimeout(debounceTimeout);
 	debounceTimeout = setTimeout(() => {
 		fetchSearch(params);
@@ -133,31 +176,18 @@ function fetchSearch(params) {
 }
 
 
-function isInsideSearchElements(target) {
-	return (
-		target.id === "dropdown-content-search" ||
-		target.id === "search-bar" ||
-		target.id === "search-link" ||
-		target.closest("#dropdown-content-search") ||
-		target.closest("#search-bar") ||
-		target.closest("#search-link")
-	);
-}
-
 document.addEventListener("click", function (event) {
-	if (isInsideSearchElements(event.target)) {
-		return;
+	if (event.target.closest("#search-container") === null) {
+		const resultsContainer = document.getElementById("search-results");
+		const dropDown = document.getElementById("dropdown-content-search");
+		const searchTime = document.getElementById("search-time");
+
+		setTimeout(function () {
+			resultsContainer.classList.remove("show");
+			dropDown.classList.remove("show");
+			searchTime.classList.remove("show");
+		}, 100);
 	}
-
-	const resultsContainer = document.getElementById("search-results");
-	const dropDown = document.getElementById("dropdown-content-search");
-	const searchTime = document.getElementById("search-time");
-
-	setTimeout(function () {
-		resultsContainer.classList.remove("show");
-		dropDown.classList.remove("show");
-		searchTime.classList.remove("show");
-	}, 100);
 });
 
 document.addEventListener("focusin", function (event) {
@@ -189,3 +219,4 @@ document.addEventListener("change", function (event) {
 		}
 	}
 });
+

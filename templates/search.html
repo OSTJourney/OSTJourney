@@ -1,6 +1,8 @@
-<h1 id="currentUrl">{{ currentUrl }}</h1>
+<h1 id="currentUrl">{{ currentUrl | default('/search') }}</h1>
 <center>
-	<h1 style="padding-top: 2em;">Search results for "{{ search }}"</h1>
+	<h1>Search results for:</h1>
+	<p style="width: 50%;">"{{ search }}"</p>
+	<p class="error-msg" style="visibility: {{ 'visible' if searchError else 'hidden' }};" id="searchError">{{ searchError }}</p>
 	{% if songs %}
 		<table class="song-tab">
 			<thead>
@@ -12,18 +14,12 @@
 				</tr>
 			</thead>
 			<tbody class="songs-tbody">
-				{% for song in songs %}
-					<tr class="song-row" data-id="{{ song.id }}">
-						<td>{{ song.id }}</td>
-						<td>{{ song.title }}</td>
-						<td>{{ song.artist }}</td>
-						<td>{{ song.duration }}</td>
-					</tr>
-				{% endfor %}
 			</tbody>
 		</table>
 	{% else %}
 		<p>No results found :(</p>
 	{% endif %}
 </center>
+<span id="search-results-ids" style="display: none;"> {{ songs | default([]) | tojson }}</span>
 <script src="{{ url_for('static', filename='js/dup_check.js') }}"></script>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>

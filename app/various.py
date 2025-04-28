@@ -8,6 +8,7 @@ from app import songs_dir
 from app.app_utils import commit_data, format_duration
 from app.config import BUILD, BRANCH, COPYRIGHT, REPO_NAME, REPO_OWNER, REPO_URL
 from .models import db, ListeningHistory, LogAdditions, Songs, User, UserToken
+from .search import SearchGetRawArgs, SearchBuildFilters, SafeInt
 
 various_bp = Blueprint('various', __name__)
 
@@ -75,24 +76,51 @@ def stats():
 		return render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users))
 	return render_template('base.html', content=render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users)), title="Statistics", currentUrl="/stats")
 
-@various_bp.route('/search')
+@various_bp.route('/search', methods=['GET'])
 def search():
-	query = request.args.get('query', '').strip()
-	if not query:
-		return render_template('base.html', content=render_template('search.html'), title="Search", currentUrl="/search", search="None")
-	if len(query) < 3:
-		return render_template('base.html', content=render_template('search.html'), title="Search", currentUrl="/search", search="Request too short")
-	if len(query) > 100:
-		return render_template('base.html', content=render_template('search.html'), title="Search", currentUrl="/search", search="Request too long")
+	raw = SearchGetRawArgs()
 
-	words = query.split()
-	filters = [Songs.tags.like(f'%{word}%') for word in words]
-	song_ids = Songs.query.with_entities(Songs.id).filter(*filters).all()
-	song_ids = [song.id for song in song_ids]
+	try:
+		min_t = SafeInt(raw['min'])
+		max_t = SafeInt(raw['max'])
+	except ValueError:
+		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+			return render_template('search.html', searchError="Invalid min/max values", search=raw), 400
+		return render_template('base.html', content=render_template('search.html', searchError="Invalid min/max values", search=raw), title="Search", currentUrl="/search"), 400
 
+	text_fields = ('query', 'title', 'artist', 'album')
+	has_valid_text_field = any(len(raw[k]) > 1 for k in text_fields if raw[k])
+	if not has_valid_text_field and min_t is None and max_t is None:
+		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+			return render_template('search.html', searchError="Please enter a search term", search=raw), 400
+		return render_template('base.html', content=render_template('search.html', searchError="Please enter a search term", search=raw), title="Search", currentUrl="/search"), 400
+
+	for k in text_fields:
+		if len(raw[k]) > 500:
+			if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+				return render_template('search.html', searchError=f"'{k}' must be ≤ 500 characters"), 400
+			return render_template('base.html', content=render_template('search.html', searchError=f"'{k}' must be ≤ 500 characters"), title="Search", currentUrl="/search"), 400
+
+	filters = SearchBuildFilters(raw, min_t, max_t)
+	songs = [s.id for s in Songs.query.filter(*filters).limit(1000).all()]
+	if not songs:
+		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+			return render_template('search.html', searchError="No songs found, please refine your search"), 404
+		return render_template('base.html', content=render_template('search.html', error="No songs found, please refine your search"), title="Search", currentUrl="/search"), 404
+	context = {
+		'songs': songs,
+		'search': raw,
+	}
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-		return render_template('search.html', songs=song_ids, query=query)
-	return render_template('base.html', content=render_template('search.html', songs=song_ids, query=query), title="Search", currentUrl="/search")
+		return render_template('search.html', **context)
+
+	return render_template(
+		'base.html',
+		content=render_template('search.html', **context),
+		**context,
+		title="Search",
+		currentUrl="/search"
+	)
 
 
 @various_bp.route('/robots.txt')

@@ -3,7 +3,7 @@ import os
 from itsdangerous import URLSafeTimedSerializer
 from dotenv import load_dotenv
 # Footer information
-BUILD = "dev 1.0.24"
+BUILD = "dev 1.0.25"
 BRANCH = "main"
 COPYRIGHT = "© 2025 - Moutig"
 REPO_NAME = "OSTJourney"
