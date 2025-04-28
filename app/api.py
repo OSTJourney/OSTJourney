@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import re
 
 from flask import Blueprint, jsonify, request, session
 
@@ -265,37 +266,85 @@ def ping():
 
 	return {'status': 'success', 'message': 'Ping successful'}
 
+def parse_terms(s: str) -> list[str]:
+	"""
+	Extract terms from a string, handling quoted strings and spaces.
+	"""
+	pattern = re.compile(r'"([^"]+)"|\'([^\']+)\'|(\S+)')
+	return [m.group(1) or m.group(2) or m.group(3)
+			for m in pattern.finditer(s)]
+
+def safe_int(value):
+	"""
+	Convert a string to an integer, returning None if the string is empty.
+	Raises ValueError if the string cannot be converted to an integer.
+	"""
+	if not value:
+		return None
+	try:
+		return int(value)
+	except ValueError:
+		raise ValueError("must be an integer")
+
 @api_bp.route('/api/search', methods=['GET'])
 def search():
-	query = request.args.get('query', '').strip()
-	if not query:
-		return {'status': 'error', 'message': 'Query is required'}
-	if len(query) < 3:
-		return {'status': 'error', 'message': 'Query must be at least 3 characters long'}
-	if len(query) > 100:
-		return {'status': 'error', 'message': 'Query must be less than 100 characters long'}
+	raw = {
+		'query': request.args.get('query', '').strip(),
+		'title': request.args.get('title', '').strip(),
+		'artist': request.args.get('artist', '').strip(),
+		'album': request.args.get('album', '').strip(),
+		'min': request.args.get('min', '').strip(),
+		'max': request.args.get('max', '').strip(),
+	}
 
-	words = query.split()
+	text_fields = ('query', 'title', 'artist', 'album')
 
-	filters = [Songs.tags.like(f'%{word}%') for word in words]
+	try:
+		min_t = safe_int(raw['min'])
+		max_t = safe_int(raw['max'])
+	except ValueError:
+		return jsonify(status='error', message="'min' and 'max' must be integers"), 400
+	has_valid_text_field = any(len(raw[k]) > 1 for k in text_fields if raw[k])
+	if not has_valid_text_field and min_t is None and max_t is None:
+		return jsonify(status='error',
+					   message='At least one valid search field (query/title/artist/album or min/max) is required'), 400
+	for k in text_fields:
+		if len(raw[k]) > 500:
+			return jsonify(status='error', message=f"'{k}' must be ≤ 500 characters"), 400
+
+	filters = []
+	field_map = {
+		'query': Songs.tags,
+		'title': Songs.title,
+		'artist': Songs.artist,
+		'album': Songs.album
+	}
+	for key, column in field_map.items():
+		if raw[key]:
+			for term in parse_terms(raw[key]):
+				filters.append(column.ilike(f'%{term}%'))
+
+	if min_t is not None:
+		filters.append(Songs.duration >= min_t)
+	if max_t is not None:
+		filters.append(Songs.duration <= max_t)
 
 	songs = Songs.query.filter(*filters).limit(15).all()
-
 	if not songs:
-		return {'status': 'error', 'message': 'No songs found'}
+		return jsonify(status='success', message='No songs found'), 200
 
-	songs_list = [
-		{
-			'id': song.id,
-			'title': song.title,
-			'artist': song.artist,
-			'cover': song.cover,
+	def fmt(song):
+		return {
+			'id':	   song.id,
+			'title':	song.title,
+			'artist':   song.artist,
+			'album':	getattr(song, 'album', None),
+			'cover':	song.cover,
 			'duration': format_duration(song.duration),
 		}
-		for song in songs
-	]
 
-	return {'status': 'success', 'songs': songs_list}
+	return jsonify(status='success', songs=[fmt(s) for s in songs]), 200
+
 
 @api_bp.route('/api/settings', methods=['GET'])
 def get_settings():
