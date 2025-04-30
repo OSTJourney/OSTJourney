@@ -814,6 +814,10 @@ nav {
 	height: 70vh;
 }
 
+#searchShareLink:hover {
+	cursor: pointer;
+}
+
 /* Table Styles */
 .song-tab {
 	border-collapse: separate;

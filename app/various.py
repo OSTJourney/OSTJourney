@@ -79,37 +79,37 @@ def stats():
 @various_bp.route('/search', methods=['GET'])
 def search():
 	raw = SearchGetRawArgs()
-
 	try:
 		min_t = SafeInt(raw['min'])
 		max_t = SafeInt(raw['max'])
 	except ValueError:
 		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-			return render_template('search.html', searchError="Invalid min/max values", search=raw), 400
-		return render_template('base.html', content=render_template('search.html', searchError="Invalid min/max values", search=raw), title="Search", currentUrl="/search"), 400
+			return render_template('search.html', searchError="Invalid min/max values", search=raw, currentUrl=request.full_path), 400
+		return render_template('base.html', content=render_template('search.html', searchError="Invalid min/max values", search=raw), title="Search", currentUrl=request.full_path), 400
 
 	text_fields = ('query', 'title', 'artist', 'album')
 	has_valid_text_field = any(len(raw[k]) > 1 for k in text_fields if raw[k])
 	if not has_valid_text_field and min_t is None and max_t is None:
 		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 			return render_template('search.html', searchError="Please enter a search term", search=raw), 400
-		return render_template('base.html', content=render_template('search.html', searchError="Please enter a search term", search=raw), title="Search", currentUrl="/search"), 400
+		return render_template('base.html', content=render_template('search.html', searchError="Please enter a search term", search=raw, currentUrl="/search"), title="Search"), 400
 
 	for k in text_fields:
 		if len(raw[k]) > 500:
 			if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 				return render_template('search.html', searchError=f"'{k}' must be ≤ 500 characters"), 400
-			return render_template('base.html', content=render_template('search.html', searchError=f"'{k}' must be ≤ 500 characters"), title="Search", currentUrl="/search"), 400
+			return render_template('base.html', content=render_template('search.html', searchError=f"'{k}' must be ≤ 500 characters", currentUrl=request.full_path), title="Search"), 400
 
 	filters = SearchBuildFilters(raw, min_t, max_t)
 	songs = [s.id for s in Songs.query.filter(*filters).limit(1000).all()]
 	if not songs:
 		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-			return render_template('search.html', searchError="No songs found, please refine your search"), 404
-		return render_template('base.html', content=render_template('search.html', error="No songs found, please refine your search"), title="Search", currentUrl="/search"), 404
+			return render_template('search.html', searchError="No songs found, please refine your search", search=raw, currentUrl=request.full_path), 404
+		return render_template('base.html', content=render_template('search.html', error="No songs found, please refine your search", currentUrl=request.full_path), title="Search"), 404
 	context = {
 		'songs': songs,
 		'search': raw,
+		'currentUrl': request.full_path,
 	}
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 		return render_template('search.html', **context)
@@ -118,8 +118,7 @@ def search():
 		'base.html',
 		content=render_template('search.html', **context),
 		**context,
-		title="Search",
-		currentUrl="/search"
+		title="Search"
 	)
 
 

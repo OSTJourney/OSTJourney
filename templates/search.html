@@ -4,6 +4,7 @@
 	<p style="width: 50%;">"{{ search }}"</p>
 	<p class="error-msg" style="visibility: {{ 'visible' if searchError else 'hidden' }};" id="searchError">{{ searchError }}</p>
 	{% if songs %}
+		<p>Found <span id="numSongsFound">?</span> song(s), Share: <span id="searchShareLink">{{ currentUrl }}</span></p>
 		<table class="song-tab">
 			<thead>
 				<tr>

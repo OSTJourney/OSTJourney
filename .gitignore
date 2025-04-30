@@ -9,3 +9,4 @@ static/images/covers/*
 songs/*
 instance/*
 songs.db
+.vscode

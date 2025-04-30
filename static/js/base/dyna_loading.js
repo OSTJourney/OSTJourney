@@ -76,7 +76,6 @@ function updatePage(url, html, mode) {
 		}
 	});
 	contentDiv.innerHTML = html;
-	fetchNavFooter();
 	currentUrl = document.getElementById('currentUrl').textContent || url;
 	if (mode === 'replace') {
 		history.replaceState(null, '', currentUrl);
@@ -121,6 +120,9 @@ document.addEventListener('DOMContentLoaded', function () {
 					return response.text();
 				})
 				.then(html => {
+					if (url.pathname === '/logout') {
+						fetchNavFooter();
+					}
 					updatePage(url.href, html, 'push');
 				})
 				.catch(error => console.error('Fetch error:', error));
@@ -171,6 +173,10 @@ function getForms(forms) {
 				return response.text();
 			})
 			.then(html => {
+				const actionUrl = new URL(form.action, window.location.origin);
+				if (actionUrl.pathname === '/login' && form.method.toUpperCase() === 'POST') {
+					fetchNavFooter();
+				}
 				updatePage(form.action, html, 'push');
 			})
 			.catch(error => {

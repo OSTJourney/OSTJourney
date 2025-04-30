@@ -410,7 +410,7 @@ function loadSong(songNumber) {
 		.then(data => {
 			const title = data.title;
 			const artist = data.artist;
-			const file = '/songs/' + data.path;
+			const file = '/songs/' + encodeURI(data.path);
 			const cover = '/static/images/covers/' + data.cover + '.jpg';
 			const album = data.album;
 			duration = data.duration;
@@ -503,6 +503,7 @@ function sendPing() {
 	if (!audio) return;
 	if (audio.paused) return;
 	if (audio.ended) return;
+	if (!audio.playing) return;
 	fetch('/api/ping', {
 	  method: 'POST',
 	  headers: {

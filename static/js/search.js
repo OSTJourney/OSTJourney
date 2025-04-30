@@ -2,6 +2,11 @@ let loadedIndex = 0;
 const limit = 25;
 
 const tbody = document.querySelector('.songs-tbody');
+const searchShareLink = document.getElementById('searchShareLink');
+searchShareLink.innerHTML = window.location.origin + searchShareLink.innerHTML;
+searchShareLink.addEventListener('click', function() {
+	copyTextToClipboard(searchShareLink.innerHTML);
+});
 
 function loadSongs() {
 	if (loadedIndex >= resultIds.length) {
@@ -48,10 +53,17 @@ if (resultIdsElement) {
 } else {
 	resultIds = [];
 }
-if (resultIds.length > 0) {
+
+lenSongs = resultIds.length;
+
+if (lenSongs > 0) {
+	const numSongsFoundElement = document.getElementById('numSongsFound');
+	if (numSongsFoundElement) {
+		numSongsFoundElement.textContent = lenSongs;
+	}
 	loadSongs();
 }
-if (resultIds.length >= 900) {
+if (lenSongs >= 900) {
 	let searchMessageError = document.getElementById('searchError');
 	
 	if (!searchMessageError) {
