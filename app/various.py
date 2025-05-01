@@ -85,7 +85,7 @@ def search():
 	except ValueError:
 		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 			return render_template('search.html', searchError="Invalid min/max values", search=raw, currentUrl=request.full_path), 400
-		return render_template('base.html', content=render_template('search.html', searchError="Invalid min/max values", search=raw), title="Search", currentUrl=request.full_path), 400
+		return render_template('base.html', content=render_template('search.html', searchError="Invalid min/max values", search=raw, currentUrl=request.full_path), title="Search"), 400
 
 	text_fields = ('query', 'title', 'artist', 'album')
 	has_valid_text_field = any(len(raw[k]) > 1 for k in text_fields if raw[k])

@@ -133,7 +133,6 @@ function getColorForDuration(duration, minDuration, maxDuration, type) {
 	else if (duration <= range / 2) index = 2;
 	else if (duration <= (range * 3) / 4) index = 3;
 	else index = 4;
-	if (type === 2) console.log(minDuration, maxDuration, duration, index);
 	let [r, g, b] = selectedPalette[index];
 
 	return `rgb(${r}, ${g}, ${b})`;

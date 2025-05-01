@@ -1,5 +1,35 @@
 let debounceTimeout;
 
+// Handle theme switcher
+document.addEventListener('DOMContentLoaded', function () {
+	const switcher = document.querySelector('#nav-container');
+
+	switcher.addEventListener('click', function (e) {
+		const btn = e.target.closest('.theme-btn');
+		if (!btn) return;
+		const buttons = switcher.querySelectorAll('.theme-btn');
+		buttons.forEach(function (b) {
+			b.classList.remove('active');
+		});
+		btn.classList.add('active');
+		const selected_theme = btn.getAttribute('data-theme');
+		document.documentElement.setAttribute('data-theme', selected_theme);
+	});
+
+	const observer = new MutationObserver(() => {
+		const current_theme = document.documentElement.getAttribute('data-theme');
+		const buttons = switcher.querySelectorAll('.theme-btn');
+		buttons.forEach(function (btn) {
+			if (btn.getAttribute('data-theme') === current_theme) {
+				btn.classList.add('active');
+			}
+		});
+	});
+
+	observer.observe(switcher, { childList: true });
+});
+
+// Handle search bar
 function getSecondsFromTimeString(timeString) {
 	let totalSeconds = 0;
 
@@ -207,7 +237,7 @@ document.addEventListener("focusin", function (event) {
 document.addEventListener("change", function (event) {
 	const checkbox = event.target;
 	if (checkbox.id === "advanced-search-toggle") {
-		const dropdownSearch = document.getElementById("dropdown-search");
+		const dropdownSearch = document.getElementById("dropdown-advanced-search");
 		const searchResults = document.getElementById("search-results");
 
 		if (checkbox.checked) {
