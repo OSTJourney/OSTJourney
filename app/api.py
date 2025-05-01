@@ -50,7 +50,7 @@ def get_user_activity():
 
 				if current_date_str in year_activities:
 					day_data = year_activities[current_date_str]
-					formatted_duration = format_duration(day_data['total_duration'])
+					formatted_duration = format_duration(day_data['total_duration'], 0)
 					day_data['formatted_duration'] = formatted_duration
 
 					if day_data['total_duration'] > 0:
@@ -241,7 +241,7 @@ def get_songs_api():
 			'title': song.title,
 			'artist': song.artist,
 			'cover': song.cover,
-			'duration': format_duration(song.duration),
+			'duration': format_duration(song.duration, 0),
 		})
 	return jsonify({'songs': songs_list})
 
@@ -312,7 +312,7 @@ def search():
 			'artist':   song.artist,
 			'album':	getattr(song, 'album', None),
 			'cover':	song.cover,
-			'duration': format_duration(song.duration),
+			'duration': format_duration(song.duration, 1),
 		}
 
 	return jsonify(status='success', songs=[fmt(s) for s in songs]), 200

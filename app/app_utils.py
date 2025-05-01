@@ -34,30 +34,46 @@ def get_user_from_token():
 def get_real_ip():
 	return request.headers.get("CF-Connecting-IP", request.remote_addr)
 
-def format_duration(seconds):
+def format_duration(seconds, mode):
 	months, seconds = divmod(seconds, 2592000)
 	weeks, seconds = divmod(seconds, 604800)
 	days, seconds = divmod(seconds, 86400)
 	hours, seconds = divmod(seconds, 3600)
 	minutes, seconds = divmod(seconds, 60)
 
-	duration_parts = []
 	months += weeks // 4
 	weeks = weeks % 4
-	if months > 0:
-		duration_parts.append(f"{round(months)} month{'s' if months > 1 else ''}")
-	if weeks > 0:
-		duration_parts.append(f"{round(weeks)} week{'s' if weeks > 1 else ''}")
-	if days > 0:
-		duration_parts.append(f"{round(days)} day{'s' if days > 1 else ''}")
-	if hours > 0:
-		duration_parts.append(f"{round(hours)} hour{'s' if hours > 1 else ''}")
-	if minutes > 0:
-		duration_parts.append(f"{round(minutes)} minute{'s' if minutes > 1 else ''}")
-	if seconds > 0:
-		duration_parts.append(f"{round(seconds)} second{'s' if seconds > 1 else ''}")
 
-	return ', '.join(duration_parts) if duration_parts else "0 seconds"
+	duration_parts = []
+
+	def add(unit_value, full, short, plural_suffix='s'):
+		if unit_value > 0:
+			is_plural = unit_value > 1
+			if mode == 0:
+				label = f"{full}{plural_suffix if is_plural else ''}"
+				duration_parts.append(f"{round(unit_value)} {label}")
+			else:
+				label = short
+				# exceptions: if only seconds are present and minutes are zero
+				if label == "s" and minutes == 0 and not any([months, weeks, days, hours]):
+					label = f"second{plural_suffix if is_plural else ''}"
+					duration_parts.append(f"{round(unit_value)} {label}")
+				else:
+					duration_parts.append(f"{round(unit_value)}{label}")
+
+	add(months, "month", "m")
+	add(weeks, "week", "w")
+	add(days, "day", "d")
+	add(hours, "hour", "h")
+	add(minutes, "minute", "min")
+	add(seconds, "second", "s")
+
+	if not duration_parts:
+		return "0 seconds" if mode == 0 else "0s"
+
+	return ', '.join(duration_parts)
+
+
 
 def get_commit_from_github():
 	try:

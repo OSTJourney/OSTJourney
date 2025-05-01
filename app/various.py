@@ -50,7 +50,7 @@ def index():
 def latest():
 	additions = db.session.query(LogAdditions).order_by(LogAdditions.id.desc()).all()
 	for addition in additions:
-		addition.duration = format_duration(db.session.query(func.sum(Songs.duration)).filter(Songs.id >= addition.first_id, Songs.id <= addition.last_id).scalar())
+		addition.duration = format_duration(db.session.query(func.sum(Songs.duration)).filter(Songs.id >= addition.first_id, Songs.id <= addition.last_id).scalar(), 0)
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 		return render_template('latest.html', additions=additions)
 	return render_template('base.html', content=render_template('latest.html', additions=additions), title="Latest Additions", currentUrl="/latest")
@@ -59,7 +59,7 @@ def latest():
 def stats():
 	user_count = db.session.query(func.count(User.id)).scalar()
 	listening_count = db.session.query(func.sum(User.total_songs)).scalar()
-	listening_duration = format_duration(db.session.query(func.sum(User.total_duration)).scalar())
+	listening_duration = format_duration(db.session.query(func.sum(User.total_duration)).scalar(), 0)
 
 	lim = datetime.utcnow() - timedelta(seconds=70)
 	active_users = db.session.query(UserToken).filter(UserToken.last_ping > lim).all()

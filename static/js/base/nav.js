@@ -185,18 +185,16 @@ function fetchSearch(params) {
 				el.classList.add("song-result");
 				el.innerHTML = `
 					<div class="result-row">
-						<a href="/static/images/covers/${song.cover||'null'}.jpg"
-						   class="result-cover-link" target="_blank">
-						   <img src="/static/images/covers/${song.cover||'null'}.jpg"
-								alt="${song.title}" class="result-cover">
+						<a href="/static/images/covers/${song.cover || 'null'}.jpg" class="result-cover-link" target="_blank">
+							<img src="/static/images/covers/${song.cover || 'null'}.jpg" alt="${song.title}" class="result-cover">
 						</a>
-						<a href="/?song=${song.id}">${song.title}</a>
-						<p>${song.artist}</p>
-						<p>${song.duration}</p>
+						<a href="/?song=${song.id}" class="result-title">${song.title}</a>
+						<p class="result-artist">${song.artist}</p>
+						<p class="result-duration">${song.duration}</p>
 					</div>`;
 				container.appendChild(el);
 			});
-			updateContainerHeight(container, oldHeight);
+			updateContainerHeight(container, oldHeight);			
 		})
 		.catch(err => {
 			console.error("Fetch error:", err);

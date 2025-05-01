@@ -51,7 +51,7 @@ def create_app():
 
 		#This values should not change once the app is started so we process them only once to reduce the load on the database
 		app.config['SONGS_COUNT'] = db.session.query(func.count(Songs.id)).scalar()
-		app.config['SONGS_DURATION'] = format_duration(db.session.query(func.sum(Songs.duration)).scalar())
+		app.config['SONGS_DURATION'] = format_duration(db.session.query(func.sum(Songs.duration)).scalar(), 0)
 
 	# Register blueprints
 	from app.api import api_bp
