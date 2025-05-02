@@ -643,16 +643,6 @@ nav {
 .result-duration {
 	flex-basis: 15%; 
 }
-
-
-
-
-
-
-
-
-
-
 /*=======================================
 			Song info pop-up
 ========================================*/
@@ -805,107 +795,129 @@ nav {
 	background-color: rgb(var(--mantle));
 }
 
-/*CSS For the audio player*/
-.footer {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*========================================
+			Bottom Audio player
+=========================================*/
+#player-container {
 	position: fixed;
 	bottom: 0;
 	left: 0;
+	z-index: 1000;
+
+	padding: 1rem;
+
 	width: 100%;
-	height: 10vh;
-	background-color: #181818;
-	color: #b3b3b3;
+	height: 5.7rem;
+
+	background-color: rgb(var(--crust));
+	color: rgb(var(--text));
+	
 	display: flex;
 	align-items: center;
-	padding: 15px;
-	z-index: 1000;
 }
-
 /*Info section*/
 #player-song-info {
-	height: 100%;
 	width: 20%;
+
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	text-align: left;
 }
-
 #player-cover {
-	width: 5em;
-	height: 5em;
+	width: 5rem;
+	height: 5rem;
 }
-
-/*Contains animation for song name too long*/
 #player-song-info-text {
-	max-height: 5em;
-	margin-left: 0.5em;
+	max-height: 5rem;
 	max-width: 75%;
+
+	margin-left: 0.5rem;
+
 	display: flex;
 	flex-direction: column;
-	text-align: left;
 	overflow: hidden;
 }
-
 .player-song-info-text {
 	display: inline-block;
 	white-space: nowrap;
 }
-
 .scroll-left {
 	width: fit-content;
 	animation: scroll-left 6.5s linear infinite;
 }
 
 #player-cover {
-	border: #000 3px solid;
+	border: 3px solid rgb(var(--surface0));
 	border-radius: 5px;
 }
 
 #player-song-title {
-	height: fit-content;
-	font-size: 1.35em;
-	font-weight: bold;
-	color: #ffffff;
 	width: fit-content;
+
+	color: rgb(var(--text));
+	font-size: 1.35rem;
+	font-weight: bold;
 }
 
 #player-song-artist {
-	height: fit-content;
-	font-size: 1em;
-	color: #b3b3b3;
+	color: rgb(var(--text));
 	width: fit-content;
+	transform: translateZ(0);
 }
-
 #player-song-album {
-	height: fit-content;
-	font-size: 1.25em;
-	color: #fff;
 	width: fit-content;
-}
 
+	font-size: 1.25em;
+	color: rgb(var(--subtext1));
+}
 /*Controls + progression bar*/
 #player-center {
 	width: 60%;
-	height: 5em;
+	height: 5rem;
+
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 }
-
 #controls-container {
 	display: flex;
+	color: rgb(var(--overlay1));
 	flex-direction: row;
 	align-items: center;
 	justify-content: center;
-	flex: 1;
+}
+.player-controls {
+	height: 2.7rem;
+	max-width: 3.5rem;
+	margin-left: 1.5rem;
+	border-radius: 3px;
+	overflow: visible;
+}
+#randomSvg {
+	width: 4rem;
+	height: 4rem;
+	transform: scale(1.4);
+	margin-top: -0.7rem;
+}
+#randomSvg path {
+	transition: stroke 1s ease;
 }
 
-.player-controls {
-	width: 2.7em;
-	height: 2.7em;
-	margin-left: 2.5em;
-	border-radius: 3px;
-}
 
 .player-slider {
 	outline: none;
@@ -913,7 +925,7 @@ nav {
 	-webkit-appearance: none;
 	border-radius: 5px;
 	height: 1vh;
-	background-color: #000;
+	background-color: rgb(var(--surface1));
 }  
 
 #player-progress-bar-container {

@@ -26,7 +26,7 @@ const player = {
 		infoText: document.getElementById('player-song-info-text'),
 	},
 	controls: {
-		playButton: document.getElementById('player-button-play'),
+		playButton: document.getElementById('playButtonSvg'),
 		nextButton: document.getElementById('player-button-next'),
 		prevButton: document.getElementById('player-button-back'),
 		randomButton: document.getElementById('player-button-random'),
@@ -45,6 +45,62 @@ const player = {
 		volume100: "/static/images/player/volume_100.webp",
 	},
 };
+
+
+
+/*Animation for play button*/
+let currentMode = 'pause';
+function animatePlayButton(mode) {
+	var shape1 = document.getElementById('playAnimPath');
+	var shape2 = document.getElementById('playAnimPath2');
+	if (!shape1 || !shape2) return;
+
+	if (mode === "play" && currentMode !== "play") {
+		shape1.setAttribute('from', 'M0 42C0 42 0 46 4 46 6 46 8.01 45.16 10 44S10 44 19 38.857v-30.429c-9-6.428 0 0-9-6.428C7.748.58 6 0 4 0s-4 1-4 4v38');
+		shape1.setAttribute('to', 'M0 42C0 42 0 46 4 46 6 46 8 46 10 46S14 45 14 42v-38c0-4-4-4-4-4C8 0 6 0 4 0s-4 1-4 4v38');
+
+		shape2.setAttribute('from', 'M17 40 17 7C17 7 17 7 17 7L17 7C17 7 17 7 17 7L38 22C40 24 40 26 38 28L17 40C17 40 17 40 17 40L17 40C17 40 17 40 17 40');
+		shape2.setAttribute('to', 'M26 42 26 4C26 1 28 0 30 0L36 0C38 0 40 1 40 4L40 22C40 24 40 26 40 28L40 42C40 44 38 46 36 46L30 46C28 46 26 44 26 42');
+		currentMode = "play";
+	} else if (mode === "pause" && currentMode !== "pause") {
+		shape1.setAttribute('from', 'M0 42C0 42 0 46 4 46 6 46 8 46 10 46S14 45 14 42v-38c0-4-4-4-4-4C8 0 6 0 4 0s-4 1-4 4v38');
+		shape1.setAttribute('to', 'M0 42C0 42 0 46 4 46 6 46 8.01 45.16 10 44S10 44 19 38.857v-30.429c-9-6.428 0 0-9-6.428C7.748.58 6 0 4 0s-4 1-4 4v38');
+
+		shape2.setAttribute('from', 'M26 42 26 4C26 1 28 0 30 0L36 0C38 0 40 1 40 4L40 22C40 24 40 26 40 28L40 42C40 44 38 46 36 46L30 46C28 46 26 44 26 42');
+		shape2.setAttribute('to', 'M17 40 17 7C17 7 17 7 17 7L17 7C17 7 17 7 17 7L38 22C40 24 40 26 38 28L17 40C17 40 17 40 17 40L17 40C17 40 17 40 17 40');
+		currentMode = "pause";
+	} else {
+		return;
+	}
+
+	shape1.beginElement();
+	shape2.beginElement();
+}
+
+/*Animation for svg buttons*/
+document.addEventListener("DOMContentLoaded", function () {
+	const elementsWithAnimations = document.querySelectorAll(".svg-anim");
+
+	elementsWithAnimations.forEach((element) => {
+		const all_animations = element.querySelectorAll("animate, animateMotion");
+		const arrowElement = element.querySelector('use');
+
+		element.addEventListener("click", function () {
+			if (element.id === "randomSvg" && arrowElement) {
+				const transform = arrowElement.getAttribute('transform');
+				if (transform && transform.includes('translate(15')) {
+					arrowElement.setAttribute('transform', 'translate(0,0) scale(1.6)');
+				}
+			}
+			all_animations.forEach((animation) => {
+				if (typeof animation.beginElement === "function") {
+					animation.beginElement();
+				}
+			});
+		});
+	});
+});
+
 
 let audio = null;
 let song = 0;
@@ -118,22 +174,28 @@ function changeSong(songNumber) {
 }
 
 function toggleRandom() {
-	if (random == 0) {
+	const randomMotionPath = document.querySelector('#randomMotionPath');
+	const randomArrow = document.querySelector('#randomArrow');
+	if (random === 0) {
 		random = 1;
-		player.controls.randomButton.style.backgroundColor = "#111111";
+		randomMotionPath.style.stroke = "rgb(var(--lavender))";
+		randomArrow.style.fill = "rgb(var(--lavender))";
 	} else {
 		random = 0;
-		player.controls.randomButton.style.backgroundColor = "#00000000";
+		randomMotionPath.style.stroke = "currentColor";
+		randomArrow.style.fill = "currentColor";
 	}
 }
+
+
 
 function toggleRepeat() {
 	if (repeat == 0) {
 		repeat = 1;
-		player.controls.repeatButton.style.backgroundColor = "#111111";
+		player.controls.repeatButton.classList.add("active");
 	} else {
 		repeat = 0;
-		player.controls.repeatButton.style.backgroundColor = "#00000000";
+		player.controls.repeatButton.classList.remove("active");
 	}
 }
 
@@ -142,14 +204,14 @@ function handlePause() {
 
 	if (audio.paused) {
 		audio.play();
-		player.controls.playButton.src = player.img.play;
+		animatePlayButton("play");
 		if (settings.enable_rpc) {
 			const message = { paused: false };
 			socket.send(JSON.stringify(message));
 		}
 	} else {
 		audio.pause();
-		player.controls.playButton.src = player.img.pause;
+		animatePlayButton("pause");
 		if (settings.enable_rpc) {
 			const message = { paused: true };
 			socket.send(JSON.stringify(message));
@@ -432,11 +494,11 @@ function loadSong(songNumber) {
 			player.controls.progressBar.max = Math.floor(duration) * 100;
 			player.controls.progressBar.value = 0;
 			audio.play();
-			player.controls.playButton.src = audio.paused ? player.img.pause : player.img.play;
 			attachAudioEventListeners();
 			sendListeningData(songNumber, 'start');
 			audio.addEventListener('loadedmetadata', function () {
 				update_mediaSessionAPI(title, artist, album, cover);
+				animatePlayButton(audio.paused ? "pause" : "play");
 				if (settings.enable_rpc) {
 					socket.send(JSON.stringify({ title, artist, image: cover, duration, link: `${window.location.origin}/?song=${songNumber}`, paused: false }));
 				}

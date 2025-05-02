@@ -15,7 +15,7 @@ const songInfo = {
 	}
 };
 
-const playerBox = document.querySelector('.footer');
+const playerBox = document.getElementById('player-container');
 
 songInfo.copy.link.addEventListener('click', () => {
 	copyTextToClipboard(songInfo.link.href);

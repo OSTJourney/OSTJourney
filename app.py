@@ -19,6 +19,8 @@ if __name__ == '__main__':
 	if flask_env == 'production' and ssl_cert_path and ssl_key_path:
 		app.run(debug=False, host='0.0.0.0', port=flask_port, ssl_context=(ssl_cert_path, ssl_key_path))
 	else:
+		app.jinja_env.auto_reload = True
+		app.config['TEMPLATES_AUTO_RELOAD'] = True
 		server = Server(app.wsgi_app)
 		server.watch('static/css/*.css')
 		server.watch('static/js/')

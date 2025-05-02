@@ -74,7 +74,7 @@
 			<div id="copy-content">
 				<div id="copy-info">
 					<span>Copy the song information</span>
-					<svg id="song-info-copy" class="no-select no-drag" alt="Copy" style="width: 30px; height: 30px; margin: 1em;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<svg id="song-info-copy" class="no-select no-drag" alt="Copy" style="width: 30px; height: 30px; margin: 1em;" viewBox="0 0 24 24">
 						<path fill-rule="evenodd" clip-rule="evenodd" d="M19.5 16.5L19.5 4.5L18.75 3.75H9L8.25 4.5L8.25 7.5L5.25 7.5L4.5 8.25V20.25L5.25 21H15L15.75 20.25V17.25H18.75L19.5 16.5ZM15.75 15.75L15.75 8.25L15 7.5L9.75 7.5V5.25L18 5.25V15.75H15.75ZM6 9L14.25 9L14.25 19.5L6 19.5L6 9Z" fill="currentColor"/>
 					</svg>
 				</div>
@@ -86,7 +86,7 @@
 		</div>
 		{% block body %}{% endblock %}
 	</body>
-	<div class="footer no-select">
+	<div class="no-select" id="player-container">
 		<div id="player-song-info">
 			<img src="{{ url_for('static', filename='images/covers/null.jpg') }}" id="player-cover" class="no-drag" alt="player cover">
 			<div id="player-song-info-text">
@@ -103,11 +103,73 @@
 		</div>
 		<div id="player-center">
 			<div id="controls-container">
-				<img src="{{ url_for('static', filename='images/player/random.webp') }}" alt="Random" class="player-controls" id="player-button-random">
-				<img src="{{ url_for('static', filename='images/player/back.webp') }}" alt="Back" class="player-controls" id="player-button-back">
-				<img src="{{ url_for('static', filename='images/player/pause.webp') }}" alt="Play" class="player-controls" id="player-button-play">
-				<img src="{{ url_for('static', filename='images/player/next.webp') }}" alt="Next" class="player-controls" id="player-button-next">
-				<img src="{{ url_for('static', filename='images/player/repeat.webp') }}" alt="Repeat" class="player-controls" id="player-button-repeat">
+				<div alt="Random" class="player-controls" id="player-button-random">
+					<svg class="svg-anim" id="randomSvg" viewBox="-3 -3 30 15" fill="currentColor">
+						<defs>
+							<path id="randomArrow" d="M12.3536 1.1464C12.1583.9512 11.8417.9512 11.6464 1.1464 11.4512 1.3417 11.4512 1.6583 11.6464 1.8536L12.7929 3H12C11 3 11 4 12 4H12.7929L11.6464 5.1464C11.4512 5.3417 11.4512 5.6583 11.6464 5.8536 11.8417 6.0488 12.1583 6.0488 12.3536 5.8536L14.3536 3.8535C14.5488 3.6583 14.5488 3.3417 14.3536 3.1465L12.3536 1.1464Z" transform="translate(-12, -3.5)" />
+						</defs>
+						<path id="randomMotionPath" d="M15 0C17 0 20 2 20 5 20 8 17 10 15 10 12 10 10 7 10 5 10 2 7 0 5 0 2 0 0 3 0 5 0 8 3 10 5 10 8 10 10 8 10 5 10 2 13 0 15 0" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="100  8">
+							<animate attributeName="stroke-dashoffset" from="100" to="37" dur="1s" begin="indefinite" calcMode="spline" keySplines="0.5 0 0.5 1" keyTimes="0;1" />
+						</path>
+						<g>
+							<use href="#randomArrow" id="randomArrowElement" transform="translate(15,0) scale(1.6)"/>
+							<animateMotion dur="1s" begin="indefinite" rotate="auto" keyTimes="0;1" keyPoints="0;1" calcMode="spline" keySplines="0.5 0 0.5 1" id="svgArrow" fill="freeze">
+								<mpath href="#randomMotionPath" />
+							</animateMotion>
+						</g>
+					</svg>
+				</div>
+				<svg alt="Back" class="player-controls svg-anim" id="player-button-back" viewBox="0 0 33 20" fill="currentColor" style="transform: rotate(180deg);">
+					<path d="M0 18 0 2C0 1 1 0 2 0 3 0 4 0 5 1L14 8C16 10 16 10 14 12L5 19C4 20 3 20 2 20 1 20 0 19 0 18">
+						<animate attributeName="d" dur="0.3s" fill="freeze" begin="indefinite"
+							values="
+								M0 18 0 2C0 1 1 0 2 0 3 0 4 0 5 1L14 8C16 10 16 10 14 12L5 19C4 20 3 20 2 20 1 20 0 19 0 18;
+								M13 18 13 2C13 1 14 0 15 0 16 0 17 0 18 1L27 8C29 10 29 10 27 12L18 19C17 20 16 20 15 20 14 20 13 19 13 18;
+								M0 18 0 2C0 1 1 0 2 0 3 0 4 0 5 1L14 8C16 10 16 10 14 12L5 19C4 20 3 20 2 20 1 20 0 19 0 18"
+							keyTimes="0; 0.5; 1" />
+					</path>
+					<path d="M13 18 13 2C13 1 14 0 15 0 16 0 17 0 18 1L27 8C29 10 29 10 27 12L18 19C17 20 16 20 15 20 14 20 13 19 13 18">
+						<animate attributeName="d" dur="0.3s" fill="freeze" begin="indefinite"
+							values="
+								M13 18 13 2C13 1 14 0 15 0 16 0 17 0 18 1L27 8C29 10 29 10 27 12L18 19C17 20 16 20 15 20 14 20 13 19 13 18;
+								M18 18 18 2C18 1 19 0 20 0 21 0 22 0 23 1L32 8C34 10 34 10 32 12L23 19C22 20 21 20 20 20 19 20 18 19 18 18;
+								M13 18 13 2C13 1 14 0 15 0 16 0 17 0 18 1L27 8C29 10 29 10 27 12L18 19C17 20 16 20 15 20 14 20 13 19 13 18"
+							keyTimes="0; 0.5; 1" />
+					</path>
+				</svg>
+				<svg viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg" fill="currentColor" id="playButtonSvg" class="player-controls">
+					<path d="M0 42C0 42 0 46 4 46 6 46 8.01 45.16 10 44S10 44 19 38.857v-30.429c-9-6.428 0 0-9-6.428C7.748.58 6 0 4 0s-4 1-4 4v38">
+						<animate id="playAnimPath" attributeName="d" dur="0.25s" fill="freeze" begin="indefinite"
+							from="M0 42C0 42 0 46 4 46 6 46 8.01 45.16 10 44S10 44 19 38.857v-30.429c-9-6.428 0 0-9-6.428C7.748.58 6 0 4 0s-4 1-4 4v38"
+							to="M0 42S0 46 4 46C6 46 8 46 10 46S14 45 14 42v-38c0-4-4-4-4-4C8 0 6 0 4 0s-4 1-4 4v38"/>
+					</path>
+					<path d="M17 40 17 7C17 7 17 7 17 7L17 7C17 7 17 7 17 7L38 22C40 24 40 26 38 28L17 40C17 40 17 40 17 40L17 40C17 40 17 40 17 40">
+						<animate id="playAnimPath2" attributeName="d" dur="0.25s" fill="freeze" begin="indefinite"
+							from="M17 40 17 7C17 7 17 7 17 7L17 7C17 7 17 7 17 7L38 22C40 24 40 26 38 28L17 40C17 40 17 40 17 40L17 40C17 40 17 40 17 40"
+							to="M26 42 26 4C26 1 28 0 30 0L36 0C38 0 40 1 40 4L40 22C40 24 40 26 40 28L40 42C40 44 38 46 36 46L30 46C28 46 26 44 26 42"/>
+					</path>
+				</svg>
+				<svg alt="Next" class="player-controls  svg-anim" id="player-button-next" viewBox="0 0 33 20" fill="currentColor">
+					<path d="M0 18 0 2C0 1 1 0 2 0 3 0 4 0 5 1L14 8C16 10 16 10 14 12L5 19C4 20 3 20 2 20 1 20 0 19 0 18">
+						<animate attributeName="d" dur="0.3s" fill="freeze" begin="indefinite"
+							values="
+								M0 18 0 2C0 1 1 0 2 0 3 0 4 0 5 1L14 8C16 10 16 10 14 12L5 19C4 20 3 20 2 20 1 20 0 19 0 18;
+								M13 18 13 2C13 1 14 0 15 0 16 0 17 0 18 1L27 8C29 10 29 10 27 12L18 19C17 20 16 20 15 20 14 20 13 19 13 18;
+								M0 18 0 2C0 1 1 0 2 0 3 0 4 0 5 1L14 8C16 10 16 10 14 12L5 19C4 20 3 20 2 20 1 20 0 19 0 18"
+							keyTimes="0; 0.5; 1" />
+					</path>
+					<path d="M13 18 13 2C13 1 14 0 15 0 16 0 17 0 18 1L27 8C29 10 29 10 27 12L18 19C17 20 16 20 15 20 14 20 13 19 13 18">
+						<animate attributeName="d" dur="0.3s" fill="freeze" begin="indefinite"
+							values="
+								M13 18 13 2C13 1 14 0 15 0 16 0 17 0 18 1L27 8C29 10 29 10 27 12L18 19C17 20 16 20 15 20 14 20 13 19 13 18;
+								M18 18 18 2C18 1 19 0 20 0 21 0 22 0 23 1L32 8C34 10 34 10 32 12L23 19C22 20 21 20 20 20 19 20 18 19 18 18;
+								M13 18 13 2C13 1 14 0 15 0 16 0 17 0 18 1L27 8C29 10 29 10 27 12L18 19C17 20 16 20 15 20 14 20 13 19 13 18"
+							keyTimes="0; 0.5; 1" />
+					</path>
+				</svg>
+				<svg alt="Repeat" class="player-controls" id="player-button-repeat" viewBox="0 0 24 24">
+					<path d="M20.924 5.617a.997.997 0 0 0-.217-.324l-3-3a1 1 0 1 0-1.414 1.414L17.586 5H8a5 5 0 0 0-5 5v2a1 1 0 1 0 2 0v-2a3 3 0 0 1 3-3h9.586l-1.293 1.293a1 1 0 0 0 1.414 1.414l3-3A.997.997 0 0 0 21 6m-.076-.383a.996.996 0 0 1 .076.38l-.076-.38zm-17.848 12a.997.997 0 0 0 .217 1.09l3 3a1 1 0 0 0 1.414-1.414L6.414 19H16a5 5 0 0 0 5-5v-2a1 1 0 1 0-2 0v2a3 3 0 0 1-3 3H6.414l1.293-1.293a1 1 0 1 0-1.414-1.414l-3 3m-.217.324a.997.997 0 0 1 .215-.322l-.215.322z" fill="currentColor"/>
+				</svg>
 			</div>
 			<div id="player-progress-bar-container">
 				<label for="player-progress-bar" class="sr-only">Progress bar</label>
