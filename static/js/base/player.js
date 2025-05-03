@@ -30,22 +30,12 @@ const player = {
 		nextButton: document.getElementById('player-button-next'),
 		prevButton: document.getElementById('player-button-back'),
 		randomButton: document.getElementById('player-button-random'),
-		repeatButton: document.getElementById('player-button-repeat'),
-		volumeBar: document.getElementById('player-volume-bar'),
-		volumeIcon: document.getElementById('volume-ico'),
+		repeatButton: document.getElementById('repeatSvg'),
 		progressBar: document.getElementById('player-progress-bar'),
-		currentTime: document.getElementById('player-current-time'),
-	},
-	img: {
-		play: "/static/images/player/play.webp",
-		pause: "/static/images/player/pause.webp",
-		volume0: "/static/images/player/volume_mute.webp",
-		volume33: "/static/images/player/volume_33.webp",
-		volume66: "/static/images/player/volume_66.webp",
-		volume100: "/static/images/player/volume_100.webp",
-	},
+		currentTime: document.getElementById('player-time-current'),
+		totalTime: document.getElementById('player-time-total'),
+	}
 };
-
 
 
 /*Animation for play button*/
@@ -80,18 +70,13 @@ function animatePlayButton(mode) {
 /*Animation for svg buttons*/
 document.addEventListener("DOMContentLoaded", function () {
 	const elementsWithAnimations = document.querySelectorAll(".svg-anim");
-
 	elementsWithAnimations.forEach((element) => {
 		const all_animations = element.querySelectorAll("animate, animateMotion");
-		const arrowElement = element.querySelector('use');
-
+		const arrowElements = element.querySelectorAll('use');
 		element.addEventListener("click", function () {
-			if (element.id === "randomSvg" && arrowElement) {
-				const transform = arrowElement.getAttribute('transform');
-				if (transform && transform.includes('translate(15')) {
-					arrowElement.setAttribute('transform', 'translate(0,0) scale(1.6)');
-				}
-			}
+			arrowElements.forEach((arrowElement) => {
+				arrowElement.setAttribute('transform', 'scale(1.6)');
+			});
 			all_animations.forEach((animation) => {
 				if (typeof animation.beginElement === "function") {
 					animation.beginElement();
@@ -104,13 +89,91 @@ document.addEventListener("DOMContentLoaded", function () {
 
 let audio = null;
 let song = 0;
-let volume = document.getElementById("player-volume-bar");
-let old_volume = 0;
 let random = 0;
 let repeat = 0;
 let duration = 0;
 let total_songs = 0;
-const volume_gamma = 2.2;
+
+
+
+
+/*Volume management and animation*/
+const volumeSlider = document.getElementById("player-volume-bar");
+const svg	= document.getElementById("volume-svg");
+const thresholds = [0, 33, 66, 100];
+const volumeGamma = 2.2;
+let volumeDebounceTimeout;
+let oldVolume = 0;
+
+const fullArches = [
+	"M23 11C25 12 25 16 23 17 23 18 24 19 25 19 28 17 28 11 25 9 24 9 23 10 23 11",
+	"M27 7C31 9 31 19 27 21 27 22 28 23 29 23 34 20 34 8 29 5 28 5 27 6 27 7",
+	"M31 3C37 6 37 22 31 25 31 26 32 27 33 27 40 23 40 5 33 1 32 0 30 2 31 3"
+];
+
+const crossArches = [
+	"M32 5C20 5 20 23 32 23 33 23 33 21 32 21 23 21 23 7 32 7 33 7 33 5 32 5",
+	"M36 7C26 19 36 7 26 19 28 21 26 19 28 21 38 9 28 21 38 9 36 7 38 9 36 7",
+	"M32 7C41 7 41 21 32 21 31 21 31 23 32 23 44 23 44 5 32 5 31 5 31 7 32 7"
+];
+
+volumeSlider.dataset.prev = volumeSlider.value;
+
+volumeSlider.addEventListener("input", () => {
+	const prev = parseInt(volumeSlider.dataset.prev, 10);
+	const curr = parseInt(volumeSlider.value, 10);
+	audio.volume = Math.pow(curr / 100, volumeGamma);
+	clearTimeout(volumeDebounceTimeout);
+	volumeDebounceTimeout = setTimeout(() => {
+		if (crossed(prev, curr)) {
+      		oldVolume = 0;
+			player_volume(prev, curr);
+			volumeSlider.dataset.prev = curr;}
+	}, 50);
+});
+svg.addEventListener("click", () => {
+	const prev = parseInt(volumeSlider.dataset.prev, 10);
+	const curr = parseInt(volumeSlider.value, 10);
+	if (curr === 0) {
+		volumeSlider.value = oldVolume;
+		player_volume(0, oldVolume);
+	} else {
+   	 oldVolume = curr;
+		volumeSlider.dataset.prev = curr;
+		volumeSlider.value = 0;
+		player_volume(curr, 0);
+	}
+	audio.volume = Math.pow(volumeSlider.value / 100, volumeGamma);
+	volumeSlider.dataset.prev = +volumeSlider.value;
+});
+
+function crossed(prev, curr) {
+	return thresholds.some((t, i) =>
+		(prev <= t && curr > t) || (prev > t && curr <= t)
+	);
+}
+function player_volume(oldV, newV) {
+	const starts = getState(oldV);
+	const ends	 = getState(newV);
+	["volumePath1", "volumePath2", "volumePath3"].forEach((id, i) => {
+		animatePath(document.getElementById(id), starts[i], ends[i]);
+	});
+}
+function getState(v) {
+	if (v == 0) return crossArches;
+	if (v <= 33) return fullArches.map(() => fullArches[0]);
+	if (v <= 66) return [fullArches[0], fullArches[1], fullArches[1]];
+	return fullArches;
+}
+function animatePath(pathEl, fromD, toD) {
+	pathEl.setAttribute("d", toD);
+	const anim = pathEl.querySelector("animate");
+	if (anim) {
+		anim.setAttribute("values", `${fromD};${toD}`);
+		anim.beginElement();
+	}
+}
+
 
 /*Player scroll style*/
 function removeOldStyle() {
@@ -190,14 +253,22 @@ function toggleRandom() {
 
 
 function toggleRepeat() {
+	const repeatMotionPath = document.querySelector('#repeatMotionPath');
+	const repeatMotionPath2 = document.querySelector('#repeatMotionPath2');
+	const repeatArrow = document.getElementById('repeatSvg');
 	if (repeat == 0) {
 		repeat = 1;
-		player.controls.repeatButton.classList.add("active");
+		repeatMotionPath.style.stroke = "rgb(var(--lavender))";
+		repeatMotionPath2.style.stroke = "rgb(var(--lavender))";
+		repeatArrow.setAttribute("fill", "rgb(var(--lavender))");
 	} else {
 		repeat = 0;
-		player.controls.repeatButton.classList.remove("active");
+		repeatMotionPath.style.stroke = "currentColor";
+		repeatMotionPath2.style.stroke = "currentColor";
+		repeatArrow.setAttribute("fill", "currentColor");
 	}
 }
+
 
 function handlePause() {
 	if (!audio) return;
@@ -242,18 +313,6 @@ function previous_song() {
 		if (song == 0) {
 			song = total_songs;
 		}
-	}
-}
-
-function updateVolumeIcon() {
-	if (player.controls.volumeBar.value == 0) {
-		player.controls.volumeIcon.src = player.img.volume0;
-	} else if (player.controls.volumeBar.value < 33) {
-		player.controls.volumeIcon.src = player.img.volume33;
-	} else if (player.controls.volumeBar.value < 66) {
-		player.controls.volumeIcon.src = player.img.volume66;
-	} else {
-		player.controls.volumeIcon.src = player.img.volume100;
 	}
 }
 
@@ -349,27 +408,43 @@ function update_mediaSessionAPI(title, artist, album, cover) {
 	}
 }
 
-function attachAudioEventListeners() {
-	if (audio) {
-		audio.addEventListener("playing", function () {
-			var interval = setInterval(function () {
-				player.controls.progressBar.value = audio.currentTime * 100;
-				player.controls.currentTime.innerHTML = formatDuration(audio.currentTime) + "/" + formatDuration(duration);
-			}, 10);
-		});
+// stocker les références des callbacks globalement
+let onPlayingCallback = null;
+let onEndedCallback = null;
 
-		audio.addEventListener("ended", function () {
-			sendListeningData(song, 'end');
-			if (random == 1) {
-				changeSong(Math.floor(Math.random() * total_songs));
-			} else if (repeat == 1) {
-				changeSong(song);
-			} else {
-				changeSong(song + 1);
-			}
-		});
+function attachAudioEventListeners() {
+	if (!audio) {
+		return;
 	}
+
+	if (onPlayingCallback) {
+		audio.removeEventListener("playing", onPlayingCallback);}
+	if (onEndedCallback) {
+		audio.removeEventListener("ended", onEndedCallback);}
+
+	onPlayingCallback = function () {
+		var interval = setInterval(function () {
+			player.controls.progressBar.value = audio.currentTime * 100;
+			const value = ((player.controls.progressBar.value / player.controls.progressBar.max) * 100 + (((player.controls.progressBar.value / player.controls.progressBar.max) * 100 < 50) ? 0.5 : -0.5)) + '%'
+			player.controls.progressBar.style.setProperty('--value', value);
+			player.controls.currentTime.innerHTML = formatDuration(audio.currentTime);
+		}, 10);
+	};
+
+	onEndedCallback = function () {
+		sendListeningData(song, 'end');
+		if (random == 1) {
+			changeSong(Math.floor(Math.random() * total_songs));
+		} else if (repeat == 1) {
+			changeSong(song);
+		} else {
+			changeSong(song + 1);
+		}
+	};
+	audio.addEventListener("playing", onPlayingCallback);
+	audio.addEventListener("ended", onEndedCallback);
 }
+
 
 /*Page controls*/
 document.addEventListener("keydown", function (e) {
@@ -382,28 +457,11 @@ document.addEventListener("keydown", function (e) {
 	}
 });
 
-
-player.controls.volumeIcon.addEventListener('click', function () {
-	if (volume.value > 0) {
-		old_volume = volume.value;
-		audio.volume = 0;
-		volume.value = 0;
-	} else {
-		volume.value = old_volume;
-		audio.volume = Math.pow(old_volume / 100, volume_gamma);
-	}
-	updateVolumeIcon();
-});
-
 player.controls.progressBar.oninput = function () {
+	if (!audio) return;
 	audio.currentTime = player.controls.progressBar.value / 100;
-	player.controls.currentTime.innerHTML = formatDuration(audio.currentTime) + "/" + formatDuration(duration);
-};
-
-volume.oninput = function () {
-	let linearVolume = volume.value / 100;
-	audio.volume = Math.pow(linearVolume, volume_gamma);
-	updateVolumeIcon();
+	player.controls.currentTime.innerHTML = formatDuration(audio.currentTime);
+	console.log("Time: " + audio.currentTime + " in element: " + player.controls.currentTime);
 };
 
 player.controls.randomButton.addEventListener('click', function () {
@@ -482,7 +540,7 @@ function loadSong(songNumber) {
 			player.metadata.album.textContent = album;
 			player.metadata.cover.src = cover;
 			player.metadata.cover.alt = `${title} - ${artist}`;
-			player.controls.currentTime.innerHTML = "0:00/" + formatDuration(duration);
+			player.controls.totalTime.innerHTML = formatDuration(duration);
 			updateMetaTagsAndFavicon(title, artist, cover);
 			loadSongInfo(data);
 
@@ -490,13 +548,13 @@ function loadSong(songNumber) {
 				audio.pause();
 			}
 			audio = new Audio(file);
-			audio.volume = Math.pow(volume.value / 100, volume_gamma);
+			audio.volume = Math.pow(volumeSlider.value / 100, volumeGamma);
 			player.controls.progressBar.max = Math.floor(duration) * 100;
 			player.controls.progressBar.value = 0;
-			audio.play();
 			attachAudioEventListeners();
 			sendListeningData(songNumber, 'start');
 			audio.addEventListener('loadedmetadata', function () {
+				audio.play();
 				update_mediaSessionAPI(title, artist, album, cover);
 				animatePlayButton(audio.paused ? "pause" : "play");
 				if (settings.enable_rpc) {

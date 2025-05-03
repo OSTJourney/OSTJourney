@@ -132,112 +132,18 @@
 	--crust:		35, 38, 52;
 }
 
-  
+:root {
+	--bg-transition: 0.5s;
+}
 
-/* ─────────── CSS REFERENCE FOR .test-element ─────────── */
-.test-element {
-	/* 1. LAYOUT & POSITIONING */
-	display: block;               /* inline, flex, grid, etc. */
-	position: relative;           /* static, absolute, fixed, sticky */
-	top: auto; right: auto; bottom: auto; left: auto;
-	float: none; clear: none;
-	z-index: auto;
-  
-	/* 2. BOX MODEL */
-	box-sizing: content-box;      /* content-box | border-box */
-	margin: 0;                    /* margin-top | -right | -bottom | -left */
-	padding: 0;                   /* padding-top | -right | -bottom | -left */
-	border: 1px solid transparent;/* border-width | style | color */
-	border-radius: 0;             /* border-top-left-radius, etc. */
-  
-	width: auto; height: auto;
-	min-width: 0; max-width: none;
-	min-height: 0; max-height: none;
-  
-	/* 3. TYPOGRAPHY */
-	font-family: sans-serif;
-	font-size: 16px;              /* in px, em, rem… */
-	font-weight: normal;          /* 100–900 or keywords */
-	font-style: normal;           /* normal, italic, oblique */
-	font-variant: normal;         /* small-caps, etc. */
-	line-height: normal;          /* number, length, % */
-	letter-spacing: normal;       /* tracking */
-	text-align: left;             /* left, right, center, justify */
-	text-decoration: none;        /* underline, overline… */
-	text-transform: none;         /* uppercase, lowercase… */
-	white-space: normal;          /* nowrap, pre, pre-wrap… */
-	word-spacing: normal;         /* space between words */
-	word-break: normal;           /* break-word, keep-all… */
-  
-	/* 4. COLORS & BACKGROUNDS */
-	color: #000;                  /* text color */
-	background: transparent;      /* shorthand for bg-color/image */
-	background-color: #fff;
-	background-image: none;
-	background-size: auto;        /* cover, contain… */
-	background-position: 0 0;     /* top right bottom left */
-	background-repeat: repeat;    /* no-repeat, repeat-x… */
-	background-clip: border-box;  /* padding-box, content-box */
-	background-origin: padding-box;
-  
-	opacity: 1;                   /* 0 to 1 */
-  
-	/* 5. VISUAL EFFECTS */
-	box-shadow: none;             /* offset-x offset-y blur spread color */
-	outline: none;                /* outline-width style color */
-	outline-offset: 0;
-	visibility: visible;          /* hidden, collapse */
-	cursor: auto;                 /* pointer, text, move… */
-	filter: none;                 /* blur(), brightness(), etc. */
-	mix-blend-mode: normal;       /* multiply, screen… */
-	background-blend-mode: normal;
-  
-	/* 6. FLEXBOX & GRID */
-	/* FLEX */
-	display: flex;                /* flex or inline-flex */
-	flex-direction: row;          /* row, column, row-reverse… */
-	flex-wrap: nowrap;            /* wrap, wrap-reverse */
-	justify-content: flex-start;  /* center, space-between… */
-	align-items: stretch;         /* center, flex-end… */
-	align-content: stretch;       /* space-around, space-evenly… */
-	order: 0; flex-grow: 0; flex-shrink: 1; flex-basis: auto;
-  
-	/* GRID */
-	display: grid;                /* grid or inline-grid */
-	grid-template-columns: none;  /* e.g. repeat(3, 1fr) */
-	grid-template-rows: none;
-	grid-template-areas: none;
-	grid-column: auto; grid-row: auto;
-	grid-auto-flow: row;          /* column, dense… */
-	gap: 0;                       /* row-gap, column-gap */
-  
-	/* 7. OVERFLOW & CLIPPING */
-	overflow: visible;            /* hidden, scroll, auto */
-	overflow-x: visible;          /* scroll-x only */
-	overflow-y: visible;
-	clip-path: none;              /* inset(), circle(), etc. */
-  
-	/* 8. TRANSFORMS & TRANSITIONS */
-	transform: none;              /* translate, scale, rotate… */
-	transform-origin: 50% 50%;
-	transition: none;             /* property duration timing-function delay */
-	transition-property: all;
-	transition-duration: 0s;
-	transition-timing-function: ease;
-	transition-delay: 0s;
-	animation: none;              /* name duration timing-function delay etc. */
-  
-	/* 9. INTERACTIONS & USER INPUT */
-	pointer-events: auto;         /* none, all */
-	user-select: auto;            /* none, text, all */
-	touch-action: auto;           /* pan-x, pinch-zoom… */
-  
-	/* 10. OTHER / MISCELLANEOUS */
-	clip: auto;                   /* deprecated but still in use */
-	will-change: auto;            /* transform, opacity… */
-	resize: none;                 /* both, horizontal, vertical */
+@font-face {
+	font-family: 'Inter';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url(https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2) format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
-  
 
 /*======================================
               Global CSS
@@ -250,6 +156,7 @@ body {
 
 	display: flex;
 	flex-direction: column;
+	transition: background-color var(--bg-transition) ease;
 }
 /* Non-visible elements only visible to screen readers and url for dynamic loading */
 .sr-only, #currentUrl {
@@ -330,6 +237,8 @@ nav {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
+
+	transition: background-color var(--bg-transition) ease;
 }
 /* Main structure*/
 #user-menu {
@@ -726,9 +635,6 @@ nav {
 	50% {transform: translateX(calc(-100% + 27vw));}
 	92% {transform: translateX(0%);}
 }
-
-
-
 #copy-content {
 	margin-top: 0.5rem;
 
@@ -794,22 +700,6 @@ nav {
 	text-decoration: none;
 	background-color: rgb(var(--mantle));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*========================================
 			Bottom Audio player
 =========================================*/
@@ -829,6 +719,8 @@ nav {
 	
 	display: flex;
 	align-items: center;
+
+	transition: background-color var(--bg-transition) ease;
 }
 /*Info section*/
 #player-song-info {
@@ -860,12 +752,10 @@ nav {
 	width: fit-content;
 	animation: scroll-left 6.5s linear infinite;
 }
-
 #player-cover {
-	border: 3px solid rgb(var(--surface0));
+	border: 3px solid rgb(var(--surface2));
 	border-radius: 5px;
 }
-
 #player-song-title {
 	width: fit-content;
 
@@ -873,7 +763,6 @@ nav {
 	font-size: 1.35rem;
 	font-weight: bold;
 }
-
 #player-song-artist {
 	color: rgb(var(--text));
 	width: fit-content;
@@ -888,11 +777,37 @@ nav {
 /*Controls + progression bar*/
 #player-center {
 	width: 60%;
-	height: 5rem;
+	height: 100%;
+
+	padding: 0 2rem;
 
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+}
+#player-center-up {
+	width: 100%;
+	height: 100%;
+	
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+}
+.player-time {
+	width: 100%;
+	height: 2rem;
+
+	font-family: 'Inter', sans-serif;
+	font-feature-settings: "tnum";
+	font-size: 1.6rem;
+
+	margin-left: 1.5rem;
+	margin-right: 1.5rem;
+	margin-bottom: -2rem;
+}
+#player-time-total {
+	text-align: right;
 }
 #controls-container {
 	display: flex;
@@ -908,69 +823,122 @@ nav {
 	border-radius: 3px;
 	overflow: visible;
 }
+.player-controls:hover {
+	color: rgb(var(--overlay2));
+	cursor: pointer;
+	transition: color 0.3s ease;
+}
 #randomSvg {
 	width: 4rem;
-	height: 4rem;
+	height: 2.7rem;
+	border-radius: 50%;
 	transform: scale(1.4);
-	margin-top: -0.7rem;
+	margin-top: 0rem !important;
 }
-#randomSvg path {
+#repeatSvg {
+	z-index: 0;
+	width: 3.5rem;
+	height: 3rem;
+	border-radius: 50%;
+	margin-bottom: 0.5rem;
+	transform: scale(1.4);
+}
+#repeatSvg:hover {
+	color: rgb(var(--overlay2));
+	cursor: pointer;
+	transition: color 0.3s ease;
+}
+#randomSvg path, #repeatSvg path {
 	transition: stroke 1s ease;
 }
-
-
+/* Progression bar */
 .player-slider {
-	outline: none;
 	appearance: none;
 	-webkit-appearance: none;
+	width: 100%;
+	height: 0.7rem;
 	border-radius: 5px;
-	height: 1vh;
-	background-color: rgb(var(--surface1));
-}  
-
-#player-progress-bar-container {
-	width: 92%;
+	background: linear-gradient(
+		to right,
+		rgb(var(--lavender)) 0%,
+		rgb(var(--lavender)) var(--value),
+		rgb(var(--surface2)) var(--value),
+		rgb(var(--surface2)) 100%
+	);
+	outline: none;
+	--value: 0%;
 }
-
+/* Chrome / Safari */
+.player-slider::-webkit-slider-runnable-track {
+	height: 100%;
+	border-radius: 5px;
+	background: linear-gradient(to right,
+		rgb(var(--lavender)) 0%,
+		rgb(var(--lavender)) var(--value),
+		rgb(var(--surface2)) var(--value),
+		rgb(var(--surface2)) 100%);
+}
+.player-slider::-webkit-slider-thumb {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: rgb(var(--overlay0));
+	cursor: pointer;
+	box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+	margin-top: -3px;
+	position: relative;
+	z-index: 2;
+}
+/* Firefox */
+.player-slider::-moz-range-track {
+	height: 100%;
+	border-radius: 5px;
+}
+.player-slider::-moz-range-thumb {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	border: 1px solid rgb(var(--overlay0));
+	background: rgb(var(--overlay0));
+	cursor: pointer;
+	position: relative;
+	z-index: 2;
+}
+#player-progress-bar-container {
+	width: 100%;
+}
 #player-progress-bar {
 	width: 100%;
 }
-
 #player-extra {
-	height: 100%;
+	height: fit-content;
+	width: 15%;
+	margin-bottom: -3rem;
 	overflow: hidden;
 	display: flex;
 	flex-direction: row;
-	align-items: flex-end;
-	justify-content: flex-start;
-	width: 18%;
+	align-items: center;
 }
-
-#player-current-time {
-	font-size: 1.5em;
+#volume-svg {
+	color: rgb(var(--overlay1));
+	height: 3.5rem !important;
+	width: 3.5rem !important;
 }
-
 #volume-container {
-	margin-left: 1em;
+	height: 3.5rem;
+	margin-left: -0.5rem;
 	width: 3em;
 	overflow: hidden;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	justify-content: flex-start;
 	transition: width 0.3s ease;
-
 }
-
-#volume-container:hover {
-	width: 60%;
+#player-extra:hover #volume-container {
+	width: 50%;
 }
-
-#volume-ico {
-	width: 3em;
-	height: 3em;
-}
-
 #player-volume-bar
 {
 	margin-left: 1.2em;
@@ -979,20 +947,22 @@ nav {
 
 
 
-::-webkit-scrollbar {
-	width: 1em;
-}
-::-webkit-scrollbar-track {
-	background: #cad3f5;
-	border-radius: 10px;
-}
-::-webkit-scrollbar-thumb {
-	background: #1e2030;
-	border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-	background: #363a4f; 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #content {
 	margin-top: 7vh;
 	min-height: 67vh;
