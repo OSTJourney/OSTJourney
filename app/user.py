@@ -109,7 +109,7 @@ def load_more_history():
 					'song_id': song.id,
 					'title': song.title,
 					'artist': song.artist,
-					'duration': format_duration(song.duration),
+					'duration': format_duration(song.duration, 0),
 					'cover': song.cover
 				})
 

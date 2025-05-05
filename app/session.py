@@ -56,7 +56,8 @@ def register():
 		db.session.commit()
 
 		return render_template('login.html', success="Account created successfully. Please login.", email=email, currentUrl="/login", email_enabled=email_enabled)
-
+	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+		return render_template('register.html', currentUrl="/register", title="Register")
 	return render_template('base.html', content=render_template('register.html'), currentUrl="/register", title="Register")
 
 @session_bp.route('/login', methods=['GET', 'POST'])
@@ -84,6 +85,8 @@ def login():
 			return response
 		else:
 			return render_template('login.html', error="Invalid email or password.", email=email, currentUrl="/login", email_enabled=email_enabled)
+	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+		return render_template('login.html', currentUrl="/login", title="Login", email_enabled=email_enabled)
 	return render_template('base.html', content=render_template('login.html', currentUrl="/login", title="Login", email_enabled=email_enabled))
 
 @session_bp.route('/logout')
@@ -156,7 +159,8 @@ def reset_password(token):
 			user.password = hashed_password
 			db.session.commit()
 			return render_template('login.html', success="Password reset successfully. Please login.", email=email, currentUrl="/login", email_enabled=email_enabled)
-
+	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+		return render_template('reset_password.html', token=token, currentUrl="/reset_password")
 	return render_template('base.html', content=render_template('reset_password.html', token=token, currentUrl="/reset_password"))
 
 @session_bp.route('/change_password', methods=['GET', 'POST'])
@@ -196,5 +200,4 @@ def change_password():
 			msg.body = f"Hello,\n\nYour password has been successfully changed. \n\n If you did not make this change, please contact support immediately.\n\nIP Address: {ip_address}"
 			mail.send(msg)
 		return render_template('settings.html', success="Password changed successfully.", enable_rpc=settings.enable_rpc)
-
 	return render_template('settings.html', currentUrl="/settings", title="Settings", enable_rpc=settings.enable_rpc)

@@ -29,6 +29,22 @@
 	--base:			36, 39, 58;    /* Main background */
 	--mantle:		30, 32, 48;    /* Secondary background (containers) */
 	--crust:		24, 25, 38;    /* Tertiary background (deep layers) */
+
+	--activity0a:	30, 32, 48;
+	--activity1a:	54, 58, 79;
+	--activity2a:	73, 77, 100;
+	--activity3a:	91, 96, 120;
+	--activity4a:	110, 115, 141;
+
+	--activity1b:	54, 58, 79;
+	--activity2b:	73, 77, 100;
+	--activity3b:	91, 96, 120;
+	--activity4b:	110, 115, 141;
+
+	--activity1c:	30, 32, 48;
+	--activity2c:	54, 58, 79;
+	--activity3c:	73, 77, 100;
+	--activity4c:	91, 96, 120;
 }
 
 [data-theme="catppuccin-latte"] {
@@ -701,6 +717,34 @@ nav {
 	background-color: rgb(var(--mantle));
 }
 /*========================================
+				Footer
+=========================================*/
+#footer-container {
+	height: 6rem !important;
+	width: 100vw !important;
+	margin-top: 1rem;
+	margin-bottom: 5rem !important;
+	margin-left: -0.5rem;
+	padding: 1rem;
+	background-color: rgb(var(--mantle));
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+#footer-content {
+	margin-left: -2rem;
+	width: 90vw;
+	display: flex;
+	background-color: rgb(var(--mantle));
+	border-bottom: solid 2px rgb(var(--surface0));
+	padding-left: 0.5rem;
+	flex-direction: row;
+	justify-content: space-between;
+}
+#footer-commit {
+	margin-right: 0.5rem !important;
+}
+/*========================================
 			Bottom Audio player
 =========================================*/
 #player-container {
@@ -944,18 +988,77 @@ nav {
 	margin-left: 1.2em;
 	width: 100%;
 }
-
-
-
-
-
-
-
-
-
-
-
-
+/*========================================
+				Forms
+========================================*/
+#login-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	margin: 10vh auto;
+	padding: 2rem;
+	width: 320px;
+	background-color: rgb(var(--mantle));
+	border: 3px solid rgb(var(--surface0));
+	border-radius: 10px;
+	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+#login-form {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	width: 100%;
+	gap: 1em;
+}
+.input-field {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+.input-field label {
+	font-size: 1rem;
+	color: rgb(var(--subtext0));
+	margin-bottom: 0.3em;
+}
+.input-field input {
+	font-size: 1rem;
+	background-color: rgb(var(--base));
+	color: rgb(var(--text));
+	border: 2px solid rgb(var(--surface0));
+	border-radius: 5px;
+	padding: 0.7em;
+	width: 92%;
+	outline: none;
+	transition: border 0.2s ease-in-out;
+}
+.input-field input:focus {
+	border-color: rgb(var(--blue));
+}
+#login-btn {
+	margin-top: 1em;
+	padding: 0.7em;
+	font-size: 1rem;
+	font-weight: bold;
+	background-color: rgb(var(--lavender));
+	color: rgb(var(--surface1));
+	border: none;
+	border-radius: 5px;
+	width: 100%;
+	cursor: pointer;
+	transition: background 0.2s ease-in-out;
+}
+#login-btn:hover {
+	background-color: rgb(var(--blue));
+}
+#login-form a {
+	color: #a0b2ff;
+	text-decoration: none;
+	font-size: 0.9rem;
+}
+#login-form a:hover {
+	text-decoration: underline;
+}
 
 
 
@@ -964,36 +1067,47 @@ nav {
 
 
 #content {
-	margin-top: 7vh;
-	min-height: 67vh;
+	margin-top: 10vh;
+	min-height: 60vh;
 }
+
+
+
+
+
+
+
+
+
 /*Css for consent banner*/
 #consent-banner {
 	position: fixed;
-	bottom: 0;
-	left: 0;
+	z-index: 1000;
+	top: 15%;
+	left: 4%;
 	right: 0;
-	background-color: #333;
-	color: white;
+	
+	width: 90%;
+	max-height: 63%;
 	padding: 20px;
+
+	color: rgb(var(--subtext1));
+	border-radius: 8px;
+	border: 3px solid rgb(var(--surface0));
+	background-color: rgb(var(--mantle));
+
 	text-align: left;
 	font-size: 14px;
-	z-index: 1000;
-	box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
-	max-height: 33vh;
 	overflow-y: auto;
 }
-
 
 #consent-banner h3 {
 	margin-top: 0;
 }
-
 #consent-banner .section a {
 	color: #4CAF50;
 	text-decoration: none;
 }
-
 #consent-banner button {
 	background-color: #4CAF50;
 	color: white;
@@ -1001,75 +1115,80 @@ nav {
 	padding: 8px 16px;
 	cursor: pointer;
 }
-
 #consent-banner table {
 	width: 100%;
 	border-collapse: collapse;
 	margin-top: 10px;
 }
-
 #consent-banner th, #consent-banner td {
 	border: 1px solid white;
 	padding: 8px;
 	text-align: left;
 }
-
 #consent-banner th {
 	background-color: #444;
 }
-
 #consent-banner button:hover {
 	background-color: #45a049;
 }
 
-/*CSS for profile page*/
+
+
+
+
+
+
+
+
+
+/*========================================
+			Profile page
+========================================*/
 .header {
+	margin-top: 10.5vh;
+
+	text-align: center;
+
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: #181818;
-	color: white;
-	height: 8vh;
-	margin-top: 10.5vh;
-	text-align: center;
-	vertical-align: middle;
 }
-
+#profilInfoText {
+	width: 35%;
+	padding: 1rem;
+	overflow-x: hidden;
+	border: 3px solid rgb(var(--surface1));
+	border-radius: 5px;
+	background-color: rgb(var(--surface0));
+}
 .profile-info p {
 	font-size: 16px;
 }
-
 .profile-info span, .total-listened span {
 	font-weight: bold;
 }
-
 .profile-duration {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	width: fit-content;
 }
-
 #profile-duration  {
 	font-size: 16px;
 	width: max-content;
 }
-
 .total-duration {
 	font-size: 16px;
 	font-weight: bold;
 	width: fit-content;
 }
-
 #duration-value {
 	font-size: 16px;
 	font-weight: normal;
 }
-
 .total-duration:hover {
 	cursor: pointer;
 }
-
 .listening-history {
 	display: flex;
 	flex-direction: column;
@@ -1077,12 +1196,10 @@ nav {
 	max-height:min-content;
 }
 
-#load-more {
-	margin-top: 20px;
-	font-size: medium;
-	margin-bottom: 20px;
-	background-color: #a0b2ff;
-}
+
+
+
+
 
 /*CSS for the activity container*/
 #heatmap {
@@ -1092,6 +1209,7 @@ nav {
 	font-family: Arial, sans-serif;
 	font-size: small;
 	table-layout: fixed;
+	background-color: rgb(var(--mantle));
 }
 
 #heatmap thead th {
@@ -1141,11 +1259,11 @@ nav {
 	width: fit-content;
 	display: flex;
 	border: none;
-	background-color: #121212;
+	background-color: rgb(var(--mantle));
 }
 
 #heatmap th {
-	background-color: #121212;
+	background-color: rgb(var(--mantle));
 	border: none
 }
 
@@ -1213,6 +1331,11 @@ nav {
 	color: #363a4f;
 }
 
+
+
+
+
+
 #hourlyChartContainer {
 	height: 70vh;
 }
@@ -1221,7 +1344,9 @@ nav {
 	cursor: pointer;
 }
 
-/* Table Styles */
+/*========================================
+			Song tab
+========================================*/
 .song-tab {
 	border-collapse: separate;
 	width: 90%;
@@ -1231,7 +1356,6 @@ nav {
 	border-radius: 5px;
 	border-spacing: 0 10px;
 }
-
 .tab-cover {
 	vertical-align: middle;
 	margin-left: 0.2em;
@@ -1239,25 +1363,22 @@ nav {
 	width: 4em;
 	height: 4em;
 }
-
 .song-tab td {
 	text-align: left;
 }
-
 .song-tab th {
 	visibility: hidden;
 }
-
 .song-tab tr {
 	margin-top: 1em;
 	font-size: larger;
-	background-color: #212121;
+	background-color: rgb(var(--crust));
 	transition: background-color 0.2s ease;
 }
 
 .song-tab tr:hover {
 	cursor: pointer;
-	background-color: #0c0c0c;
+	background-color: rgb(var(--surface0));
 }
 
 
@@ -1270,14 +1391,30 @@ nav {
 	height: 4.5em;
 }
 
+#load-more {
+	margin-top: 20px;
+	font-size: medium;
+	margin-bottom: 20px;
+	padding: 7px;
+	background-color: rgb(var(--blue));
+	color: rgb(var(--surface1));
+	border: none;
+	border-radius: 5px;
+}
+#load-more:hover {
+	background-color: rgb(var(--lavender));
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
 /*CSS for the song page*/
 #song-page {
 	margin: 10.5vh;
 	padding: 20px;
-	background-color: #212121;
+	background-color: rgb(var(--mantle));
 	border-radius: 8px;
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-	color: #b3b3b3;
+	color: rgb(var(--text));
 	width: 100%;
 	max-width: 80vw;
 }
@@ -1294,25 +1431,24 @@ nav {
 	font-size: 2rem;
 	font-weight: bold;
 	margin-bottom: 10px;
-	color: #ffffff;
 }
 
 #song-page-artist, #song-page-album, #song-page-year, #song-page-publisher, #song-page-genre {
 	font-size: 1rem;
 	margin: 5px 0;
-	color: #b3b3b3;
+	color: rgb(var(--subtext2));
 }
 
 #song-page-listened-count {
 	font-size: 1rem;
-	color: #a0b2ff;
+	color: rgb(var(--blue));
 }
 
 #song-page-tags-title {
 	font-size: 1.5rem;
 	font-weight: bold;
 	margin-top: 20px;
-	color: #ffffff;
+	color: rgb(var(--text));
 }
 
 #song-page-tags-table {
@@ -1324,7 +1460,7 @@ nav {
 #song-page-tags-table th, #song-page-tags-table td {
 	padding: 12px;
 	text-align: left;
-	border: 1px solid #444;
+	border: 1px solid rgb(var(--surface0));
 }
 
 #song-page-tags-table-th-name {
@@ -1340,7 +1476,7 @@ nav {
 
 #song-page-tags-name, #song-page-tags-value {
 	font-size: 1rem;
-	color: #b3b3b3;
+	color: rgb(var(--subtext2));
 }
 
 #song-page-tags-value {
@@ -1358,7 +1494,7 @@ nav {
 }
 
 #song-page-tags-table tr:hover {
-	background-color: #333;
+	background-color: rgb(var(--surface1));
 	cursor: pointer;
 }
 
@@ -1372,122 +1508,9 @@ nav {
 	background-color: #45a049;
 }
 
-/*CSS for the login and register page*/
-#login-container {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	margin: 10vh auto;
-	padding: 2em;
-	width: 320px;
-	background-color: #1e1e1e;
-	border: 3px solid #333;
-	border-radius: 10px;
-	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-}
 
-#login-form {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	width: 100%;
-	gap: 1em;
-}
 
-.input-field {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-}
 
-.input-field label {
-	font-size: 1rem;
-	color: #b3b3b3;
-	margin-bottom: 0.3em;
-}
-
-.input-field input {
-	font-size: 1rem;
-	background-color: #121212;
-	color: #b3b3b3;
-	border: 2px solid #444;
-	border-radius: 5px;
-	padding: 0.7em;
-	width: 92%;
-	outline: none;
-	transition: border 0.2s ease-in-out;
-}
-
-.input-field input:focus {
-	border-color: #a0b2ff;
-}
-
-#login-btn {
-	margin-top: 1em;
-	padding: 0.7em;
-	font-size: 1rem;
-	font-weight: bold;
-	background-color: #a0b2ff;
-	color: #000;
-	border: none;
-	border-radius: 5px;
-	width: 100%;
-	cursor: pointer;
-	transition: background 0.2s ease-in-out;
-}
-
-#login-btn:hover {
-	background-color: #8199ff;
-}
-
-#login-form a {
-	color: #a0b2ff;
-	text-decoration: none;
-	font-size: 0.9rem;
-}
-
-#login-form a:hover {
-	text-decoration: underline;
-}
-
-/*Footer*/
-
-#footer-container {
-	margin-top: 0;
-
-	height: 22vh;
-	background-color: #181818;
-	color: #b3b3b3;
-	display: flex;
-	align-items: center;
-	padding: 15px;
-	z-index: 1000;
-}
-
-footer {
-	margin-top: -12vh;
-	height: 8vh;
-	background-color: #181818;
-	color: #b3b3b3;
-	display: flex;
-	align-items: center;
-	padding: 15px;
-	z-index: 1000;
-	width: 100%;
-}
-
-.footer-content {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	border-bottom: solid 2px #000;
-	width: 100%;
-}
-
-#footer-commit {
-	margin-right: 3em;
-}
 
 
 .addition-container {
@@ -1500,11 +1523,10 @@ footer {
 	width: 30vw;
 	overflow-x: hidden;
 	max-width: 90%;
-	background-color: #252525;
-	border: 2px solid #444;
+	background-color: rgb(var(--mantle));
+	border: 2px solid rgb(var(--surface0));
 	border-radius: 12px;
 	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-	color: #fff;
 	text-align: center;
 	transition: width 0.3s ease;
 }
@@ -1532,11 +1554,11 @@ footer {
 .num-additions {
 	font-size: 1em;
 	margin-bottom: 0.5em;
-	color: #ccc;
+	color: rgb(var(--subtext0));
 }
 
 .addition-comment {
-	color: #ccc;
+	color: rgb(var(--subtext1));
 	margin-bottom: 0.5em;
 }
 
@@ -1563,7 +1585,8 @@ footer {
 /*Stats page*/
 .stats-container {
 	text-align: left;
-	background: #252525;
+	background: rgb(var(--mantle));
+	border: 2px solid rgb(var(--surface0));
 	padding: 20px;
 	border-radius: 10px;
 	width: 50%;
@@ -1579,7 +1602,7 @@ footer {
 #last-update, #last-update-time {
 	font-size: 14px;
 	font-style: italic;
-	color: #888;
+	color: rgb(var(--subtext0));
 }
 
 #update-stats {

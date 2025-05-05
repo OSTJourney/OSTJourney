@@ -1,6 +1,8 @@
 <h1 id="currentUrl">{{ currentUrl | default('/search') }}</h1>
 <center>
-	<h1>Search results for:</h1>
+	<div class="header">
+		<h1>Search results for:</h1>
+	</div>
 	<p style="width: 50%;">"{{ search }}"</p>
 	<p class="error-msg" style="visibility: {{ 'visible' if searchError else 'hidden' }};" id="searchError">{{ searchError }}</p>
 	{% if songs %}

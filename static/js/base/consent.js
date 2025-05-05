@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	const acceptBtn = document.getElementById('accept-btn');
 	const declineBtn = document.getElementById('decline-btn');
 
-	const consentCookie = document.cookie.indexOf('data_consent=true') !== -1;
+	const consentCookie = document.cookie.indexOf('data_consent=') !== -1;
 
 	if (!consentCookie) {
 		consentBanner.style.display = 'block';

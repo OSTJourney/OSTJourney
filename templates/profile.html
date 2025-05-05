@@ -2,24 +2,24 @@
 <div class="header">
 	<h1>Profil Utilisateur</h1>
 </div>
-<div class="profile-info">
-	<p><span>Pseudo :</span> {{ username }}</p>
-	<p><span>Email :</span> {{ email }}</p>
-	<p><span>Date de création :</span> {{ created_at }}</p>
-	<p><span>User id :</span> {{ user_id }}</p>
-</div>
-
-<div class="total-listened">
-	<p><span>Number of tracks listened :</span> {{ total_listened }}</p>
-</div>
-<div class="total-duration">
-	<p id="profile-duration">
-		<span>Total listen time :</span>
-		<span id="duration-value"></span>
-		<span id="profile-total-duration" style="visibility: hidden;">{{ total_duration }}</span>
-		<span id="profile-total-hours" style="visibility: hidden;">{{ total_hours }} hours</span>
-	</p>
-	  
+<div id="profilInfoText">
+	<div class="profile-info">
+		<p><span>Pseudo :</span> {{ username }}</p>
+		<p><span>Email :</span> {{ email }}</p>
+		<p><span>Date de création :</span> {{ created_at }}</p>
+		<p><span>User id :</span> {{ user_id }}</p>
+	</div>
+	<div class="total-listened">
+		<p><span>Number of tracks listened :</span> {{ total_listened }}</p>
+	</div>
+	<div class="total-duration">
+		<p id="profile-duration">
+			<span>Total listen time :</span>
+			<span id="duration-value"></span>
+			<span id="profile-total-duration" style="visibility: hidden;">{{ total_duration }}</span>
+			<span id="profile-total-hours" style="visibility: hidden;">{{ total_hours }} hours</span>
+		</p>
+	</div>
 </div>
 <center>
 	<h3>Activity</h3>

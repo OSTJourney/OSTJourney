@@ -122,7 +122,8 @@ volumeSlider.dataset.prev = volumeSlider.value;
 volumeSlider.addEventListener("input", () => {
 	const prev = parseInt(volumeSlider.dataset.prev, 10);
 	const curr = parseInt(volumeSlider.value, 10);
-	audio.volume = Math.pow(curr / 100, volumeGamma);
+	if (audio)
+		audio.volume = Math.pow(volumeSlider.value / 100, volumeGamma);
 	clearTimeout(volumeDebounceTimeout);
 	volumeDebounceTimeout = setTimeout(() => {
 		if (crossed(prev, curr)) {
@@ -143,7 +144,8 @@ svg.addEventListener("click", () => {
 		volumeSlider.value = 0;
 		player_volume(curr, 0);
 	}
-	audio.volume = Math.pow(volumeSlider.value / 100, volumeGamma);
+	if (audio)
+		audio.volume = Math.pow(volumeSlider.value / 100, volumeGamma);
 	volumeSlider.dataset.prev = +volumeSlider.value;
 });
 
