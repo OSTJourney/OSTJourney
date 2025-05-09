@@ -26,4 +26,4 @@ if __name__ == '__main__':
 		server.watch('static/js/')
 		server.watch('templates/*.html')
 
-		server.serve(host='127.0.0.1', port=flask_port, debug=True)
+		server.serve(host='0.0.0.0', port=flask_port, debug=True)
