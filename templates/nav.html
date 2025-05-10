@@ -5,8 +5,8 @@
 			<a href="{{ url_for('user.settings') }}" class="user-btn">Settings</a>
 			<a href="{{ url_for('session.logout') }}" class="user-btn">Logout</a>
 		{% else %}
-			<a href="{{ url_for('session.login') }}" class="user-btn">Login</a>
-			<a href="{{ url_for('session.register') }}" class="user-btn">Register</a>
+		<a href="{{ url_for('session.login') }}" class="user-btn">Login</a>
+		<a href="{{ url_for('session.register') }}" class="user-btn">Register</a>
 		{% endif %}
 	</div>
 	<div id="search-container">
@@ -28,7 +28,7 @@
 				<div>
 					<input type="search" id="search-title" placeholder="Title" />
 					<input type="search" id="search-artist" placeholder="Artist" />
-					</div>
+				</div>
 				<div>
 					<input type="search" id="search-album" placeholder="Album" />
 					<div id="search-time">
@@ -50,6 +50,7 @@
 			<button class="theme-btn" data-theme="catppuccin-macchiato" style="--c1:rgb(24, 25, 38); --c2:rgb(36, 39, 58); --c3:rgb(165, 173, 203);"></button>
 			<button class="theme-btn" data-theme="catppuccin-mocha" style="--c1:rgb(17, 17, 27); --c2:rgb(30, 30, 46); --c3:rgb(166, 173, 200);"></button>
 		</div>		
+		<a href="{{ url_for('various.index') }}" class="user-btn">Home</a>
 		<a href="{{ url_for('various.stats') }}" class="user-btn">Stats</a>
 		<a href="{{ url_for('various.latest') }}" class="user-btn">Latest</a>
 	</div>

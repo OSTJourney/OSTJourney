@@ -173,6 +173,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	transition: background-color var(--bg-transition) ease;
+	overflow-x: hidden;
 }
 /* Non-visible elements only visible to screen readers and url for dynamic loading */
 .sr-only, #currentUrl {
@@ -244,7 +245,7 @@ nav {
 	padding: 1rem;
 	
 	width: 100%;
-	height: 7vh;
+	height: 7dvh;
 
 	background-color: rgb(var(--crust));
 	color: rgb(var(--text));
@@ -305,7 +306,7 @@ nav {
 /* Theme switcher */
 #theme-switcher {
 	position: absolute;
-	right: 12rem;
+	right: 17.5rem;
 
 	height: 3em;
 	max-width: 2.5rem;
@@ -721,7 +722,7 @@ nav {
 =========================================*/
 #footer-container {
 	height: 6rem !important;
-	width: 100vw !important;
+	width: 99vw;
 	margin-top: 1rem;
 	margin-bottom: 5rem !important;
 	margin-left: -0.5rem;
@@ -1023,6 +1024,7 @@ nav {
 }
 .input-field input {
 	font-size: 1rem;
+	caret-color: rgb(var(--blue));
 	background-color: rgb(var(--base));
 	color: rgb(var(--text));
 	border: 2px solid rgb(var(--surface0));
@@ -1032,6 +1034,16 @@ nav {
 	outline: none;
 	transition: border 0.2s ease-in-out;
 }
+input:-webkit-autofill {
+	background-color: rgb(var(--base));
+	-webkit-text-fill-color: rgb(var(--text));
+	-webkit-box-shadow: 0 0 0 30px rgb(var(--base)) inset;
+}
+input:autofill {
+	background-color: rgb(var(--base));
+	color: rgb(var(--text));
+}
+
 .input-field input:focus {
 	border-color: rgb(var(--blue));
 }
@@ -1059,37 +1071,17 @@ nav {
 #login-form a:hover {
 	text-decoration: underline;
 }
-
-
-
-
-
-
-
-#content {
-	margin-top: 10vh;
-	min-height: 60vh;
-}
-
-
-
-
-
-
-
-
-
 /*Css for consent banner*/
 #consent-banner {
 	position: fixed;
 	z-index: 1000;
 	top: 15%;
-	left: 4%;
+	left: 25%;
 	right: 0;
 	
-	width: 90%;
-	max-height: 63%;
-	padding: 20px;
+	width: 50%;
+	max-height: 60%;
+	padding: 2rem;
 
 	color: rgb(var(--subtext1));
 	border-radius: 8px;
@@ -1100,9 +1092,21 @@ nav {
 	font-size: 14px;
 	overflow-y: auto;
 }
-
 #consent-banner h3 {
 	margin-top: 0;
+}
+#consent-banner table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 10px;
+}
+#consent-banner thead th {
+	background-color: rgb(var(--surface1));
+}
+#consent-banner th, #consent-banner td {
+	border: 1px solid rgb(var(--surface0));
+	padding: 8px;
+	text-align: left;
 }
 #consent-banner .section a {
 	color: #4CAF50;
@@ -1114,22 +1118,7 @@ nav {
 	border: none;
 	padding: 8px 16px;
 	cursor: pointer;
-}
-#consent-banner table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-top: 10px;
-}
-#consent-banner th, #consent-banner td {
-	border: 1px solid white;
-	padding: 8px;
-	text-align: left;
-}
-#consent-banner th {
-	background-color: #444;
-}
-#consent-banner button:hover {
-	background-color: #45a049;
+	transition: background-color 0.3s ease;
 }
 
 
@@ -1138,6 +1127,27 @@ nav {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#content {
+	margin-top: 10vh;
+	min-height: 60vh;
+}
 
 
 
@@ -1154,6 +1164,7 @@ nav {
 	align-items: center;
 }
 #profilInfoText {
+	margin-left: 1rem;
 	width: 35%;
 	padding: 1rem;
 	overflow-x: hidden;
@@ -1202,16 +1213,22 @@ nav {
 
 
 /*CSS for the activity container*/
+#heatmap-div {
+	width: 100%;
+	overflow: hidden;
+}
 #heatmap {
-	width: 1163px;
+
+	transform-origin: top left;
 	border-collapse: collapse;
 	margin-top: 20px;
 	font-family: Arial, sans-serif;
 	font-size: small;
 	table-layout: fixed;
 	background-color: rgb(var(--mantle));
+	border: 20px solid rgb(var(--mantle));
+	padding: 1rem;
 }
-
 #heatmap thead th {
 	transform: translateX(20px);
 	width: 21px !important;
@@ -1219,13 +1236,11 @@ nav {
 	overflow: visible;
 	white-space: nowrap;
 }
-
 #heatmap thead th:not(:has(span))
 {
 	transform: translateY(-20px);
 	height: 1px !important;
 }
-
 #heatmap td:first-child {
 	font-weight: bold;
 	width: 38px !important;
@@ -1233,11 +1248,9 @@ nav {
 	margin-left: 4px;
 	overflow: visible;
 }
-
 #heatmap td:last-child {
 	margin-right: 2px;
 }
-
 #heatmap td {
 	display: inline-block;
 	width: 20px !important;
@@ -1252,8 +1265,6 @@ nav {
 	box-sizing: border-box;
 	border: none;
 }
-
-
 #heatmap tr {
 	height: 21px !important;
 	width: fit-content;
@@ -1266,7 +1277,6 @@ nav {
 	background-color: rgb(var(--mantle));
 	border: none
 }
-
 #heatmap-type {
 	margin-top: 20px;
 	margin-left: 2%;
@@ -1274,7 +1284,6 @@ nav {
 	display: flex;
 	flex-direction: row;
 }
-
 #heatmap-scale {
 	position: absolute;
 	right: 15%;
@@ -1288,7 +1297,6 @@ nav {
 	justify-content: center;
 	border-radius: 5px;
 }
-
 .heatmap-scale-div {
 	display: inline-block;
 	width: 20px;
@@ -1301,11 +1309,10 @@ nav {
 	box-sizing: border-box;
 	border: none;
 }
-
 .activity-heatmap-button {
-	background-color: #b3b3b3;
-	color: #121212;
-	border: 3px solid #000;
+	background-color: rgb(var(--base));
+	color: rgb(var(--subtext2));
+	border: 3px solid rgb(var(--surface0));
 	border-radius: 5px;
 	cursor: pointer;
 	padding: 10px;
@@ -1313,18 +1320,15 @@ nav {
 	border-radius: 5px;
 	margin-right: 1em;
 }
-
 .heatmap-song-active {
 	background-color: #39d353;
 	color: #363a4f;
 }
-
 .heatmap-duration-active
 {
 	background-color: #1f6feb;
 	color: #b3b3b3;
 }
-
 .heatmap-ratio-active
 {
 	background-color: #7C80FC;
@@ -1337,7 +1341,7 @@ nav {
 
 
 #hourlyChartContainer {
-	height: 70vh;
+	width: 70%;
 }
 
 #searchShareLink:hover {

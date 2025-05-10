@@ -92,9 +92,9 @@ const heatMap = {
 	year: null,
 	fixByPercent: false,
 	palettes: [
-		[[22, 27, 34], [14, 68, 41], [0, 109, 50], [38, 166, 65], [57, 211, 83]],
-		[[22, 27, 34], [24, 48, 84], [26, 69, 135], [29, 90, 185], [31, 111, 235]],
-		[[27, 27, 34], [48, 52, 89], [73, 78, 143], [99, 103, 198], [124, 128, 252]]
+		['var(--crust)', '14, 68, 41', '0, 109, 50', '38, 166, 65', '57, 211, 83'],
+		['var(--crust)', '24, 48, 84', '26, 69, 135', '29, 90, 185', '31, 111, 235'],
+		['var(--crust)', '48, 52, 89', '73, 78, 143', '99, 103, 198', '124, 128, 252']
 	],
 	scaleColors: {
 		0: ['rgb(14, 68, 41)', 'rgb(0, 109, 50)', 'rgb(38, 166, 65)', 'rgb(57, 211, 83)'],
@@ -133,9 +133,8 @@ function getColorForDuration(duration, minDuration, maxDuration, type) {
 	else if (duration <= range / 2) index = 2;
 	else if (duration <= (range * 3) / 4) index = 3;
 	else index = 4;
-	let [r, g, b] = selectedPalette[index];
+	return `rgb(${selectedPalette[index]})`;
 
-	return `rgb(${r}, ${g}, ${b})`;
 }
 
 heatMap.checkBox.addEventListener('change', function () {
@@ -318,7 +317,7 @@ function loadHeatmap(yearData, year, type) {
 			const currentDate = `${targetDate.getFullYear()}-${(targetDate.getMonth() + 1).toString().padStart(2, '0')}-${targetDate.getDate().toString().padStart(2, '0')}`;
 			const cell = document.createElement('td');
 			if (targetDate.getFullYear() !== parseInt(year)) {
-				cell.style.backgroundColor = 'rgb(18, 18, 18)';
+				cell.style.backgroundColor = 'rgb(var(--crust))';
 			} else if (data[currentDate]) {
 				const { formatted_duration, total_songs, ratio } = data[currentDate];
 				let color;
@@ -326,7 +325,7 @@ function loadHeatmap(yearData, year, type) {
 					color = (type === 0) ? heatMap.palettes[type][data[currentDate].songColor] :
 							(type === 1) ? heatMap.palettes[type][data[currentDate].durationColor] :
 							(type === 2) ? heatMap.palettes[type][data[currentDate].ratioColor] : null;
-					cell.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+					cell.style.backgroundColor = `rgb(${color})`;
 				} else {
 					let value, minValue, maxValue;
 					if (type === 0) {
@@ -346,8 +345,6 @@ function loadHeatmap(yearData, year, type) {
 					cell.style.backgroundColor = color;
 				}
 				cell.title = `Date: ${currentDate}\nDuration: ${formatted_duration}\nSongs: ${total_songs}\nRatio: ${ratio.toFixed(2)}`;
-			} else {
-				cell.style.backgroundColor = 'rgb(18, 18, 18)';
 			}
 			row.appendChild(cell);
 		}
@@ -357,3 +354,18 @@ function loadHeatmap(yearData, year, type) {
 }
 
 fetchActivityData();
+
+function scaleTableTo80Percent() {
+	const table = document.getElementById('heatmap');
+	const wrapper = table.parentElement;
+
+	const wrapperWidth = wrapper.offsetWidth;
+	const tableWidth = table.offsetWidth;
+
+	if (tableWidth > 0) {
+		const scaleFactor = Math.min(1, (wrapperWidth * 0.9) / tableWidth);
+		table.style.transform = `scale(${scaleFactor})`;
+	}
+}
+scaleTableTo80Percent();
+window.addEventListener('resize', scaleTableTo80Percent);

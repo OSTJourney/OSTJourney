@@ -111,11 +111,11 @@
 								<path id="randomArrow" d="M12.3536 1.1464C12.1583.9512 11.8417.9512 11.6464 1.1464 11.4512 1.3417 11.4512 1.6583 11.6464 1.8536L12.7929 3H12C11 3 11 4 12 4H12.7929L11.6464 5.1464C11.4512 5.3417 11.4512 5.6583 11.6464 5.8536 11.8417 6.0488 12.1583 6.0488 12.3536 5.8536L14.3536 3.8535C14.5488 3.6583 14.5488 3.3417 14.3536 3.1465L12.3536 1.1464Z" transform="translate(-12, -3.5)" />
 							</defs>
 							<path id="randomMotionPath" d="M15 0C17 0 20 2 20 5 20 8 17 10 15 10 12 10 10 7 10 5 10 2 7 0 5 0 2 0 0 3 0 5 0 8 3 10 5 10 8 10 10 8 10 5 10 2 13 0 15 0 17 0 20 2 20 5" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="57 7" stroke-dashoffset="-7" stroke-linecap="round">
-								<animate attributeName="stroke-dashoffset" from="-7" to="-71" dur="1s" begin="indefinite" calcMode="spline" keySplines="0.5 0 0.5 1" keyTimes="0;1" />
+								<animate attributeName="stroke-dashoffset" from="-7" to="-71" dur="0.75s" begin="indefinite" calcMode="spline" keySplines="0.5 0 0.5 1" keyTimes="0;1" />
 							</path>
 							<g>
 								<use href="#randomArrow" id="randomArrowElement" transform="translate(15,0) scale(1.6)" />
-								<animateMotion id="svgArrow" dur="1s" begin="indefinite" rotate="auto" keyTimes="0;1" keyPoints="0;0.889" calcMode="spline" keySplines="0.5 0 0.5 1" fill="freeze">
+								<animateMotion id="svgArrow" dur="0.75s" begin="indefinite" rotate="auto" keyTimes="0;1" keyPoints="0;0.889" calcMode="spline" keySplines="0.5 0 0.5 1" fill="freeze">
 									<mpath href="#randomMotionPath" />
 								</animateMotion>
 							</g>
@@ -250,10 +250,12 @@
 		<div class="section">
 			<h4>4. Cookies Used</h4>
 			<table>
-				<tr>
-					<th>Cookie Name</th>
-					<th>Purpose</th>
-				</tr>
+				<thead>
+					<tr>
+						<th>Cookie Name</th>
+						<th>Purpose</th>
+					</tr>
+				</thead>
 				<tr>
 					<td><code>cf_clearance</code></td>
 					<td>Set by Cloudflare to verify security challenges.</td>

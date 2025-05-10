@@ -243,8 +243,8 @@ function toggleRandom() {
 	const randomArrow = document.querySelector('#randomArrow');
 	if (random === 0) {
 		random = 1;
-		randomMotionPath.style.stroke = "rgb(var(--lavender))";
-		randomArrow.style.fill = "rgb(var(--lavender))";
+		randomMotionPath.style.stroke = "rgb(var(--mauve))";
+		randomArrow.style.fill = "rgb(var(--mauve))";
 	} else {
 		random = 0;
 		randomMotionPath.style.stroke = "currentColor";
@@ -260,9 +260,9 @@ function toggleRepeat() {
 	const repeatArrow = document.getElementById('repeatSvg');
 	if (repeat == 0) {
 		repeat = 1;
-		repeatMotionPath.style.stroke = "rgb(var(--lavender))";
-		repeatMotionPath2.style.stroke = "rgb(var(--lavender))";
-		repeatArrow.setAttribute("fill", "rgb(var(--lavender))");
+		repeatMotionPath.style.stroke = "rgb(var(--mauve))";
+		repeatMotionPath2.style.stroke = "rgb(var(--mauve))";
+		repeatArrow.setAttribute("fill", "rgb(var(--mauve))");
 	} else {
 		repeat = 0;
 		repeatMotionPath.style.stroke = "currentColor";
