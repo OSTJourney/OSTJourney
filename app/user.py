@@ -158,7 +158,7 @@ def settings():
 	settings = UserSettings.query.filter_by(user_id=user_id).first()
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 		return render_template('settings.html', currentUrl="/settings", title="Settings", enable_rpc=settings.enable_rpc)
-	return render_template('base.html', content=render_template('settings.html'), currentUrl="/settings", title="Settings", enable_rpc=settings.enable_rpc)
+	return render_template('base.html', content=render_template('settings.html', currentUrl="/settings"), title="Settings", enable_rpc=settings.enable_rpc)
 
 @user_bp.route('/settings/update', methods=['POST'])
 def update_settings():

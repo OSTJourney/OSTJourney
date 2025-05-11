@@ -61,20 +61,19 @@ function validateForm() {
 	return valid;
 }
 
-form.addEventListener('submit', function (event) {
+addListener(form, 'submit', function (event) {
 	if (!validateForm()) {
 		event.preventDefault();
 	}
 });
 
 if (usernameField) {
-	usernameField.addEventListener('input', validateForm);
+	addListener(usernameField, 'input', validateForm);
 }
 
 if (emailField) {
-	emailField.addEventListener('input', validateForm);
+	addListener(emailField, 'input', validateForm);
 }
 
-passwordField.addEventListener('input', validateForm);
-confirmPasswordField.addEventListener('input', validateForm);
-
+addListener(passwordField, 'input', validateForm);
+addListener(confirmPasswordField, 'input', validateForm);

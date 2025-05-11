@@ -1,5 +1,5 @@
 document.querySelectorAll('.addition-button').forEach(button => {
-	button.addEventListener('click', function() {
+	addListener(button, 'click', function() {
 		let container = this.closest('.addition-container');
 		let songsTbody = container.querySelector('.songs-tbody');
 		let songList = container.querySelector('.song-list');
@@ -11,7 +11,7 @@ document.querySelectorAll('.addition-button').forEach(button => {
 		button.style.display = "none";
 		container.classList.add('expanded');
 		loadSongs(start, limit, songsTbody);
-		songList.addEventListener('scroll', function() {
+		addListener(songList, 'scroll', function() {
 			if (songList.scrollTop + songList.clientHeight >= songList.scrollHeight) {
 				start += limit;
 				if (start < max) {

@@ -1,4 +1,4 @@
-document.getElementById('load-more').addEventListener('click', function() {
+addListener(document.getElementById('load-more'), 'click', function() {
 	const button = this;
 	const offset = parseInt(button.getAttribute('data-offset'), 10);
 	fetch(`/profile/history?offset=${offset}`)
@@ -74,7 +74,7 @@ document.getElementById('profile-total-duration').remove();
 duration_element.textContent = storedTotalDuration;
 var duration_elem_state = 0;
 
-document.getElementById('profile-duration').addEventListener('mouseover', function() {
+addListener(document.getElementById('profile-duration'), 'mouseover', function() {
 	if (duration_elem_state == 0) {
 		duration_element.textContent = storedTotalHours;
 	} else {
@@ -137,7 +137,7 @@ function getColorForDuration(duration, minDuration, maxDuration, type) {
 
 }
 
-heatMap.checkBox.addEventListener('change', function () {
+addListener(heatMap.checkBox, 'change', function () {
 	heatMap.fixByPercent = this.checked;
 	loadHeatmap(heatMap.yearData, heatMap.year, heatMap.type);
 });
@@ -152,9 +152,9 @@ function changeHeatmapType(buttonData) {
 	loadHeatmap(heatMap.yearData, heatMap.year, heatMap.type);
 }
 
-heatMap.button.song.elem.addEventListener('click', () => changeHeatmapType(heatMap.button.song));
-heatMap.button.duration.elem.addEventListener('click', () => changeHeatmapType(heatMap.button.duration));
-heatMap.button.ratio.elem.addEventListener('click', () => changeHeatmapType(heatMap.button.ratio));
+addListener(heatMap.button.song.elem, 'click', () => changeHeatmapType(heatMap.button.song));
+addListener(heatMap.button.duration.elem, 'click', () => changeHeatmapType(heatMap.button.duration));
+addListener(heatMap.button.ratio.elem, 'click', () => changeHeatmapType(heatMap.button.ratio));
 
 function computeColorValuesForYear(yearData, year) {
 	const dailyData = yearData[year].data;
@@ -266,7 +266,7 @@ function populateYearSelector(years, yearData) {
 		option.textContent = yr;
 		heatMap.yearSelect.appendChild(option);
 	});
-	heatMap.yearSelect.addEventListener('change', (event) => {
+	addListener(heatMap.yearSelect, 'change', (event) => {
 		heatMap.year = event.target.value;
 		loadHeatmap(heatMap.yearData, heatMap.year, heatMap.type);
 	});
@@ -368,4 +368,4 @@ function scaleTableTo80Percent() {
 	}
 }
 scaleTableTo80Percent();
-window.addEventListener('resize', scaleTableTo80Percent);
+addListener(window, 'resize', scaleTableTo80Percent);

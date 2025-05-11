@@ -4,7 +4,7 @@ const limit = 25;
 const tbody = document.querySelector('.songs-tbody');
 const searchShareLink = document.getElementById('searchShareLink');
 searchShareLink.innerHTML = window.location.origin + searchShareLink.innerHTML;
-searchShareLink.addEventListener('click', function() {
+addListener(searchShareLink, 'click', function() {
 	copyTextToClipboard(searchShareLink.innerHTML);
 });
 
@@ -38,7 +38,7 @@ function loadSongs() {
 	loadedIndex += limit;
 }
 
-document.addEventListener('scroll', function() {
+addListener(document, 'scroll', function() {
 	const scrollPosition = window.scrollY + window.innerHeight;
 	const totalHeight = document.documentElement.scrollHeight;
 

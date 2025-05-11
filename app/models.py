@@ -47,13 +47,24 @@ class UserSettings(db.Model):
 	__bind_key__ = 'users'
 	id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
-
-	enable_rpc = db.Column(db.Boolean, default=False)
-
 	user = db.relationship('User', backref=db.backref('settings', uselist=False))
 
+	enable_rpc = db.Column(db.Boolean, default=False)
+	theme = db.Column(db.String(50), default='catppuccin-macchiato')
+	_theme_overrides = db.Column("color_overrides", db.Text, nullable=True)
+
+	@property
+	def color_overrides(self):
+		if self._theme_overrides:
+			return json.loads(self._theme_overrides)
+		return {}
+
+	@color_overrides.setter
+	def color_overrides(self, value):
+		self._theme_overrides = json.dumps(value)
+
 	def __repr__(self):
-		return f'<UserSettings {self.user_id} RPC: {self.enable_rpc}>'
+		return f'<UserSettings {self.user_id}>'
 
 
 class UserToken(db.Model):

@@ -7,6 +7,13 @@ const whitelist = [
 	/\.jpg$/
 ];
 
+function clearAllListeners() {
+	for (const { element, type, callback, options } of listeners) {
+		element.removeEventListener(type, callback, options);
+	}
+	listeners.length = 0;
+}
+
 function fetchNavFooter() {
 	fetch("/nav", {
 		headers: {
@@ -68,6 +75,7 @@ function executeScripts(container) {
 }
 
 function updatePage(url, html, mode) {
+	clearAllListeners();
 	oldScripts = contentDiv.querySelectorAll('script[src]');
 	oldScripts.forEach(script => {
 		const scriptSrc = script.getAttribute('src');

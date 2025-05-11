@@ -29,22 +29,6 @@
 	--base:			36, 39, 58;    /* Main background */
 	--mantle:		30, 32, 48;    /* Secondary background (containers) */
 	--crust:		24, 25, 38;    /* Tertiary background (deep layers) */
-
-	--activity0a:	30, 32, 48;
-	--activity1a:	54, 58, 79;
-	--activity2a:	73, 77, 100;
-	--activity3a:	91, 96, 120;
-	--activity4a:	110, 115, 141;
-
-	--activity1b:	54, 58, 79;
-	--activity2b:	73, 77, 100;
-	--activity3b:	91, 96, 120;
-	--activity4b:	110, 115, 141;
-
-	--activity1c:	30, 32, 48;
-	--activity2c:	54, 58, 79;
-	--activity3c:	73, 77, 100;
-	--activity4c:	91, 96, 120;
 }
 
 [data-theme="catppuccin-latte"] {
@@ -1618,4 +1602,58 @@ input:autofill {
 	font-size: 1em;
 	border-radius: 5px;
 	transition: background-color 0.3s ease;
+}
+
+/*========================================
+			Settings page
+========================================*/
+.settings-theme-btn {
+	position: relative;
+
+	width: 2.5rem;
+	height: 2.5rem;
+
+	border: 2px solid rgb(var(--surface0));
+	border-radius: 50%;
+
+	background: repeating-linear-gradient(
+	  135deg,
+	  var(--c1) 0% 38%,
+	  var(--c2) 38% 67%,
+	  var(--c3) 67% 100%);
+
+	cursor: pointer;
+}
+.settings-theme-btn.active {
+	border-color: rgb(var(--blue));
+}
+#settings-theme-overrides {
+	width: 25%;
+	padding-left: 2rem;
+	padding-bottom: 1rem;
+	border: 3px solid rgb(var(--surface0));
+	border-radius: 5px;
+	background-color: rgb(var(--mantle));
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+}
+.color-override-wrapper {
+	text-align: left;
+	width: fit-content;
+	margin-top: 0.5rem;
+	margin-right: 3rem;
+	display: grid;
+	grid-template-columns: 2fr 1fr auto;
+	align-items: center;
+	column-gap: 1rem;
+}
+.color-override-wrapper input[type="color"] {
+	width: 5rem;
+	height: 2rem;
+	padding: 0;
+	border: 5px solid rgb(var(--surface0));
+	border-radius: 5px;
+	cursor: pointer;
 }

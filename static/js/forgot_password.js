@@ -3,7 +3,7 @@ const forgotPasswordLink = document.getElementById("forgot-password-link");
 const emailInput = document.getElementById("email");
 
 if (forgotPasswordLink) {
-	forgotPasswordLink.addEventListener("click", function (event) {
+	addListener(forgotPasswordLink, "click", function (event) {
 		event.preventDefault();
 		const email = emailInput.value.trim();
 		if (!email) {

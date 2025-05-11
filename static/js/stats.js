@@ -17,6 +17,6 @@ function updateStats() {
 		.catch(error => console.error('Error fetching stats:', error));
 }
 
-document.getElementById('update-stats').addEventListener('click', function() {
+addListener(document.getElementById('update-stats'), 'click', function() {
 	updateStats();
 });
