@@ -1,4 +1,4 @@
-addListener(document, 'DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
 	if (!window.isFullPageLoaded) {
 		location.reload();
 	}
