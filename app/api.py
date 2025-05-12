@@ -333,5 +333,7 @@ def get_settings():
 		'status': 'success',
 		'settings': {
 			'enable_rpc': settings.enable_rpc,
+			'theme': settings.theme,
+			'theme_overrides': settings.color_overrides
 		}
 	}

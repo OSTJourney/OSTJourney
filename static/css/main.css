@@ -1104,7 +1104,106 @@ input:autofill {
 	cursor: pointer;
 	transition: background-color 0.3s ease;
 }
+/*========================================
+			Settings page
+========================================*/
+.settings-theme-btn {
+	position: relative;
 
+	width: 2.5rem;
+	height: 2.5rem;
+
+	border: 2px solid rgb(var(--surface0));
+	border-radius: 50%;
+
+	background: repeating-linear-gradient(
+	  135deg,
+	  var(--c1) 0% 38%,
+	  var(--c2) 38% 67%,
+	  var(--c3) 67% 100%);
+
+	cursor: pointer;
+}
+.settings-theme-btn.active {
+	border-color: rgb(var(--blue));
+}
+#settings-theme-overrides {
+	width: 25%;
+	min-width: fit-content;
+	padding-left: 2rem;
+	padding-bottom: 1rem;
+	border: 3px solid rgb(var(--surface0));
+	border-radius: 5px;
+	background-color: rgb(var(--mantle));
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+}
+.color-override-wrapper {
+	text-align: left;
+	width: fit-content;
+	margin-top: 0.5rem;
+	margin-right: 3rem;
+	display: grid;
+	grid-template-columns: 2fr 1fr auto;
+	align-items: center;
+	column-gap: 1rem;
+}
+.color-override-wrapper input[type="color"] {
+	width: 5rem;
+	height: 2rem;
+	padding: 0;
+	border: 5px solid rgb(var(--surface0));
+	border-radius: 5px;
+	cursor: pointer;
+}
+.color-override-wrapper input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0;
+	border: 2px solid #000;
+}
+.color-override-wrapper input[type="color"]::-webkit-color-swatch {
+	border: none;
+	border-radius: 0;
+}
+.color-override-wrapper button {
+	width: 5rem;
+	height: 2rem;
+	padding: 0;
+	border: 3px solid rgb(var(--surface0));
+	border-radius: 5px;
+	background-color: rgb(var(--base));
+	color: rgb(var(--text));
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+.color-override-wrapper button:hover {
+	background-color: rgb(var(--mantle));
+}
+#checkbox-settings {
+	margin-top: 1rem;
+}
+#settings-form {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+#settings-form-submit {
+	width: 7.5rem;
+	height: 2.5rem;
+	font-size: 1.2rem;
+	margin-top: 1rem;
+	background-color: rgb(var(--lavender));
+	color: rgb(var(--surface0));
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background 0.2s ease-in-out;
+}
+#settings-form-submit:hover {
+	background-color: rgb(var(--blue));
+}
 
 
 
@@ -1604,56 +1703,3 @@ input:autofill {
 	transition: background-color 0.3s ease;
 }
 
-/*========================================
-			Settings page
-========================================*/
-.settings-theme-btn {
-	position: relative;
-
-	width: 2.5rem;
-	height: 2.5rem;
-
-	border: 2px solid rgb(var(--surface0));
-	border-radius: 50%;
-
-	background: repeating-linear-gradient(
-	  135deg,
-	  var(--c1) 0% 38%,
-	  var(--c2) 38% 67%,
-	  var(--c3) 67% 100%);
-
-	cursor: pointer;
-}
-.settings-theme-btn.active {
-	border-color: rgb(var(--blue));
-}
-#settings-theme-overrides {
-	width: 25%;
-	padding-left: 2rem;
-	padding-bottom: 1rem;
-	border: 3px solid rgb(var(--surface0));
-	border-radius: 5px;
-	background-color: rgb(var(--mantle));
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-
-}
-.color-override-wrapper {
-	text-align: left;
-	width: fit-content;
-	margin-top: 0.5rem;
-	margin-right: 3rem;
-	display: grid;
-	grid-template-columns: 2fr 1fr auto;
-	align-items: center;
-	column-gap: 1rem;
-}
-.color-override-wrapper input[type="color"] {
-	width: 5rem;
-	height: 2rem;
-	padding: 0;
-	border: 5px solid rgb(var(--surface0));
-	border-radius: 5px;
-	cursor: pointer;
-}

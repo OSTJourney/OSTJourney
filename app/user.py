@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, redirect, render_template, request, session, url_for, make_response
 from sqlalchemy import desc
+import json
 
 from app import email_enabled
 from .app_utils import format_duration
@@ -174,10 +175,22 @@ def update_settings():
 		user_id = user_data.get('user_id')
 	except:
 		return render_template('settings.html', currentUrl="/settings", title="Settings", enable_rpc=False, error="Unauthorized")
-
 	enable_rpc = 'enable_rpc' in request.form
+	theme = request.form.get('theme')
+	if not theme:
+		theme = 'catppuccin-macchiato'
+	theme_overrides = request.form.get('theme-overrides')
+	if theme_overrides:
+		try:
+			theme_overrides = json.loads(theme_overrides)
+		except json.JSONDecodeError:
+			theme_overrides = []
+	
 	settings = UserSettings.query.filter_by(user_id=user_id).first()
+
 	settings.enable_rpc = enable_rpc
+	settings.theme = theme
+	settings.color_overrides = theme_overrides
 	db.session.commit()
 
 	return render_template('settings.html', currentUrl="/settings", title="Settings", enable_rpc=enable_rpc, success="Settings updated successfully.")
