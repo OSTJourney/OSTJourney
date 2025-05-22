@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		currentUrl = document.getElementById('currentUrl').textContent || currentUrl;
 		history.replaceState(null, '', currentUrl);
 	} catch (e) {
-		console.error('Error getting current URL (ignore if index):', e);
+		console.log('Error getting current URL (ignore if index):', e);
 	}
 
 	fetchNavFooter();

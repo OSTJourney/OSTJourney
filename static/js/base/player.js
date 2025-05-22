@@ -1,17 +1,22 @@
 //WebSocket for rcp
 let socket = null;
+
 function startRpcClient() {
 	socket = new WebSocket('ws://localhost:4224');
-	
+
 	socket.onopen = function () {
 		console.log('WebSocket connection established');
 	};
 
 	socket.onerror = function (error) {
-		console.log("WebSocket error:", error);
+		console.log('WebSocket error:', error);
 	};
 
-	return socket;
+	socket.onclose = function () {
+		socket = null;
+		console.log('WebSocket connection closed. Retrying in 10 seconds...');
+		setTimeout(startRpcClient, 10000);
+	};
 }
 
 startRpcClient();
@@ -34,6 +39,7 @@ const player = {
 		progressBar: document.getElementById('player-progress-bar'),
 		currentTime: document.getElementById('player-time-current'),
 		totalTime: document.getElementById('player-time-total'),
+		playlist: document.getElementById('playlist-btn')
 	}
 };
 
@@ -89,6 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 let audio = null;
 let song = 0;
+let playlist = [];
 let random = 0;
 let repeat = 0;
 let duration = 0;
@@ -235,7 +242,6 @@ function changeSong(songNumber) {
 	player.metadata.title.classList.remove('scroll-left');
 	player.metadata.artist.classList.remove('scroll-left');
 	player.metadata.album.classList.remove('scroll-left');
-	audio.play();
 }
 
 function toggleRandom() {
@@ -278,45 +284,57 @@ function handlePause() {
 	if (audio.paused) {
 		audio.play();
 		animatePlayButton("play");
-		if (settings.enable_rpc) {
+		if (settings.enable_rpc && socket) {
 			const message = { paused: false };
-			socket.send(JSON.stringify(message));
+			try {
+				socket.send(JSON.stringify(message));}
+			catch (error) {console.log('Error sending message:', error);}
 		}
 	} else {
 		audio.pause();
 		animatePlayButton("pause");
-		if (settings.enable_rpc) {
+		if (settings.enable_rpc && socket) {
 			const message = { paused: true };
-			socket.send(JSON.stringify(message));
+			try {
+				socket.send(JSON.stringify(message));}
+			catch (error) {console.log('Error sending message:', error);}
 		}
 	}
+}
+
+
+function getPlaybackList() {
+    return playlist.length > 0
+        ? playlist
+        : Array.from({ length: total_songs }, (_, i) => i + 1);
+}
+
+function getRelativeSongId(direction) {
+    const list = getPlaybackList();
+    const currentIndex = list.indexOf(song);
+    const safeIndex = currentIndex >= 0 ? currentIndex : 0;
+  
+    if (random) {
+        return list[Math.floor(Math.random() * list.length)];
+    }
+    if (repeat) {
+        return list[safeIndex];
+    }
+
+    const nextIndex = (safeIndex + direction + list.length) % list.length;
+    return list[nextIndex];
 }
 
 function next_song() {
-	if (random == 1) {
-		changeSong(Math.floor(Math.random() * total_songs));
-	} else if (repeat == 1) {
-		changeSong(song);
-	} else {
-		changeSong(song + 1);
-		if (song > total_songs) {
-			song = 1
-		}
-	}
+    const nextId = getRelativeSongId(+1);
+    changeSong(nextId);
 }
 
 function previous_song() {
-	if (random == 1) {
-		changeSong(Math.floor(Math.random() * total_songs));
-	} else if (repeat == 1) {
-		changeSong(song);
-	} else {
-		changeSong(song - 1);
-		if (song == 0) {
-			song = total_songs;
-		}
-	}
+    const prevId = getRelativeSongId(-1);
+    changeSong(prevId);
 }
+
 
 /*Update metadata*/
 const page = {
@@ -410,7 +428,6 @@ function update_mediaSessionAPI(title, artist, album, cover) {
 	}
 }
 
-// stocker les références des callbacks globalement
 let onPlayingCallback = null;
 let onEndedCallback = null;
 
@@ -520,6 +537,33 @@ function sendListeningData(songId, eventType) {
 	});
 }
 
+/*Playlist management*/
+playlistContainer = document.getElementById('current-playlist-container');
+player.controls.playlist.addEventListener('click', function (event) {
+	playlistContainer.classList.toggle('show');
+});
+
+function loadPlaylist(table) {
+	playlistContainer.innerHTML = '';
+	playlist = table;
+	
+	const playlistTable = document.createElement('table');
+	playlistTable.id = 'playlist-table';
+
+	let i = 0;
+	while (i < table.length) {
+		const row = document.createElement('tr');
+		const cell = document.createElement('td');
+		cell.textContent = '';
+		row.appendChild(cell);
+		playlistTable.appendChild(row);
+		i++;
+	}
+	
+	playlistContainer.appendChild(playlistTable);
+}
+
+
 /*Load new song (prioritize the changeSong function)*/
 function loadSong(songNumber) {
 	fetch('/api/songs/' + songNumber)
@@ -557,10 +601,14 @@ function loadSong(songNumber) {
 			sendListeningData(songNumber, 'start');
 			audio.addEventListener('loadedmetadata', function () {
 				audio.play();
+				console.log("Playing song num " + songNumber + ": " + title);
 				update_mediaSessionAPI(title, artist, album, cover);
 				animatePlayButton(audio.paused ? "pause" : "play");
-				if (settings.enable_rpc) {
-					socket.send(JSON.stringify({ title, artist, image: cover, duration, link: `${window.location.origin}/?song=${songNumber}`, paused: false }));
+				if (settings.enable_rpc && socket) {
+					try {
+						socket.send(JSON.stringify({ title, artist, image: cover, duration, album, link: `${window.location.origin}/?song=${songNumber}`, paused: false }));
+					}
+					catch (error) {console.log('Error sending message:', error);}
 				}
 			});
 		})
@@ -598,10 +646,10 @@ window.onload = async function () {
 			console.error('Error fetching the latest session:', error);
 			song = Math.floor(Math.random() * total_songs);
 		}
+		player.controls.playButton.addEventListener('click', function () {
+			loadSong(song);
+		}, { once: true });
 	}
-	player.controls.playButton.addEventListener('click', function () {
-		loadSong(song);
-	}, { once: true });
 };
 
 function generateUniqueId() {

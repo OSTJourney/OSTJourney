@@ -948,7 +948,6 @@ nav {
 	overflow: hidden;
 	display: flex;
 	flex-direction: row;
-	align-items: center;
 }
 #volume-svg {
 	color: rgb(var(--overlay1));
@@ -965,13 +964,57 @@ nav {
 	align-items: center;
 	transition: width 0.3s ease;
 }
-#player-extra:hover #volume-container {
+#volume-container:hover {
 	width: 50%;
 }
 #player-volume-bar
 {
 	margin-left: 1.2em;
 	width: 100%;
+}
+#playlist-btn
+{
+	margin-top: 0.75rem;
+	width: 3rem;
+	height: 3rem;
+	margin-left: 1.5rem;
+	color: rgb(var(--overlay1));
+}
+#volume-svg:hover, #player-volume-bar:hover, #playlist-btn:hover {
+	color: rgb(var(--overlay2));
+	cursor: pointer;
+	transition: color 0.3s ease;
+}
+#current-playlist-container {
+	position: absolute;
+	top: 5vh;
+	right: 3rem;
+	width: 25vw;
+	height: 0;
+	min-height: 0;
+	padding: 0;
+	overflow: hidden;
+	box-sizing: border-box;
+	background-color: rgb(var(--surface0));
+	border: 3px solid rgb(var(--overlay0));
+	border-radius: 5px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	visibility: hidden;
+	transition: height 0.3s ease, padding 0.3s ease, top 0.3s ease, visibility linear 0.3s;
+}
+
+#current-playlist-container.show {
+	height: 50vh;
+	padding: 1rem;
+	visibility: visible;
+	top: -45vh;
+}
+
+#current-playlist-container p {
+	font-size: larger;
 }
 /*========================================
 				Forms
@@ -1505,7 +1548,12 @@ input:autofill {
 	width: 100%;
 	max-width: 80vw;
 }
-
+#song-page-header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 20px;
+}
 #song-page-cover {
 	width: 180px;
 	height: 180px;
@@ -1513,7 +1561,17 @@ input:autofill {
 	border-radius: 8px;
 	margin-bottom: 15px;
 }
-
+#song-page-play {
+	width: 8.5rem;
+	height: 8.5rem;
+	margin-left: 1rem;
+}
+#song-page-play:hover {
+	cursor: pointer;
+	width: 9rem;
+	height: 9rem;
+	transition: width 0.3s ease, height 0.3s ease;
+}
 #song-page-title {
 	font-size: 2rem;
 	font-weight: bold;

@@ -1,8 +1,14 @@
 <h1 id="currentUrl">{{ currentUrl }}</h1>
 <div id="song-page">
-	<a href="/static/images/covers/{{ song.cover if song.cover else 'null' }}.jpg" id="song-page-cover-link" target="_blank">
-		<img src="/static/images/covers/{{ song.cover if song.cover else 'null' }}.jpg" id="song-page-cover" alt="Cover">
-	</a>	
+	<div id="song-page-header">
+		<a href="/static/images/covers/{{ song.cover if song.cover else 'null' }}.jpg" id="song-page-cover-link" target="_blank">
+			<img src="/static/images/covers/{{ song.cover if song.cover else 'null' }}.jpg" id="song-page-cover" alt="Cover">
+		</a>
+		<svg viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg" fill="currentColor" id="song-page-play">
+			<path d="M0 42C0 42 0 46 4 46 6 46 8.01 45.16 10 44S10 44 19 38.857v-30.429c-9-6.428 0 0-9-6.428C7.748.58 6 0 4 0s-4 1-4 4v38"/>
+			<path d="M17 40 17 7C17 7 17 7 17 7L17 7C17 7 17 7 17 7L38 22C40 24 40 26 38 28L17 40C17 40 17 40 17 40L17 40C17 40 17 40 17 40"/>
+		</svg>
+	</div>
 	<h1 id="song-page-title">{{ song.title }}</h1>
 	<p id="song-page-artist">{{ song.artist }}</p>
 	<p id="song-page-album">{{ song.album }}</p>
@@ -34,3 +40,5 @@
 		</table>
 	{% endif %}
 </div>
+<script src="{{ url_for('static', filename='js/dup_check.js') }}"></script>
+<script src="{{ url_for('static', filename='js/song.js') }}"></script>

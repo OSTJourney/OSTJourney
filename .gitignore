@@ -11,3 +11,4 @@ instance/*
 songs.db
 .vscode
 /dl_songs/output
+log.txt
