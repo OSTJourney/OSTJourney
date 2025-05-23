@@ -134,7 +134,7 @@ volumeSlider.addEventListener("input", () => {
 	clearTimeout(volumeDebounceTimeout);
 	volumeDebounceTimeout = setTimeout(() => {
 		if (crossed(prev, curr)) {
-      		oldVolume = 0;
+	  		oldVolume = 0;
 			player_volume(prev, curr);
 			volumeSlider.dataset.prev = curr;}
 	}, 50);
@@ -238,6 +238,7 @@ player.metadata.infoText.addEventListener('mouseleave', function() {
 function changeSong(songNumber) {
 	if (audio) audio.pause();
 	song = songNumber;
+	nextPlaylistSong(song);
 	loadSong(song);
 	player.metadata.title.classList.remove('scroll-left');
 	player.metadata.artist.classList.remove('scroll-left');
@@ -288,7 +289,7 @@ function handlePause() {
 			const message = { paused: false };
 			try {
 				socket.send(JSON.stringify(message));}
-			catch (error) {console.log('Error sending message:', error);}
+			catch (error) {console.log('Websocket: Error sending message:', error);}
 		}
 	} else {
 		audio.pause();
@@ -297,42 +298,75 @@ function handlePause() {
 			const message = { paused: true };
 			try {
 				socket.send(JSON.stringify(message));}
-			catch (error) {console.log('Error sending message:', error);}
+			catch (error) {console.log('Websocket: Error sending message:', error);}
 		}
 	}
 }
 
 
 function getPlaybackList() {
-    return playlist.length > 0
-        ? playlist
-        : Array.from({ length: total_songs }, (_, i) => i + 1);
+	return playlist.length > 0
+		? playlist
+		: Array.from({ length: total_songs }, (_, i) => i + 1);
 }
 
 function getRelativeSongId(direction) {
-    const list = getPlaybackList();
-    const currentIndex = list.indexOf(song);
-    const safeIndex = currentIndex >= 0 ? currentIndex : 0;
+	const list = getPlaybackList();
+	const currentIndex = list.indexOf(song);
+	const safeIndex = currentIndex >= 0 ? currentIndex : 0;
   
-    if (random) {
-        return list[Math.floor(Math.random() * list.length)];
-    }
-    if (repeat) {
-        return list[safeIndex];
-    }
+	if (random) {
+		return list[Math.floor(Math.random() * list.length)];
+	}
+	if (repeat) {
+		return list[safeIndex];
+	}
 
-    const nextIndex = (safeIndex + direction + list.length) % list.length;
-    return list[nextIndex];
+	const nextIndex = (safeIndex + direction + list.length) % list.length;
+	return list[nextIndex];
 }
 
+function nextPlaylistSong(song_id) {
+	if (playlist.length === 0)
+		return;
+	updatePlaylistMetadata(song_id);
+	const currentSongRow = document.getElementById(`playlist-row-${song_id}`);
+	if (!currentSongRow)
+		return;
+	playlistContainer.querySelectorAll('.playlist-row.active').forEach(activeRow => {
+		activeRow.classList.remove('active');
+		const paths = activeRow.querySelectorAll('path');
+		paths[0].setAttribute('d', 'M0 42C0 42 0 46 4 46 6 46 8.01 45.16 10 44S10 44 19 38.857v-30.429c-9-6.428 0 0-9-6.428C7.748.58 6 0 4 0s-4 1-4 4v38');
+		paths[1].setAttribute('d', 'M17 40 17 7C17 7 17 7 17 7L17 7C17 7 17 7 17 7L38 22C40 24 40 26 38 28L17 40C17 40 17 40 17 40L17 40C17 40 17 40 17 40');
+	});
+	currentSongRow.classList.add('active');
+	const paths = currentSongRow.querySelectorAll('path');
+	paths[0].setAttribute('d', 'M0 42S0 46 4 46C6 46 8 46 10 46S14 45 14 42v-38c0-4-4-4-4-4C8 0 6 0 4 0s-4 1-4 4v38');
+	paths[1].setAttribute('d', 'M26 42 26 4C26 1 28 0 30 0L36 0C38 0 40 1 40 4L40 22C40 24 40 26 40 28L40 42C40 44 38 46 36 46L30 46C28 46 26 44 26 42');
+	
+	const container_rect = playlistContainer.getBoundingClientRect();
+	const song_rect = currentSongRow.getBoundingClientRect();
+
+	const scroll_top = playlistContainer.scrollTop;
+	const offset_top = song_rect.top - container_rect.top + scroll_top;
+
+	const center_position = offset_top - (container_rect.height / 2) + (song_rect.height / 2);
+
+	playlistContainer.scrollTo({
+		top: center_position,
+		behavior: 'smooth'
+	});
+}
+
+
 function next_song() {
-    const nextId = getRelativeSongId(+1);
-    changeSong(nextId);
+	const nextId = getRelativeSongId(+1);
+	changeSong(nextId);
 }
 
 function previous_song() {
-    const prevId = getRelativeSongId(-1);
-    changeSong(prevId);
+	const prevId = getRelativeSongId(-1);
+	changeSong(prevId);
 }
 
 
@@ -452,13 +486,8 @@ function attachAudioEventListeners() {
 
 	onEndedCallback = function () {
 		sendListeningData(song, 'end');
-		if (random == 1) {
-			changeSong(Math.floor(Math.random() * total_songs));
-		} else if (repeat == 1) {
-			changeSong(song);
-		} else {
-			changeSong(song + 1);
-		}
+		const nextId = getRelativeSongId(+1);
+		changeSong(nextId);
 	};
 	audio.addEventListener("playing", onPlayingCallback);
 	audio.addEventListener("ended", onEndedCallback);
@@ -480,7 +509,6 @@ player.controls.progressBar.oninput = function () {
 	if (!audio) return;
 	audio.currentTime = player.controls.progressBar.value / 100;
 	player.controls.currentTime.innerHTML = formatDuration(audio.currentTime);
-	console.log("Time: " + audio.currentTime + " in element: " + player.controls.currentTime);
 };
 
 player.controls.randomButton.addEventListener('click', function () {
@@ -545,22 +573,270 @@ player.controls.playlist.addEventListener('click', function (event) {
 
 function loadPlaylist(table) {
 	playlistContainer.innerHTML = '';
+	if (table.length === 0) {
+		playlistContainer.innerHTML = '<p>No songs in the playlist.</p>';
+		return;
+	}
 	playlist = table;
-	
+
 	const playlistTable = document.createElement('table');
 	playlistTable.id = 'playlist-table';
 
-	let i = 0;
-	while (i < table.length) {
+	const colgroup = document.createElement('colgroup');
+	colgroup.innerHTML = `
+		<col style="width: 1.5vw; min-width: 1.5rem;">
+		<col style="width: 2.5vw; min-width: 3rem;">
+		<col style="width: 13vw; min-width: 13rem;">
+		<col style="width: 5vw; min-width: 5rem;">
+		<col style="width: 0.1rem; min-width: 0.1rem;">
+	`;
+	playlistTable.appendChild(colgroup);
+	const tbody = document.createElement('tbody');
+	playlistTable.appendChild(tbody);
+	playlistContainer.appendChild(playlistTable);
+
+	const idsToLoad = table.slice(0, 10);
+	const params = new URLSearchParams();
+	idsToLoad.forEach(id => params.append('ids', id));
+
+	table.forEach((id, index) => {
 		const row = document.createElement('tr');
-		const cell = document.createElement('td');
-		cell.textContent = '';
-		row.appendChild(cell);
-		playlistTable.appendChild(row);
+		row.classList.add('playlist-row');
+		row.dataset.songId = id;
+		row.id = `playlist-row-${id}`;
+
+		row.innerHTML = `
+			<td class="playlist-play-button">
+				<svg viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="play-button-icon">
+					<path d="M0 42C0 42 0 46 4 46 6 46 8.01 45.16 10 44S10 44 19 38.857v-30.429c-9-6.428 0 0-9-6.428C7.748.58 6 0 4 0s-4 1-4 4v38"/>
+					<path d="M17 40 17 7C17 7 17 7 17 7L17 7C17 7 17 7 17 7L38 22C40 24 40 26 38 28L17 40C17 40 17 40 17 40L17 40C17 40 17 40 17 40"/>
+				</svg>
+			</td>
+			<td class="playlist-cover"><div class="loader"></div></td>
+			<td class="playlist-info">
+				<div class="playlist-title">Loading...</div>
+				<div class="playlist-artist"></div>
+			</td>
+			<td class="playlist-duration">--:--</td>
+			<td class="playlist-remove">
+				<button class="remove-button" data-index="${index}">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M7 7L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M17 7L7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+					</svg>
+				</button>
+			</td>
+		`;
+
+		row.addEventListener('mouseenter', () => {
+			row.querySelector('.playlist-remove').style.visibility = 'visible';
+		});
+		row.addEventListener('mouseleave', () => {
+			row.querySelector('.playlist-remove').style.visibility = 'hidden';
+		});
+		row.querySelector('.remove-button').addEventListener('click', () => {
+			playlist.splice(index, 1);
+			row.classList.add('hide');
+			addEventListener('transitionend', function () {
+				row.remove();
+			});
+			if (playlist.length === 0) {
+				playlistContainer.innerHTML = '<p>No songs in the playlist.</p>';
+			}
+		});
+		row.querySelector('.playlist-play-button').addEventListener('click', () => {
+			playlistTable.querySelectorAll('.playlist-row.active').forEach(activeRow => {
+				paths = activeRow.querySelectorAll('path');
+				paths[0].setAttribute('d', 'M0 42C0 42 0 46 4 46 6 46 8.01 45.16 10 44S10 44 19 38.857v-30.429c-9-6.428 0 0-9-6.428C7.748.58 6 0 4 0s-4 1-4 4v38');
+				paths[1].setAttribute('d', 'M17 40 17 7C17 7 17 7 17 7L17 7C17 7 17 7 17 7L38 22C40 24 40 26 38 28L17 40C17 40 17 40 17 40L17 40C17 40 17 40 17 40');
+				activeRow.classList.remove('active');
+			});
+			row.classList.add('active');
+			paths = row.querySelectorAll('path');
+			paths[0].setAttribute('d', 'M0 42S0 46 4 46C6 46 8 46 10 46S14 45 14 42v-38c0-4-4-4-4-4C8 0 6 0 4 0s-4 1-4 4v38');
+			paths[1].setAttribute('d', 'M26 42 26 4C26 1 28 0 30 0L36 0C38 0 40 1 40 4L40 22C40 24 40 26 40 28L40 42C40 44 38 46 36 46L30 46C28 46 26 44 26 42');
+			changeSong(id);
+		});
+
+		tbody.appendChild(row);
+	});
+
+	fetch(`/api/songs?${params.toString()}`)
+		.then(response => response.json())
+		.then(data => {
+			data.forEach(song => {
+				const row = document.getElementById(`playlist-row-${song.id}`);
+				if (!row) return;
+				const cover = row.querySelector('.playlist-cover');
+				const coverImg = document.createElement('img');
+				coverImg.src = `/static/images/covers/${song.cover || 'null'}.jpg`;
+				coverImg.alt = song.title;
+				coverImg.classList.add('playlist-cover-image');
+				cover.appendChild(coverImg);
+				const title = row.querySelector('.playlist-title');
+				const artist = row.querySelector('.playlist-artist');
+				const duration = row.querySelector('.playlist-duration');
+				title.textContent = song.title;
+				artist.textContent = song.artist;
+				duration.textContent = formatDuration(song.duration);
+				const loader = cover.querySelector('.loader');
+				if (loader) {
+					loader.remove();
+				}
+			});
+		})
+		.catch(error => {
+			console.error('Error loading playlist songs:', error);
+			playlistContainer.innerHTML = '<p>Error loading playlist songs.</p>';
+		});
+
+
+	if (playlist.length > 0) {
+		changeSong(playlist[0]);
+		document.getElementById(`playlist-row-${playlist[0]}`).classList.add('active');
+		const paths = document.getElementById(`playlist-row-${playlist[0]}`).querySelectorAll('path');
+		paths[0].setAttribute('d', 'M0 42S0 46 4 46C6 46 8 46 10 46S14 45 14 42v-38c0-4-4-4-4-4C8 0 6 0 4 0s-4 1-4 4v38');
+		paths[1].setAttribute('d', 'M26 42 26 4C26 1 28 0 30 0L36 0C38 0 40 1 40 4L40 22C40 24 40 26 40 28L40 42C40 44 38 46 36 46L30 46C28 46 26 44 26 42');
+	}
+}
+
+let isUserDragging = false;
+let isUserScrolling = false;
+let scrollPlaylistTimeout;
+
+playlistContainer.addEventListener('mousedown', () => {
+	isUserDragging = true;
+	isUserScrolling = false;
+});
+
+document.addEventListener('mouseup', () => {
+	if (isUserDragging) {
+		isUserDragging = false;
+		isUserScrolling = true;
+		handleScrollEnd();
+	}
+});
+
+playlistContainer.addEventListener('mouseleave', () => {
+	if (isUserDragging) {
+		isUserDragging = false;
+		isUserScrolling = true;
+		handleScrollEnd();
+	}
+});
+
+playlistContainer.addEventListener('wheel', () => {
+	isUserScrolling = true;
+});
+
+playlistContainer.addEventListener('touchstart', () => {
+	isUserScrolling = true;
+});
+
+playlistContainer.addEventListener('scroll', () => {
+	if (!isUserScrolling) return;
+
+	clearTimeout(scrollPlaylistTimeout);
+	scrollPlaylistTimeout = setTimeout(() => {
+		isUserScrolling = false;
+		handleScrollEnd();
+	}, 100);
+});
+
+function handleScrollEnd() {
+	const rows = playlistContainer.querySelectorAll('.playlist-row');
+	if (!rows.length) return;
+
+	const scrollTop = playlistContainer.scrollTop;
+	const containerHeight = playlistContainer.clientHeight;
+	const containerCenter = scrollTop + containerHeight / 2;
+
+	let closestRow = null;
+	let minDiff = Infinity;
+	rows.forEach(row => {
+		const rowTop = row.offsetTop;
+		const rowCenter = rowTop + row.offsetHeight / 2;
+		const diff = Math.abs(rowCenter - containerCenter);
+		if (diff < minDiff) {
+			minDiff = diff;
+			closestRow = row;
+		}
+	});
+
+	if (closestRow) {
+		const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+		const newScrollTop = closestRow.offsetTop + closestRow.offsetHeight / 2 - containerHeight / 2 + rem * 2;
+
+		isUserScrolling = false;
+		playlistContainer.scrollTo({ top: newScrollTop, behavior: 'smooth' });
+
+		const songId = closestRow.dataset.songId;
+		if (songId) {
+			console.log('Centered on song ID:', songId);
+			updatePlaylistMetadata(songId);
+		}
+	}
+}
+
+function updatePlaylistMetadata(song_id) {
+	const row = document.getElementById(`playlist-row-${song_id}`);
+	if (!row) return;
+
+	const all_rows = Array.from(document.querySelectorAll('.playlist-row'));
+	const row_index = all_rows.indexOf(row);
+	if (row_index === -1) return;
+
+	const indexes_to_load = [];
+	let i = 0;
+	while (i < all_rows.length) {
 		i++;
 	}
-	
-	playlistContainer.appendChild(playlistTable);
+	const start = Math.max(0, row_index - 3);
+	const end = Math.min(all_rows.length - 1, row_index + 3);
+
+	for (let i = start; i <= end; i++) {
+		indexes_to_load.push(i);
+	}
+
+	const ids_to_load = indexes_to_load.map(i => all_rows[i].dataset.songId);
+
+	const ids_not_loaded = ids_to_load.filter(id => {
+		const r = document.getElementById(`playlist-row-${id}`);
+		if (!r) return false;
+		return r.querySelector('.loader') !== null;
+	});
+
+	if (ids_not_loaded.length === 0) return;
+	const params = new URLSearchParams();
+	ids_not_loaded.forEach(id => params.append('ids', id));
+
+	fetch(`/api/songs?${params.toString()}`)
+		.then(response => response.json())
+		.then(data => {
+			data.forEach(song => {
+				const r = document.getElementById(`playlist-row-${song.id}`);
+				if (!r) return;
+				const cover = r.querySelector('.playlist-cover');
+				cover.innerHTML = '';
+
+				const cover_img = document.createElement('img');
+				cover_img.src = `/static/images/covers/${song.cover || 'null'}.jpg`;
+				cover_img.alt = song.title;
+				cover_img.classList.add('playlist-cover-image');
+				cover.appendChild(cover_img);
+
+				const title = r.querySelector('.playlist-title');
+				const artist = r.querySelector('.playlist-artist');
+				const duration = r.querySelector('.playlist-duration');
+
+				title.textContent = song.title;
+				artist.textContent = song.artist;
+				duration.textContent = formatDuration(song.duration);
+			});
+		})
+		.catch(error => {
+			console.error('Error updating playlist metadata:', error);
+		});
 }
 
 
@@ -608,7 +884,7 @@ function loadSong(songNumber) {
 					try {
 						socket.send(JSON.stringify({ title, artist, image: cover, duration, album, link: `${window.location.origin}/?song=${songNumber}`, paused: false }));
 					}
-					catch (error) {console.log('Error sending message:', error);}
+					catch (error) {console.log('Websocket: Error sending message:', error);}
 				}
 			});
 		})
@@ -647,6 +923,7 @@ window.onload = async function () {
 			song = Math.floor(Math.random() * total_songs);
 		}
 		player.controls.playButton.addEventListener('click', function () {
+			if (audio) {return;}
 			loadSong(song);
 		}, { once: true });
 	}
@@ -673,7 +950,6 @@ function sendPing() {
 	if (!audio) return;
 	if (audio.paused) return;
 	if (audio.ended) return;
-	if (!audio.playing) return;
 	fetch('/api/ping', {
 	  method: 'POST',
 	  headers: {

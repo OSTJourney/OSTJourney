@@ -990,6 +990,7 @@ nav {
 	top: 5vh;
 	right: 3rem;
 	width: 25vw;
+	min-width: 25rem;
 	height: 0;
 	min-height: 0;
 	padding: 0;
@@ -1009,6 +1010,7 @@ nav {
 #current-playlist-container.show {
 	height: 50vh;
 	padding: 1rem;
+	overflow-y: auto;
 	visibility: visible;
 	top: -45vh;
 }
@@ -1016,6 +1018,150 @@ nav {
 #current-playlist-container p {
 	font-size: larger;
 }
+#playlist-table {
+	position: relative;
+	margin-top: -25rem;
+	transform: translateY(50%);
+	width: 100%;
+	height: auto;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+#playlist-table td {
+	height: 3.4rem;
+	overflow: hidden;
+	padding-left: 1rem;
+}
+#playlist-table td:nth-child(1) {
+	width: 2.5vw;
+	min-width: 2.5rem;
+}
+#playlist-table td:nth-child(2) {
+	width: 2.5vw;
+	min-width: 3rem;
+	overflow-x: visible;
+}
+#playlist-table td:nth-child(3) { 
+	margin-left: 0.7rem;
+	width: 13vw;
+	min-width: 13rem;
+	padding-top: 0.4rem;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+#playlist-table td:nth-child(4) {
+	width: 5vw;
+	min-width: 5rem;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+#playlist-table td:nth-child(5) {
+	width: 0.1rem;
+	min-width: 0.1rem;
+	border-left: 7px solid rgb(var(--red));
+	color: rgb(var(--surface1));
+	overflow: hidden;
+}
+#playlist-table td:nth-child(5) svg {
+	position: absolute;
+	width: 3rem !important;
+	height: 3rem !important;
+	margin-top: -0.7rem !important;
+	margin-left: -0.7rem !important;
+}
+.playlist-row {
+	height: 3rem;
+	position: relative;
+	transition: background-color 0.3s ease;
+}
+.playlist-row.hide {
+	opacity: 0;
+	translate: 20rem 0;
+	transition: opacity 0.3s ease, translate 0.3s ease;
+}
+.playlist-row.active {
+	background-color: rgb(var(--overlay1));
+}
+.playlist-row:hover {
+	background-color: rgba(var(--surface1), 0.8);
+}
+
+.playlist-row:hover td:nth-child(5) {
+	position: absolute;
+	width: 2.5vw !important;
+	height: 97% !important;
+	min-width: 2.5rem !important;
+	min-height: 2.5rem !important;
+	right: 0rem !important;
+	top: 0rem !important;
+	transition: all 0.3s ease;
+	background-color: rgb(var(--base));
+}
+.playlist-play-button {
+	width: 3rem;
+	cursor: pointer;
+	color: rgb(var(--mauve));
+	overflow-x: visible !important;
+}
+.playlist-play-button svg {
+	width: 2.3rem !important;
+	height: 2.3rem !important;
+	margin-top: 0.5rem !important;
+	margin-left: -0.7rem !important;
+}
+.playlist-cover img {
+	height: 3rem;
+	width: 3rem;
+	border-radius: 5px;
+}
+
+.playlist-info {
+	display: flex;
+	flex-direction: column;
+	padding-left: 0.5rem;
+	color: rgb(var(--text));
+}
+
+.playlist-title {
+	font-weight: bold;
+	color: rgb(var(--lavender));
+	font-size: 0.9rem;
+}
+
+.playlist-artist {
+	color: rgb(var(--subtext1));
+	font-size: 0.8rem;
+}
+
+.playlist-duration {
+	text-align: right;
+	color: rgb(var(--subtext0));
+	white-space: nowrap;
+	padding-right: 0.5rem;
+}
+
+.playlist-remove {
+	width: 0;
+	right: 0.3rem;
+	visibility: hidden;
+	background-color: var(--red);
+}
+
+.remove-button {
+	background: none;
+	border: none;
+	color: rgb(var(--red));
+	font-size: 1.2rem;
+	cursor: pointer;
+	transition: transform 0.2s ease, width 0.2s ease;
+}
+
+.remove-button:hover {
+	transform: scale(1.2);
+}
+
 /*========================================
 				Forms
 ========================================*/
@@ -1470,7 +1616,7 @@ input:autofill {
 	width: 70%;
 }
 
-#searchShareLink:hover {
+#searchShareLink:hover  {
 	cursor: pointer;
 }
 
@@ -1643,8 +1789,6 @@ input:autofill {
 	cursor: pointer;
 }
 
-
-/* Pour le consent banner */
 #consent-banner th {
 	background-color: #444;
 }

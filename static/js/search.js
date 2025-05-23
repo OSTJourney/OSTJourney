@@ -78,3 +78,9 @@ if (lenSongs >= 900) {
 	searchMessageError.innerHTML = `<strong>Notice:</strong> You have loaded a large number of songs. Please improve your search with filters and advanced search to improve results.`;
 	searchMessageError.style.visibility = 'visible';
 }
+
+addListener(document.getElementById('searchPlaylist'), 'click', function() {
+	if (lenSongs > 0) {
+		loadPlaylist(resultIds);
+	}
+});
