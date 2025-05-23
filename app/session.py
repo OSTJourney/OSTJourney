@@ -57,8 +57,8 @@ def register():
 
 		return render_template('login.html', success="Account created successfully. Please login.", email=email, currentUrl="/login", email_enabled=email_enabled)
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-		return render_template('register.html', currentUrl="/register", title="Register")
-	return render_template('base.html', content=render_template('register.html'), currentUrl="/register", title="Register")
+		return render_template('register.html', currentUrl="/register", title="Register", description="Create a free account on OSTJourney to track your listening habits, save your favorite game soundtracks, and stay updated on the latest music releases.")
+	return render_template('base.html', content=render_template('register.html'), currentUrl="/register", title="Register", description="Create a free account on OSTJourney to track your listening habits, save your favorite game soundtracks, and stay updated on the latest music releases.")
 
 @session_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -86,8 +86,8 @@ def login():
 		else:
 			return render_template('login.html', error="Invalid email or password.", email=email, currentUrl="/login", email_enabled=email_enabled)
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-		return render_template('login.html', currentUrl="/login", title="Login", email_enabled=email_enabled)
-	return render_template('base.html', content=render_template('login.html', currentUrl="/login", title="Login", email_enabled=email_enabled))
+		return render_template('login.html', currentUrl="/login", title="Login", email_enabled=email_enabled, description="Log in to your OSTJourney account to access your personal dashboard, view your listening stats, and explore the latest game soundtracks added to the collection.")
+	return render_template('base.html', content=render_template('login.html', currentUrl="/login", title="Login", email_enabled=email_enabled), description="Log in to your OSTJourney account to access your personal dashboard, view your listening stats, and explore the latest game soundtracks added to the collection.")
 
 @session_bp.route('/logout')
 def logout():

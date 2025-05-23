@@ -351,7 +351,7 @@ function nextPlaylistSong(song_id) {
 	const offset_top = song_rect.top - container_rect.top + scroll_top;
 
 	const center_position = offset_top - (container_rect.height / 2) + (song_rect.height / 2);
-
+	document.getElementById('player-playlist-current').textContent = `${playlist.indexOf(song_id) + 1}`;
 	playlistContainer.scrollTo({
 		top: center_position,
 		behavior: 'smooth'
@@ -573,6 +573,7 @@ player.controls.playlist.addEventListener('click', function (event) {
 
 function loadPlaylist(table) {
 	playlistContainer.innerHTML = '';
+	document.getElementById('player-playlist-total').textContent = table.length;
 	if (table.length === 0) {
 		playlistContainer.innerHTML = '<p>No songs in the playlist.</p>';
 		return;
@@ -640,6 +641,7 @@ function loadPlaylist(table) {
 			addEventListener('transitionend', function () {
 				row.remove();
 			});
+			document.getElementById('player-playlist-total').textContent = playlist.length;
 			if (playlist.length === 0) {
 				playlistContainer.innerHTML = '<p>No songs in the playlist.</p>';
 			}
@@ -699,6 +701,13 @@ function loadPlaylist(table) {
 		paths[1].setAttribute('d', 'M26 42 26 4C26 1 28 0 30 0L36 0C38 0 40 1 40 4L40 22C40 24 40 26 40 28L40 42C40 44 38 46 36 46L30 46C28 46 26 44 26 42');
 	}
 }
+
+document.getElementById('player-clear-playlist').addEventListener('click', function () {
+	playlist = [];
+	playlistContainer.innerHTML = '<p>No songs in the playlist.</p>';
+	document.getElementById('player-playlist-total').textContent = '--';
+	document.getElementById('player-playlist-current').textContent = '--';
+});
 
 let isUserDragging = false;
 let isUserScrolling = false;
@@ -782,33 +791,33 @@ function updatePlaylistMetadata(song_id) {
 	const row = document.getElementById(`playlist-row-${song_id}`);
 	if (!row) return;
 
-	const all_rows = Array.from(document.querySelectorAll('.playlist-row'));
-	const row_index = all_rows.indexOf(row);
+	const allRows = Array.from(document.querySelectorAll('.playlist-row'));
+	const row_index = allRows.indexOf(row);
 	if (row_index === -1) return;
 
-	const indexes_to_load = [];
+	const indexesToLoad = [];
 	let i = 0;
-	while (i < all_rows.length) {
+	while (i < allRows.length) {
 		i++;
 	}
 	const start = Math.max(0, row_index - 3);
-	const end = Math.min(all_rows.length - 1, row_index + 3);
+	const end = Math.min(allRows.length - 1, row_index + 3);
 
 	for (let i = start; i <= end; i++) {
-		indexes_to_load.push(i);
+		indexesToLoad.push(i);
 	}
 
-	const ids_to_load = indexes_to_load.map(i => all_rows[i].dataset.songId);
+	const idsToLoad = indexesToLoad.map(i => allRows[i].dataset.songId);
 
-	const ids_not_loaded = ids_to_load.filter(id => {
+	const idsNotLoaded = idsToLoad.filter(id => {
 		const r = document.getElementById(`playlist-row-${id}`);
 		if (!r) return false;
 		return r.querySelector('.loader') !== null;
 	});
 
-	if (ids_not_loaded.length === 0) return;
+	if (idsNotLoaded.length === 0) return;
 	const params = new URLSearchParams();
-	ids_not_loaded.forEach(id => params.append('ids', id));
+	idsNotLoaded.forEach(id => params.append('ids', id));
 
 	fetch(`/api/songs?${params.toString()}`)
 		.then(response => response.json())

@@ -208,37 +208,48 @@
 				<input type="range" min="0" max="100" value="0" class="player-slider" id="player-progress-bar">
 			</div>
 		</div>
-		<div id="player-extra">
-			<svg viewBox="0 0 42 28" xmlns="http://www.w3.org/2000/svg" id="volume-svg" fill="currentColor">
-				<path d="M0 17 0 11C0 9 1 9 2 9L10 9 17 1C18 0 19 0 20 1L20 27C19 28 18 28 17 27L10 19 2 19C1 19 0 19 0 17" />
-				<path d="M23 11C25 12 25 16 23 17 23 18 24 19 25 19 28 17 28 11 25 9 24 9 23 10 23 11" id="volumePath1">
-					<animate attributeName="d" values="
-						M23 11C25 12 25 16 23 17 23 18 24 19 25 19 28 17 28 11 25 9 24 9 23 10 23 11;
-						M23 11C24 12 26 13 23 14 23 16 24 17 25 18 28 16 28 12 25 10 24 8 23 9 23 11"
-						dur="0.3s" begin="indefinite" fill="freeze" id="volumeAnimate1"/>
-				</path>
-				<path d="M27 7C31 9 31 19 27 21 27 22 28 23 29 23 34 20 34 8 29 5 28 5 27 6 27 7" id="volumePath2">
-					<animate attributeName="d" values="M27 7C31 9 31 19 27 21 27 22 28 23 29 23 34 20 34 8 29 5 28 5 27 6 27 7;
-						M27 7C28 8 30 10 27 12 27 14 28 15 29 16 33 14 33 9 29 7 28 6 27 6 27 7"
-						dur="0.3s" begin="indefinite" fill="freeze"  id="volumeAnimate2"/>
-				</path>
-				<path d="M31 3C37 6 37 22 31 25 31 26 32 27 33 27 40 23 40 5 33 1 32 0 30 2 31 3" id="volumePath3">
-					<animate attributeName="d" values="
-						M31 3C37 6 37 22 31 25 31 26 32 27 33 27 40 23 40 5 33 1 32 0 30 2 31 3;
-						M31 3C32 4 34 6 31 8 31 9 32 10 33 11 37 9 37 5 33 3 32 2 31 3 31 3"
-						dur="0.3s" begin="indefinite" fill="freeze"  id="volumeAnimate3"/>
-				</path>
-			</svg>
-			<div id="volume-container">
-				<label for="player-volume-bar" class="sr-only">Volume bar</label>
-				<input type="range" min="0" max="100" value="100" class="player-slider" id="player-volume-bar">
+		<div id="player-right">
+			<div id="playlist-info">
+				<span id="player-playlist-name">Unknown</span>
+				<div>
+					<div>
+						<span id="player-playlist-current">--</span>/<span id="player-playlist-total">--</span>
+					</div>
+					<button id="player-clear-playlist" class="player-button">Clear</button>
+				</div>
 			</div>
-			<div id="playlist-btn">
-				<svg id="playlist-svg" viewBox="0 0 15 10" fill="currentColor">
-					<path d="M1 0 14 0C14 0 15 0 15 1 15 2 14 2 14 2L1 2C1 2 0 2 0 1 0 0 1 0 1 0"/>
-					<path d="M1 4 14 4C14 4 15 4 15 5 15 6 14 6 14 6L1 6C1 6 0 6 0 5 0 4 1 4 1 4"/>
-					<path d="M1 8 14 8C14 8 15 8 15 9 15 10 14 10 14 10L1 10C1 10 0 10 0 9 0 8 1 8 1 8"/>
+			<div id="player-extra">
+				<svg viewBox="0 0 42 28" xmlns="http://www.w3.org/2000/svg" id="volume-svg" fill="currentColor">
+					<path d="M0 17 0 11C0 9 1 9 2 9L10 9 17 1C18 0 19 0 20 1L20 27C19 28 18 28 17 27L10 19 2 19C1 19 0 19 0 17" />
+					<path d="M23 11C25 12 25 16 23 17 23 18 24 19 25 19 28 17 28 11 25 9 24 9 23 10 23 11" id="volumePath1">
+						<animate attributeName="d" values="
+							M23 11C25 12 25 16 23 17 23 18 24 19 25 19 28 17 28 11 25 9 24 9 23 10 23 11;
+							M23 11C24 12 26 13 23 14 23 16 24 17 25 18 28 16 28 12 25 10 24 8 23 9 23 11"
+							dur="0.3s" begin="indefinite" fill="freeze" id="volumeAnimate1"/>
+					</path>
+					<path d="M27 7C31 9 31 19 27 21 27 22 28 23 29 23 34 20 34 8 29 5 28 5 27 6 27 7" id="volumePath2">
+						<animate attributeName="d" values="M27 7C31 9 31 19 27 21 27 22 28 23 29 23 34 20 34 8 29 5 28 5 27 6 27 7;
+							M27 7C28 8 30 10 27 12 27 14 28 15 29 16 33 14 33 9 29 7 28 6 27 6 27 7"
+							dur="0.3s" begin="indefinite" fill="freeze"  id="volumeAnimate2"/>
+					</path>
+					<path d="M31 3C37 6 37 22 31 25 31 26 32 27 33 27 40 23 40 5 33 1 32 0 30 2 31 3" id="volumePath3">
+						<animate attributeName="d" values="
+							M31 3C37 6 37 22 31 25 31 26 32 27 33 27 40 23 40 5 33 1 32 0 30 2 31 3;
+							M31 3C32 4 34 6 31 8 31 9 32 10 33 11 37 9 37 5 33 3 32 2 31 3 31 3"
+							dur="0.3s" begin="indefinite" fill="freeze"  id="volumeAnimate3"/>
+					</path>
 				</svg>
+				<div id="volume-container">
+					<label for="player-volume-bar" class="sr-only">Volume bar</label>
+					<input type="range" min="0" max="100" value="100" class="player-slider" id="player-volume-bar">
+				</div>
+				<div id="playlist-btn">
+					<svg id="playlist-svg" viewBox="0 0 15 10" fill="currentColor">
+						<path d="M1 0 14 0C14 0 15 0 15 1 15 2 14 2 14 2L1 2C1 2 0 2 0 1 0 0 1 0 1 0"/>
+						<path d="M1 4 14 4C14 4 15 4 15 5 15 6 14 6 14 6L1 6C1 6 0 6 0 5 0 4 1 4 1 4"/>
+						<path d="M1 8 14 8C14 8 15 8 15 9 15 10 14 10 14 10L1 10C1 10 0 10 0 9 0 8 1 8 1 8"/>
+					</svg>
+				</div>
 			</div>
 			<div id="current-playlist-container">
 				<p>There is not any playlist playing at the moment.</p>

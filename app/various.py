@@ -52,8 +52,8 @@ def latest():
 	for addition in additions:
 		addition.duration = format_duration(db.session.query(func.sum(Songs.duration)).filter(Songs.id >= addition.first_id, Songs.id <= addition.last_id).scalar(), 0)
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-		return render_template('latest.html', additions=additions)
-	return render_template('base.html', content=render_template('latest.html', additions=additions), title="Latest Additions", currentUrl="/latest")
+		return render_template('latest.html', additions=additions, currentUrl=request.url, title="Latest Additions", description="Discover the latest game soundtracks added to OSTJourney. Stay up-to-date with newly released music from your favorite games.")
+	return render_template('base.html', content=render_template('latest.html', additions=additions), title="Latest Additions", currentUrl="/latest", description="Discover the latest game soundtracks added to OSTJourney. Stay up-to-date with newly released music from your favorite games.")
 
 @various_bp.route('/stats')
 def stats():
@@ -73,8 +73,8 @@ def stats():
 	song_count = current_app.config['SONGS_COUNT']
 	duration_count = current_app.config['SONGS_DURATION']
 	if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-		return render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users))
-	return render_template('base.html', content=render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users)), title="Statistics", currentUrl="/stats")
+		return render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users), currentUrl=request.url, title="Statistics", description="Explore the statistics of OSTJourney. Discover the number of users, total songs listened to, and the total listening duration. Stay informed about the platform's growth and engagement.")
+	return render_template('base.html', content=render_template('stats.html', user_count=user_count, listening_count=listening_count, listening_duration=listening_duration, song_count=song_count, duration_count=duration_count, active_users=len(active_users)), title="Statistics", currentUrl="/stats", description="Explore the statistics of OSTJourney. Discover the number of users, total songs listened to, and the total listening duration. Stay informed about the platform's growth and engagement.")
 
 @various_bp.route('/search', methods=['GET'])
 def search():
