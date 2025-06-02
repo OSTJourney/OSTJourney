@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+
 import re
 
 from flask import Blueprint, jsonify, request, session
@@ -9,21 +10,54 @@ from .search import SearchGetRawArgs, SearchBuildFilters, SafeInt
 
 api_bp = Blueprint('api', __name__)
 
+
+
 @api_bp.route('/api/user_activity', methods=['GET'])
 def get_user_activity():
 	if 'user' not in session:
-		return {'status': 'error', 'message': 'User not logged in'}
+		return jsonify({'status': 'error', 'message': 'User not logged in'})
 
 	user_id, error = get_user_from_token()
 	if error:
-		return error
+		return jsonify(error)
 
 	activities = UserActivity.query.filter_by(user_id=user_id).all()
+
+	if not activities:
+		current_year = date.today().year
+		year_data = {
+			current_year: {
+				'data': {},
+				'min_duration': 0,
+				'max_duration': 0,
+				'min_songs': 0,
+				'max_songs': 0
+			}
+		}
+
+		start_date = datetime(current_year, 1, 1).date()
+		end_date = datetime(current_year, 12, 31).date()
+		current_date = start_date
+
+		while current_date <= end_date:
+			date_str = current_date.strftime('%Y-%m-%d')
+			year_data[current_year]['data'][date_str] = {
+				'total_duration': 0,
+				'total_songs': 0,
+				'formatted_duration': '00:00:00'
+			}
+			current_date += timedelta(days=1)
+
+		return jsonify({
+			'status': 'success',
+			'year_data': year_data
+		})
+
 	activity_by_date = {}
 	for activity in activities:
-		date = activity.date
-		year = date.year
-		date_str = date.strftime('%Y-%m-%d')
+		activity_date = activity.date
+		year = activity_date.year
+		date_str = activity_date.strftime('%Y-%m-%d')
 		if year not in activity_by_date:
 			activity_by_date[year] = {}
 		activity_by_date[year][date_str] = {
@@ -54,13 +88,29 @@ def get_user_activity():
 					day_data['formatted_duration'] = formatted_duration
 
 					if day_data['total_duration'] > 0:
-						year_data[year]['min_duration'] = min(year_data[year]['min_duration'], day_data['total_duration'])
-						year_data[year]['max_duration'] = max(year_data[year]['max_duration'], day_data['total_duration'])
+						year_data[year]['min_duration'] = min(
+							year_data[year]['min_duration'],
+							day_data['total_duration']
+						)
+						year_data[year]['max_duration'] = max(
+							year_data[year]['max_duration'],
+							day_data['total_duration']
+						)
 					if day_data['total_songs'] > 0:
-						year_data[year]['min_songs'] = min(year_data[year]['min_songs'], day_data['total_songs'])
-						year_data[year]['max_songs'] = max(year_data[year]['max_songs'], day_data['total_songs'])
+						year_data[year]['min_songs'] = min(
+							year_data[year]['min_songs'],
+							day_data['total_songs']
+						)
+						year_data[year]['max_songs'] = max(
+							year_data[year]['max_songs'],
+							day_data['total_songs']
+						)
 				else:
-					day_data = {'total_duration': 0, 'total_songs': 0, 'formatted_duration': '00:00:00'}
+					day_data = {
+						'total_duration': 0,
+						'total_songs': 0,
+						'formatted_duration': '00:00:00'
+					}
 
 				year_data[year]['data'][current_date_str] = day_data
 
@@ -68,7 +118,8 @@ def get_user_activity():
 			if year_data[year][key] == float('inf'):
 				year_data[year][key] = 0
 
-	return {'status': 'success', 'year_data': year_data}
+	return jsonify({'status': 'success', 'year_data': year_data})
+
 
 @api_bp.route('/api/songs/<int:id>', methods=['GET'])
 def get_song(id):

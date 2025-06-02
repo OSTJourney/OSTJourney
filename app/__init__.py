@@ -33,6 +33,7 @@ def create_app():
 	app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 	binds = os.getenv('SQLALCHEMY_BINDS')
 	app.config['SQLALCHEMY_BINDS'] = json.loads(binds) if binds else {}
+	print(f"SQLALCHEMY_BINDS: {app.config['SQLALCHEMY_BINDS']}")
 
 	# Mail configuration
 	if email_enabled:
@@ -46,8 +47,12 @@ def create_app():
 	limiter.init_app(app)
 
 	with app.app_context():
+		from .models import (
+			Songs, LogAdditions, User, UserSettings,
+			UserToken, ListeningHistory, ListeningSession,
+			UserActivity, ListeningStatistics, BlacklistedIP
+		)
 		db.create_all()
-		from .models import Songs
 
 		#This values should not change once the app is started so we process them only once to reduce the load on the database
 		app.config['SONGS_COUNT'] = db.session.query(func.count(Songs.id)).scalar()

@@ -10,6 +10,28 @@ function startRpcClient() {
 	}
 	socket.onopen = function () {
 		console.log('WebSocket connection established');
+		fetch('/api/songs/' + song)
+			.then(response => response.json())
+			.then(data => {
+				if (data && settings.enable_rpc && socket) {
+					const message = {
+						title: data.title,
+						artist: data.artist,
+						album: data.album,
+						cover: `/static/images/covers/${data.cover || 'null'}.jpg`,
+						duration: data.duration,
+						song_id: song,
+						paused: audio ? audio.paused : true,
+						currentTime: audio ? audio.currentTime : 0
+					};
+					try {
+						socket.send(JSON.stringify(message));
+					} catch (error) {
+						console.error('Websocket: Error sending message', error);
+					}
+				}
+			})
+			.catch(error => console.error('Error fetching song metadata for websocket:', error));
 	};
 
 	socket.onerror = function (error) {
@@ -98,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 let audio = null;
-let song = 0;
+let song = 1;
 let playlist = [];
 let random = 0;
 let repeat = 0;
@@ -300,7 +322,7 @@ function handlePause() {
 		audio.play();
 		animatePlayButton("play");
 		if (settings.enable_rpc && socket) {
-			const message = { paused: false };
+			const message = { paused: false, currentTime: audio.currentTime };
 			try {
 				socket.send(JSON.stringify(message));}
 			catch (error) {console.log('Websocket: Error sending message');}
@@ -523,6 +545,12 @@ player.controls.progressBar.oninput = function () {
 	if (!audio) return;
 	audio.currentTime = player.controls.progressBar.value / 100;
 	player.controls.currentTime.innerHTML = formatDuration(audio.currentTime);
+	if (settings.enable_rpc && socket && !audio.paused) {
+		const message = { currentTime: audio.currentTime };
+		try {
+			socket.send(JSON.stringify(message));}
+		catch (error) {console.log('Websocket: Error sending message');}
+	}
 };
 
 player.controls.randomButton.addEventListener('click', function () {
@@ -905,7 +933,7 @@ function loadSong(songNumber) {
 				animatePlayButton(audio.paused ? "pause" : "play");
 				if (settings.enable_rpc && socket) {
 					try {
-						socket.send(JSON.stringify({ title, artist, image: cover, duration, album, link: `${window.location.origin}/?song=${songNumber}`, paused: false }));
+						socket.send(JSON.stringify({ title, artist, cover: cover, duration, album, link: `${window.location.origin}/?song=${songNumber}`, paused: false }));
 					}
 					catch (error) {console.log('Websocket: Error sending message');}
 				}

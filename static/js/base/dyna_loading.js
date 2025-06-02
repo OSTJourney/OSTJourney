@@ -64,7 +64,7 @@ function executeScripts(container) {
 					try {
 						eval(scriptContent);
 					} catch (e) {
-						console.error('Error executing script:', e);
+						console.error('Error executing script');
 					}
 				})
 				.catch(error => {
