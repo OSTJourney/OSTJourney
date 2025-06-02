@@ -890,6 +890,14 @@ function updatePlaylistMetadata(song_id) {
 		});
 }
 
+function encodePath(path) {
+	const segments = path.split('/');
+	for (let i = 0; i < segments.length; i++) {
+		segments[i] = encodeURIComponent(segments[i]);
+	}
+	return segments.join('/');
+}
+
 
 /*Load new song (prioritize the changeSong function)*/
 function loadSong(songNumber) {
@@ -903,7 +911,7 @@ function loadSong(songNumber) {
 		.then(data => {
 			const title = data.title;
 			const artist = data.artist;
-			const file = '/songs/' + encodeURI(data.path);
+			const file = '/songs/' + encodePath(data.path);
 			const cover = '/static/images/covers/' + data.cover + '.jpg';
 			const album = data.album;
 			duration = data.duration;
