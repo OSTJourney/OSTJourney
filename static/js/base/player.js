@@ -2,14 +2,18 @@
 let socket = null;
 
 function startRpcClient() {
-	socket = new WebSocket('ws://localhost:4224');
-
+	try {
+		socket = new WebSocket('ws://localhost:4224');
+	}
+	catch (error) {
+		console.error('WebSocket connection failed');
+	}
 	socket.onopen = function () {
 		console.log('WebSocket connection established');
 	};
 
 	socket.onerror = function (error) {
-		console.log('WebSocket error:', error);
+		console.log('WebSocket error');
 	};
 
 	socket.onclose = function () {
@@ -280,7 +284,17 @@ function toggleRepeat() {
 
 
 function handlePause() {
-	if (!audio) return;
+	if (!audio) {
+		changeSong(song);
+		animatePlayButton("play");
+		if (settings.enable_rpc && socket) {
+			const message = { paused: false };
+			try {
+				socket.send(JSON.stringify(message));}
+			catch (error) {console.log('Websocket: Error sending message');}
+		}
+		return;
+	}
 
 	if (audio.paused) {
 		audio.play();
@@ -289,7 +303,7 @@ function handlePause() {
 			const message = { paused: false };
 			try {
 				socket.send(JSON.stringify(message));}
-			catch (error) {console.log('Websocket: Error sending message:', error);}
+			catch (error) {console.log('Websocket: Error sending message');}
 		}
 	} else {
 		audio.pause();
@@ -298,7 +312,7 @@ function handlePause() {
 			const message = { paused: true };
 			try {
 				socket.send(JSON.stringify(message));}
-			catch (error) {console.log('Websocket: Error sending message:', error);}
+			catch (error) {console.log('Websocket: Error sending message');}
 		}
 	}
 }
@@ -893,7 +907,7 @@ function loadSong(songNumber) {
 					try {
 						socket.send(JSON.stringify({ title, artist, image: cover, duration, album, link: `${window.location.origin}/?song=${songNumber}`, paused: false }));
 					}
-					catch (error) {console.log('Websocket: Error sending message:', error);}
+					catch (error) {console.log('Websocket: Error sending message');}
 				}
 			});
 		})
