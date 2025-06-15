@@ -5,7 +5,7 @@ import re
 from flask import Blueprint, jsonify, request, session
 
 from .models import db, ListeningHistory, ListeningSession, ListeningStatistics, Songs, User, UserActivity, UserToken, UserSettings
-from .app_utils import format_duration, get_real_ip,get_user_from_token
+from .app_utils import format_duration, get_real_ip,getUserFromToken
 from .search import SearchGetRawArgs, SearchBuildFilters, SafeInt
 
 api_bp = Blueprint('api', __name__)
@@ -17,7 +17,7 @@ def get_user_activity():
 	if 'user' not in session:
 		return jsonify({'status': 'error', 'message': 'User not logged in'})
 
-	user_id, error = get_user_from_token()
+	user_id, error = getUserFromToken()
 	if error:
 		return jsonify(error)
 
@@ -162,7 +162,7 @@ def start_music():
 	if not song_id:
 		return {'status': 'error', 'message': 'Song ID is required'}
 
-	user_id, error = get_user_from_token()
+	user_id, error = getUserFromToken()
 	if error:
 		return error
 
@@ -170,31 +170,25 @@ def start_music():
 	if not song:
 		return {'status': 'error', 'message': 'Song not found'}
 
-	existing_session = ListeningSession.query.filter_by(user_id=user_id, song_id=song_id).first()
-	if existing_session:
-		db.session.delete(existing_session)
-		db.session.commit()
+	existing_sessions = ListeningSession.query.filter_by(user_id=user_id).all()
+	for session in existing_sessions:
+		db.session.delete(session)
+	db.session.commit()
 
-	active_sessions = ListeningSession.query.filter_by(user_id=user_id).all()
-	if len(active_sessions) >= 3:
-		active_sessions.sort(key=lambda s: s.start_time)
-		for session in active_sessions[:-2]:
-			db.session.delete(session)
-		db.session.commit()
-
+	start_time = datetime.now()
 	max_duration = min(song.duration * 5, 86400)
-
 	new_session = ListeningSession(
 		user_id=user_id,
 		song_id=song_id,
-		start_time=datetime.now(),
-		expiration_time=datetime.now() + timedelta(seconds=max_duration)
+		start_time=start_time,
+		expiration_time=start_time + timedelta(seconds=max_duration)
 	)
 
 	db.session.add(new_session)
 	db.session.commit()
 
-	return {'status': 'success', 'message': 'Music started and listening session recorded'}
+	return {'status': 'success', 'message': 'Listening session started'}
+
 
 @api_bp.route('/api/music/end', methods=['POST'])
 def end_music():
@@ -204,71 +198,65 @@ def end_music():
 	if not song_id:
 		return {'status': 'error', 'message': 'Song ID is required'}
 
-	user_id, error = get_user_from_token()
+	user_id, error = getUserFromToken()
 	if error:
 		return error
 
-	listening_session = ListeningSession.query.filter_by(user_id=user_id, song_id=song_id).first()
-	if not listening_session:
+	session = ListeningSession.query.filter_by(user_id=user_id, song_id=song_id).first()
+	if not session:
 		return {'status': 'error', 'message': 'Listening session not found'}
 
-	song = db.session.query(Songs).get(song_id)
+	song = db.session.get(Songs, song_id)
 	if not song:
 		return {'status': 'error', 'message': 'Song not found'}
 
-	if listening_session.expiration_time and datetime.now() > listening_session.expiration_time:
-		db.session.delete(listening_session)
+	now = datetime.now()
+	if session.expiration_time and now > session.expiration_time:
+		db.session.delete(session)
 		db.session.commit()
 		return {'status': 'error', 'message': 'Listening session has expired'}
 
-	if datetime.now() < listening_session.start_time + timedelta(seconds=song.duration - 3):
-		db.session.delete(listening_session)
+	if now < session.start_time + timedelta(seconds=song.duration - 3):
+		db.session.delete(session)
 		db.session.commit()
 		return {'status': 'error', 'message': 'Listening session is too short'}
 
 	duration_seconds = song.duration
-
-	listening_history = ListeningHistory(
+	history = ListeningHistory(
 		user_id=user_id,
 		song_id=song_id,
-		listen_time=listening_session.start_time,
+		listen_time=session.start_time,
 		duration_seconds=duration_seconds
 	)
+	db.session.add(history)
 
-	db.session.add(listening_history)
-
-	user = db.session.query(User).get(user_id)
+	user = db.session.get(User, user_id)
 	user.total_songs += 1
 	user.total_duration += duration_seconds
 
-	current_date = datetime.now().date()
+	current_date = now.date()
 	activity = UserActivity.query.filter_by(user_id=user_id, date=current_date).first()
-
 	if not activity:
 		activity = UserActivity(user_id=user_id, date=current_date)
 		db.session.add(activity)
-
 	activity.total_duration = (activity.total_duration or 0) + duration_seconds
 	activity.total_songs = (activity.total_songs or 0) + 1
 
-	start_hour = listening_session.start_time.hour
-	listening_stat = ListeningStatistics.query.filter_by(user_id=user_id, hour=start_hour).first()
+	hour = session.start_time.hour
+	stat = ListeningStatistics.query.filter_by(user_id=user_id, hour=hour).first()
+	if not stat:
+		stat = ListeningStatistics(user_id=user_id, hour=hour, listen_count=0)
+		db.session.add(stat)
+	stat.listen_count += 1
 
-	if not listening_stat:
-		listening_stat = ListeningStatistics(user_id=user_id, hour=start_hour, listen_count=0)
-		db.session.add(listening_stat)
-
-	listening_stat.listen_count += 1
-
-	db.session.delete(listening_session)
+	db.session.delete(session)
 	db.session.commit()
 
 	return {'status': 'success', 'message': 'Listening session ended and data updated'}
 
-
 @api_bp.route('/api/latest', methods=['GET'])
 def get_latest():
-	user_id, error = get_user_from_token()
+	user_id, error = getUserFromToken()
 	if error:
 		return error
 	latest_session = ListeningSession.query.filter_by(user_id=user_id).order_by(ListeningSession.start_time.desc()).first()
@@ -372,7 +360,7 @@ def search():
 
 @api_bp.route('/api/settings', methods=['GET'])
 def get_settings():
-	user_id, error = get_user_from_token()
+	user_id, error = getUserFromToken()
 	if error:
 		return error
 

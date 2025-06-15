@@ -395,12 +395,12 @@ function nextPlaylistSong(song_id) {
 }
 
 
-function next_song() {
+function nextSong() {
 	const nextId = getRelativeSongId(+1);
 	changeSong(nextId);
 }
 
-function previous_song() {
+function previousSong() {
 	const prevId = getRelativeSongId(-1);
 	changeSong(prevId);
 }
@@ -479,8 +479,8 @@ function update_mediaSessionAPI(title, artist, album, cover) {
 	const actions = {
 		play: handlePause,
 		pause: handlePause,
-		nexttrack: next_song,
-		previoustrack: previous_song,
+		nexttrack: nextSong,
+		previoustrack: previousSong,
 		seekbackward: toggleRandom,
 		seekforward: toggleRepeat
 	};
@@ -562,11 +562,11 @@ player.controls.repeatButton.addEventListener('click', function () {
 });
 
 player.controls.nextButton.addEventListener('click', function () {
-	next_song();
+	nextSong();
 });
 
 player.controls.prevButton.addEventListener('click', function () {
-	previous_song();
+	previousSong();
 });
 
 player.controls.playButton.addEventListener('click', function () {
@@ -823,7 +823,6 @@ function handleScrollEnd() {
 
 		const songId = closestRow.dataset.songId;
 		if (songId) {
-			console.log('Centered on song ID:', songId);
 			updatePlaylistMetadata(songId);
 		}
 	}
@@ -948,6 +947,10 @@ function loadSong(songNumber) {
 			});
 		})
 		.catch(error => {
+			if (error.message.includes('HTTP error! status: 404')) {
+				nextSong();
+				console.error(`Song with ID ${songNumber} not found.`);
+			}
 			console.error('Error while getting audio metadata', error);
 		});
 }

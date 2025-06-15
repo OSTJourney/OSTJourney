@@ -20,7 +20,7 @@ def verify_reset_token(token, expiration=3600):
 	except Exception:
 		return None
 	
-def get_user_from_token():
+def getUserFromToken():
 	token = request.cookies.get('session_token')
 	if not token:
 		return None, {'status': 'error', 'message': 'User not logged in'}
