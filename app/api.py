@@ -124,16 +124,23 @@ def get_user_activity():
 @api_bp.route('/api/songs/<int:id>', methods=['GET'])
 def get_song(id):
 	song = Songs.query.get_or_404(id)
-	return {
+
+	isMin = request.args.get('min', '').lower()
+
+	response = {
 		'id': song.id,
 		'title': song.title,
 		'artist': song.artist,
 		'album': song.album,
 		'cover': song.cover,
-		'duration': song.duration,
-		'path': song.path,
-		'tags': song.tags
+		'path': song.path
 	}
+
+	if isMin != 'true':
+		response['duration'] = song.duration
+		response['tags'] = song.tags
+
+	return response
 
 @api_bp.route('/api/songs', methods=['GET'])
 def get_songs():
