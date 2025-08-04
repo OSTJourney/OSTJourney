@@ -3,14 +3,14 @@ from datetime import date, datetime, timedelta
 import re
 
 from flask import Blueprint, jsonify, request, session
+from werkzeug.security import check_password_hash
 
 from .models import db, ListeningHistory, ListeningSession, ListeningStatistics, Songs, User, UserActivity, UserToken, UserSettings
 from .app_utils import format_duration, get_real_ip,getUserFromToken
 from .search import SearchGetRawArgs, SearchBuildFilters, SafeInt
+from .config import serializer
 
 api_bp = Blueprint('api', __name__)
-
-
 
 @api_bp.route('/api/user_activity', methods=['GET'])
 def get_user_activity():
@@ -383,3 +383,27 @@ def get_settings():
 			'theme_overrides': settings.color_overrides
 		}
 	}
+
+@api_bp.route('/api/login', methods=['POST'])
+def api_login():
+	if not request.is_json:
+		return jsonify({"error": "Expected JSON payload"}), 400
+
+	data = request.get_json()
+	email = data.get('email', '').strip()
+	password = data.get('password', '')
+
+	if not email or not password:
+		return jsonify({"error": "Missing email or password"}), 400
+
+	user = User.query.filter_by(email=email).first()
+	if not user or not check_password_hash(user.password, password):
+		return jsonify({"error": "Invalid credentials"}), 401
+
+	token = serializer.dumps({'user_id': user.id})
+	return jsonify({
+		"token": token,
+		"username": user.username,
+		"userId": user.id,
+		"email": user.email
+	}), 200
